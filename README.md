@@ -20,3 +20,32 @@ We also manually clean and annotate a subset of the dataset. This subset can be 
 7. develop a classifier that can be used to determine lucid from non-lucid dreams and apply to the rest of the dataset (with probabilities saved out on final dataset)
 
 
+## Linear code layout
+
+See `config.py` for directory info and other configuration stuff.
+
+Run `init_data_directory_structure.py` before anything else, after manually setting the `DATA_DIR` in `config.py` to match your desired data output location.
+
+### Collect and clean data
+```bash
+# collect raw dream journal posts as html files
+# (note we also get raw user html files, but we need to clean the
+#  raw posts first because we grab only the users who contribute posts)
+python collect-posts.py     # ==> DATA_DIR/source/dreamviews-posts.zip
+```
+
+Need to jump out and insert the timestamp of day data was collected in the `config.py` file. This is mildly annoying, but the most recent blog/journal posts are stamped as coming from "today" or "yesterday", so those need a reference. Should be a `YYYY-MM-DD` string.
+
+```bash
+# convert raw dream journal posts to minimally-cleaned text files
+python clean-posts.py       # ==> DATA_DIR/derivatives/posts/<post_id>.txt
+                            # ==> DATA_DIR/derivatives/posts-attributes.tsv
+                            # ==> DATA_DIR/derivatives/users-raw2anon_key.json
+
+# now, with the usernames generated, we can collect relevant user profiles
+python collect-users.py     # ==> DATA_DIR/source/dreamviews-users.zip
+
+# convert raw user profiles into a single user file
+python clean-users.py       # ==> DATA_DIR/users-attributes.csv
+                            # ==> DATA_DIR/users-attributes_full.csv
+```
