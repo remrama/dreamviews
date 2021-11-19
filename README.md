@@ -36,7 +36,7 @@ Run `init_data_directory_structure.py` before anything else, after manually sett
 python collect-posts.py     # ==> DATA_DIR/source/dreamviews-posts.zip
 ```
 
-Need to jump out and insert the timestamp of day data was collected in the `config.py` file. This is mildly annoying, but the most recent blog/journal posts are stamped as coming from "today" or "yesterday", so those need a reference. Should be a `YYYY-MM-DD` string.
+Need to jump out and insert the timestamp of day data was collected in the `config.py` file. This is mildly annoying, but the most recent blog/journal posts are stamped as coming from "today" or "yesterday", so those need a reference. Should be a `YYYY-MM-DD` string. This is also used in both the conversion scripts, including users, so make sure they are collected on the same day.
 
 ```bash
 # convert raw dream journal posts to minimally-cleaned text files
@@ -46,13 +46,14 @@ python convert-posts.py     # ==> DATA_DIR/derivatives/posts-raw.tsv
 # now, with the usernames generated, we can collect relevant user profiles
 python collect-users.py     # ==> DATA_DIR/source/dreamviews-users.zip
 
-# convert the users too, and clean them as well
-python convert-users.py     # ==> DATA_DIR/derivatives/users-raw.csv
-python clean-users.py       # ==> DATA_DIR/derivatives/users-clean.csv
-
 # clean the dream journal posts, exporting a tsv and also a folder of text files
 python clean-posts.py       # ==> DATA_DIR/derivatives/posts-clean.tsv
 python tsv2txt-posts.py     # ==> DATA_DIR/derivatives/posts/<post_id>.txt
+
+# convert and clean the users
+python convert-users.py     # ==> DATA_DIR/derivatives/users-raw.csv
+python clean-users.py       # ==> DATA_DIR/derivatives/users-clean.csv
+
 ```
 
 
@@ -71,20 +72,23 @@ python describe-labeloverlap2.py    # ==> DATA_DIR/results/describe-labeloverlap
                                     # ==> DATA_DIR/results/describe-labeloverlap2.tsv
 
 # reported gender and age
-python describe-demographics1.py    # ==> DATA_DIR/results/describe-demographics1.png/eps
-                                    # ==> DATA_DIR/results/describe-demographics1.tsv
+python describe-demographics.py     # ==> DATA_DIR/results/describe-demographics.png/eps
 
 # reported location/country
-python describe-demographics2.py    # ==> DATA_DIR/results/describe-demographics2.png/eps
-                                    # ==> DATA_DIR/results/describe-demographics2.tsv
-
-# post length before and after preprocessing (for word and token counts)
-
+python describe-locations.py    # ==> DATA_DIR/results/describe-locations.png
+                                # ==> DATA_DIR/results/describe-locations.tsv
 
 # number of dreams per user
+python describe-userfreq.py    # ==> DATA_DIR/results/describe-userfreq.png
 
+# post length (word counts)
+python describe-wordcount.py    # ==> DATA_DIR/results/describe-wordcount.png
+```
+
+### Validate/explore the lucid dreams with some non-lucid comparisons
+
+```bash
 # top categories and labels
-
 # word clouds of lucid/non-lucid/nightmares
-
+# wordshifts
 ```

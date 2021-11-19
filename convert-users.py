@@ -13,6 +13,7 @@ import os
 import json
 import tqdm
 import zipfile
+import datetime
 
 import pandas as pd
 
@@ -100,15 +101,26 @@ with zipfile.ZipFile(import_fname_html, mode="r") as zf:
 
 
 # aggregate into dataframe
-df = pd.DataFrame.from_dict(user_attribute_data, orient="index"
-    ).rename(columns={"country_flag":"country"})
+df = pd.DataFrame.from_dict(user_attribute_data, orient="index")
 
 # convert timestamps to iso format for consistency with other files
+
+dayonly_format   = c.BLOG_TIMESTAMP_FORMAT.split(" at ")[0]
+today            = datetime.datetime.strptime(c.DATA_COLLECTION_DATE, "%Y-%m-%d").date()
+yesterday        = today - datetime.timedelta(days=1)
+today_string     = today.strftime(dayonly_format)
+yesterday_string = yesterday.strftime(dayonly_format)
+
+for col in ["join_date", "last_activity", "most_recent_message"]:
+    df[col] = df[col].str.replace("Today", today_string
+                    ).str.replace("Yesterday", yesterday_string)
+
 df["join_date"] = pd.to_datetime(df["join_date"], format="%m-%d-%Y").dt.strftime("%Y-%m-%d")
 df["last_activity"] = pd.to_datetime(df["last_activity"], format="%m-%d-%Y %H:%M %p"
     ).dt.strftime("%Y-%m-%dT%H:%M")
 df["most_recent_message"] = pd.to_datetime(df["most_recent_message"], format="%m-%d-%Y %H:%M %p"
     ).dt.strftime("%Y-%m-%dT%H:%M")
+
 
 df.sort_values(["join_date", "last_activity"], inplace=True)
 

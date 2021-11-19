@@ -114,7 +114,10 @@ df = df[ df["n_tokens"].between(c.MIN_TOKEN_COUNT, c.MAX_TOKEN_COUNT, inclusive=
 # add a character count column too, even though not using it for restrictions
 df["n_chars"] = df.post_txt.str.len()
 
-
+# restrict based on the number of dream reports
+df = df.sort_values(["user_id", "timestamp"]) # should be redundant but it's critical
+df["post_number"] = df.groupby("user_id")["timestamp"].transform(lambda s: range(1, 1+len(s)))
+df = df[ df["post_number"] <= c.MAX_POST_COUNT ]
 
 ########################################
 #### break up tags and categories

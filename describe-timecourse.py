@@ -21,7 +21,6 @@ plt.rcParams["font.sans-serif"] = "Arial"
 
 import_fname = os.path.join(c.DATA_DIR, "derivatives", "posts-clean.tsv")
 export_fname = os.path.join(c.DATA_DIR, "results", "data-timecourse.png")
-ALTERNATE_IMAGE_EXTENSION = ".eps" # also saves this out
 
 df = pd.read_csv(import_fname, sep="\t", parse_dates=["timestamp"])
 
@@ -45,8 +44,8 @@ LUCIDITY_ORDER = ["unspecified", "ambiguous", "non-lucid", "lucid"]
 USER_ORDER = ["repeat-user", "novel-user"]
 
 LEGEND_LABELS = {
-    "unspecified" : "unspecified (both)",
-    "ambiguous"   : "ambiguous",
+    "unspecified" : "unspecified",
+    "ambiguous"   : "ambiguous (both)",
     "non-lucid"   : "non-lucid",
     "lucid"       : "lucid",
     "novel-user"  : "novel",
@@ -215,5 +214,5 @@ ax2b.yaxis.set(major_locator=plt.MultipleLocator(major_tick_loc_right),
 
 
 plt.savefig(export_fname)
-plt.savefig(export_fname.replace(".png", ALTERNATE_IMAGE_EXTENSION))
+plt.savefig(export_fname.replace(".png", c.HIRES_IMAGE_EXTENSION))
 plt.close()

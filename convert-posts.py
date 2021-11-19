@@ -52,7 +52,6 @@ from bs4 import BeautifulSoup
 import config as c
 
 
-BLOG_TIMESTAMP_FORMAT = "%m-%d-%Y at %I:%M %p"
 
 # set up randomizer stuff
 rd = random.Random()
@@ -77,7 +76,7 @@ export_fname_userkey = os.path.join(c.DATA_DIR, "derivatives", "users-anon_key.j
 # Entries use "Today" and "Yesterday" strings for time sometime so
 # need to convert those to actual dates for saving dates of blog posts.
 # In practice, this means getting actual date of today and yesterday for modifying blogdates later.
-dayonly_format   = BLOG_TIMESTAMP_FORMAT.split(" at ")[0]
+dayonly_format   = c.BLOG_TIMESTAMP_FORMAT.split(" at ")[0]
 today            = datetime.datetime.strptime(c.DATA_COLLECTION_DATE, "%Y-%m-%d").date()
 yesterday        = today - datetime.timedelta(days=1)
 today_string     = today.strftime(dayonly_format)
