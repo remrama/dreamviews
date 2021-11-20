@@ -33,27 +33,26 @@ Run `init_data_directory_structure.py` before anything else, after manually sett
 # collect raw dream journal posts as html files
 # (note we also get raw user html files, but we need to convert the
 #  raw posts first because we grab only the users who contribute posts)
-python collect-posts.py     # ==> DATA_DIR/source/dreamviews-posts.zip
+python collect-posts.py             # ==> DATA_DIR/source/dreamviews-posts.zip
 ```
 
 Need to jump out and insert the timestamp of day data was collected in the `config.py` file. This is mildly annoying, but the most recent blog/journal posts are stamped as coming from "today" or "yesterday", so those need a reference. Should be a `YYYY-MM-DD` string. This is also used in both the conversion scripts, including users, so make sure they are collected on the same day.
 
 ```bash
 # convert raw dream journal posts to minimally-cleaned text files
-python convert-posts.py     # ==> DATA_DIR/derivatives/posts-raw.tsv
-                            # ==> DATA_DIR/derivatives/users-anon_key.json
+python convert-posts.py             # ==> DATA_DIR/derivatives/posts-raw.tsv
+                                    # ==> DATA_DIR/derivatives/users-anon_key.json
 
 # now, with the usernames generated, we can collect relevant user profiles
-python collect-users.py     # ==> DATA_DIR/source/dreamviews-users.zip
+python collect-users.py             # ==> DATA_DIR/source/dreamviews-users.zip
 
 # clean the dream journal posts, exporting a tsv and also a folder of text files
-python clean-posts.py       # ==> DATA_DIR/derivatives/posts-clean.tsv
-python tsv2txt-posts.py     # ==> DATA_DIR/derivatives/posts/<post_id>.txt
+python clean-posts.py               # ==> DATA_DIR/derivatives/posts-clean.tsv
+python tsv2txt-posts.py             # ==> DATA_DIR/derivatives/posts/<post_id>.txt
 
 # convert and clean the users
-python convert-users.py     # ==> DATA_DIR/derivatives/users-raw.csv
-python clean-users.py       # ==> DATA_DIR/derivatives/users-clean.csv
-
+python convert-users.py             # ==> DATA_DIR/derivatives/users-raw.csv
+python clean-users.py               # ==> DATA_DIR/derivatives/users-clean.csv
 ```
 
 
@@ -75,20 +74,28 @@ python describe-labeloverlap2.py    # ==> DATA_DIR/results/describe-labeloverlap
 python describe-demographics.py     # ==> DATA_DIR/results/describe-demographics.png/eps
 
 # reported location/country
-python describe-locations.py    # ==> DATA_DIR/results/describe-locations.png
-                                # ==> DATA_DIR/results/describe-locations.tsv
+python describe-locations.py        # ==> DATA_DIR/results/describe-locations.png
+                                    # ==> DATA_DIR/results/describe-locations.tsv
 
-# number of dreams per user
-python describe-userfreq.py    # ==> DATA_DIR/results/describe-userfreq.png
+# number of posts per user
+python describe-userfreq.py         # ==> DATA_DIR/results/describe-userfreq.png/eps
 
 # post length (word counts)
-python describe-wordcount.py    # ==> DATA_DIR/results/describe-wordcount.png
+python describe-wordcount.py        # ==> DATA_DIR/results/describe-wordcount.png/eps
 ```
 
 ### Validate/explore the lucid dreams with some non-lucid comparisons
 
 ```bash
+# words that differentiate lucid and non-lucid
+python analysis-wordshift_perms.py  # ==> DATA_DIR/results/validate-wordshift_perms.tsv
+python analysis-wordshift_plot.py   # ==> DATA_DIR/results/validate-wordshift_plot.png/eps
+                                    # ==> DATA_DIR/results/validate-wordshift_stats.tsv
+
+
 # top categories and labels
 # word clouds of lucid/non-lucid/nightmares
 # wordshifts
+# LIWC subset -- consider showing word contribution plots
+# word count comparison
 ```

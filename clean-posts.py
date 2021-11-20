@@ -1,31 +1,47 @@
 """
 clean raw posts
 
-lots of magic happening here
-Takes a long time (10 mins) just bc of language detection.
-which only gets rid of around 200 posts, but still worth it imo
+lots going on here
+
+Takes a long time bc of
+language detection (~10 mins)
+and lemmatization (~20 mins).
 
 1. clean text
-2. remove some rows
-3. extract tags/categories of each post
-4. drop some columns
+2. lemmatize text
+3. remove some rows
+4. extract tags/categories of each post
+5. drop some columns
+
+Yes, it would save a lot of time to remove
+rows first, before cleaning and lemmatizing.
+But some of the row removal is dependent on
+those steps, and I'd rather have it all in one place.
 """
 import os
 import re
 import ast
 import tqdm
 import calendar
+import pandas as pd
 
 import contractions
 from unidecode import unidecode
 import langdetect
 
-import numpy as np
-import pandas as pd
+import nltk
 
 import config as c
 
 tqdm.tqdm.pandas()
+
+
+# make sure relevant nltk tools are present and downloaded
+for x in ["corpora/wordnet", "corpora/stopwords", "taggers/averaged_perceptron_tagger"]:
+    try:
+        nltk.data.find(x)
+    except LookupError:
+        nltk.download(x)
 
 
 import_fname = os.path.join(c.DATA_DIR, "derivatives", "posts-raw.tsv")
@@ -37,6 +53,8 @@ df = pd.read_csv(import_fname, index_col="post_id",
     parse_dates=["timestamp"])
 
 
+
+###################################################
 ################# clean text
 
 # get rid of ampersands/slang/contractions/extraaaa letters
@@ -85,11 +103,61 @@ df["post_txt"] = df.post_txt.str.replace(updated_regex, "", regex=True)
 # dream_txt = dream_txt.strip()
 
 
+###################################################
+###############  lemmatization
+
+# some setup
+lemmatizer = nltk.stem.WordNetLemmatizer()
+stops = nltk.corpus.stopwords.words("english")
+def tag_nltk2wordnet(nltk_tag):
+    if nltk_tag.startswith("J"):   return nltk.corpus.wordnet.ADJ
+    elif nltk_tag.startswith("V"): return nltk.corpus.wordnet.VERB
+    elif nltk_tag.startswith("N"): return nltk.corpus.wordnet.NOUN
+    elif nltk_tag.startswith("R"): return nltk.corpus.wordnet.ADV
+    else:                          return None
+
+# this catches only words and hyphenated words
+PATTERN = r"^[a-zA-Z]+\-?[a-zA-Z]*$"
+
+def lemmatize_plus(doc):
+    """does slightly more than lemmatize,
+    just a few more restrictions
+    ## 1. tokenize
+    ## 2. get POS tags
+    ## 3. remove unwanted POS (proper nouns)
+    ## 4. lemmatization and lowercasing
+    ## 5. remove stopwords and super short words
+
+    # dates with a dash get labeled as nouns
+    # ('09-02-2013', 'NN'), those with / and : are fine
+    # so remove those by making sure all characters are alpha
+    """
+    # tokens_and_tags = nltk.tokenize.sent_tokenize(doc)
+    tokens_and_tags = nltk.tag.pos_tag(nltk.tokenize.word_tokenize(doc))
+
+    lemmas = []
+    for token, nltk_tag in tokens_and_tags:
+
+        wordnet_tag = tag_nltk2wordnet(nltk_tag)
+        
+        # keep words and hyphenated words
+        if wordnet_tag and nltk_tag!="NNP" and re.match(PATTERN, token):
+            # lemmatize and lowercase it
+            # (returns the same string if no lemma)
+            lemma = lemmatizer.lemmatize(token, wordnet_tag).lower()
+            # check for stopwords
+            if lemma not in stops and len(lemma)>=c.MIN_LEMMA_CHARS:
+                lemmas.append(lemma)
+    return " ".join(lemmas) if lemmas else pd.NA
+
+
+df["post_lemmas"] = df["post_txt"].progress_apply(lemmatize_plus)
+
+df["n_lemmas"] = df["post_lemmas"].str.split().str.len()
+
 
 ########################################
 #####   remove some rows
-# ya would save time to do this before cleaning text,
-# but like it all here shut up
 
 # drop reports from before the site was up (??)
 df = df[ df["timestamp"] >= "2010-01-01" ]
@@ -111,8 +179,11 @@ df = df[ language.eq("en") ]
 df["n_tokens"] = df["post_txt"].str.split().str.len()
 df = df[ df["n_tokens"].between(c.MIN_TOKEN_COUNT, c.MAX_TOKEN_COUNT, inclusive="both") ]
 
-# add a character count column too, even though not using it for restrictions
-df["n_chars"] = df.post_txt.str.len()
+# drop with too few lemmas
+df = df[ df["n_lemmas"] >= c.MIN_LEMMA_COUNT ]
+
+# # add a character count column too, even though not using it for restrictions
+# df["n_chars"] = df.post_txt.str.len()
 
 # restrict based on the number of dream reports
 df = df.sort_values(["user_id", "timestamp"]) # should be redundant but it's critical
@@ -152,7 +223,7 @@ KEEP_COLUMNS = [ # post_id is the index
     "lucidity",
     "nightmare",
     "n_tokens",
-    "n_chars",
+    "post_lemmas",
     "post_txt",
 ]
 
