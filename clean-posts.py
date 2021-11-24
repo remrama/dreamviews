@@ -76,29 +76,119 @@ df["post_txt"] = df.post_txt.str.replace(r"https?://\S+", "[url]", flags=re.IGNO
 
 # get rid of this thing that occurs on 20% of posts
 # indicating it was updated at some point
-updated_regex = r" Updated [0-9]{2}-[0-9]{2}-[0-9]{4} at [0-9]{2}:[0-9]{2} [AP]M by [0-9]{5}"
-df["post_txt"] = df.post_txt.str.replace(updated_regex, "", regex=True)
+UPDATED_PATTERN = r" Updated [0-9]{2}-[0-9]{2}-[0-9]{4} at [0-9]{2}:[0-9]{2} [AP]M by [0-9]{5}"
+df["post_txt"] = df.post_txt.str.replace(UPDATED_PATTERN, "", regex=True)
 
 
+# ################# regex section
+# ## I do some simpler regex stuff above,
+# ## but here is the more questionable parts.
+# ## Also yes it could be more efficient by searching
+# ## for things at once, but I like it this way as
+# ## it makes commenting/describing easiert and
+# ## I'm not worried about efficiency.
+# ##
+# ## From manual inspection of posts, there are some
+# ## very common patterns, mostly at the beginning of
+# ## posts, that should be taken out. Some of these are
+# ## a bit risky, but I think worth it. Most of them
+# ## are only present at an <1% rate, up to 5%.
+# ## Moreover, these are likely to impact results
+# ## that properly account for repeated measurements
+# ## within users, since they are specific to users.
+# ##
+# ## examples of shit
+# ## (Non-lucid) NON-DREAM DREAM LUCID Spoiler for 18+:
+# ## 7:20
+# ## I took 100 Mg b6 and 10 Mg taurine prebed and fell asleep around 10pm At 12:13am
+# ## Lucid Dream 197: Yoshi's House of Horrors Series: Mind of a Gamer, Episode 1 around 2:00pm
+# ## Date:14th of june. Total sleep: 9 hours. Daytime Techniques: RC's, mantras. Lucid Techniques: Stabilizisation, ''increase vividness'' mantra. Recall Techniques: DJ, mantras, tags. Fell Asleep: 00.45 Dream Title: Satan teacher/shounen fight. Dream: Satan teacher;
+# ## (Non-lucid) NON-DREAM DREAM LUCID
+# ## Non-lucid Lucid I did as i always do, i DILD'ed.
+# ## WBTB 8:10 - 8:30 am, GM4mg+Choline300mgs 8:27am WILD
+# ## June 25-26, 2010.
+# ## Supplements Taken: Lucidimine after 6 hours of sleep 1.
+# ## Non-Dream Dream I recalled fragments from 4 dreams today (Ugh! - wish I would start remembering details of one dream instead of fragments of 4!). Dream 1:
+# ## Aug 16 61/An old
+# ## dream 1 -
+# ## March, 27, 2012 1:15 am - , March , 27, 2012 10:40 am
 
-#### clean the dream report
-### nvrmind not doing this stuff, it's not a huge problem don't mess with it
-# REPLACEMENT_LIST = [
-#     #r"\[(/?INDENT|/?RIGHT|/?CENTER|/?B)\]"
-#     # these are the ones the don't have an = ever
+# # make a list of patterns that will be search simultaneously
+# PATTERN_LIST = [
+#     r"had",
+#     r"(long|I)",
+# ]
+
+# regex = re.compile("|".join(PATTERN_LIST))
+# # regex = re.compile("|".join(map(re.escape, PATTERN_LIST)))
+
+# ## first and probably most controversial, I'm gonna try
+# ## and take out multiple dreams. This is really weird.
+# # It's most commonly denoted with "Dream 2", ~4%, and <1% with "dream 2")
+# # r"(D|d)ream 2.*"
+# # r"Dream #?2.*"
+# # r"Dream Two.*"
+# # r"\s2\s.*" # also wipes out anything with the # 2 in it
+# # r"\s2\W\s.*"
+
+# # **note when iterating these, the string changes each time
+# # these could ignore case
+# REGEX_PATTERN_LIST = [
+    
+#     ### first get rid of lots of html stuff that doesn't get caught earlier
+#     # r"\[(/?INDENT|/?RIGHT|/?CENTER|/?B)\]",
+#     # these ones never have an = preceding them
 #     r"\[/?(INDENT|RIGHT|CENTER|B|I|U|HR|IMG|LINK_TO_ANCHOR|SARCASM|DREAM LOGIC)\]",
 #     # these need some leway as to what comes after because sometimes there's stuff there
-#     r"\[/?COLOR.*\]",
-#     r"\[/?SIZE.*\]",
-#     r"\[/?FONT.*\]",
-#     r"\[/?QUOTE.*\]",
-#     r"\[/?SPOILER.*\]",
-#     r"\[/?URL.*\]",
+#     r"\[/?COLOR.*?\]",
+#     r"\[/?SIZE.*?\]",
+#     r"\[/?FONT.*?\]",
+#     r"\[/?QUOTE.*?\]",
+#     r"\[/?SPOILER.*?\]",
+#     r"\[/?URL.*?\]",
 #     r"\[ATTACH=CONFIG\][0-9]*\[/ATTACH\]" # this is always JUST a number between so take it all out
-# ]
-# for compiler in REPLACEMENT_LIST:
-#     dream_txt = re.sub(compiler, "", dream_txt, re.IGNORECASE)
 
+#     # date stuff
+#     # days of week (~5%)
+#     r"\b(" + r"|".join(calendar.day_name) + r")\b",
+#     r"[0-9]{1,2}(th|nd|rd|st)",
+#     # finds 07.11.2010 or 8/11/18 or 8-11-2001
+#     r"[0-9]{1,4}(-|/|\.)[0-9]{1,4}(-|/|\.)[0-9]{1,4}",
+#     r"({months}),? [0-9]{{1,2}}(th|nd|rd|st)?, [0-9]{{4}}\.?".format(
+#         months="|".join(calendar.month_name[1:]+calendar.month_abbr[1:])),
+#     r"\b(" + r"|".join(calendar.month_name[1:]+calendar.month_abbr[1:]) + r")\b",
+#     # times likes 3:32 AM or 12:12 or 6:30am or 10pm (~70%, but again not after the "Updated" replacement)
+#     r"[0-9]{1,2}(:[0-9]{2})?\s?((A|P)M)?",
+
+#     # many users have standard ways of starting their reports
+#     # that include predictable phrases. Take them out here.
+#     # important here that we're using \A to say only look at the start of the string
+#     # ALSO pay attention to what is being removed BEFORE this,
+#     # because it changes what starts the string
+#     r"\ACommentary",
+#     r"\ANon(\s|-)dream dream lucid",
+#     r"\ANon(\s|-)lucid lucid",
+#     r"\Anon-dream dream semi-lucid lucid false awakening",
+#     r"\Anon-dream non-lucid lucid",
+#     r"\AAwake\|Dreaming\|Lucid",
+#     r"\AOriginally Posted (by)?",
+#     r"\AOld LD from",
+#     r"\AJournal Entry",
+#     r"\AMorning of",
+#     r"\ANight of",
+#     r"\AEarly evening  of",
+#     # r"\A\W*", # any nonword/number characters at the start
+#     # r"\ALast night",
+# ]
+
+# # #CASE sensitive ones from one user
+# # r"NON-DREAM"
+# # r"DREAM"
+# # r"LUCID"
+# # r"NOTES"
+
+
+df["report_clean"], df["regex_catches"] = zip(*df["post_txt"].progress_apply(replacements))
 
 # dream_txt = dream_txt.strip()
 
