@@ -19,6 +19,7 @@ plt.rcParams["savefig.dpi"] = 600
 plt.rcParams["interactive"] = True
 plt.rcParams["font.family"] = "sans-serif"
 plt.rcParams["font.sans-serif"] = "Arial"
+plt.rcParams["mathtext.fontset"] = "custom"
 plt.rcParams["mathtext.rm"] = "Arial"
 plt.rcParams["mathtext.it"] = "Arial:italic"
 plt.rcParams["mathtext.bf"] = "Arial:bold"

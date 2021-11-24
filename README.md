@@ -92,9 +92,10 @@ python analysis-wordshift_perms.py  # ==> DATA_DIR/results/validate-wordshift_pe
 python analysis-wordshift_plot.py   # ==> DATA_DIR/results/validate-wordshift_plot.png/eps
                                     # ==> DATA_DIR/results/validate-wordshift_stats.tsv
 
+# draw wordclouds, never to be looked at
+python analysis-wordcloud.py  # ==> DATA_DIR/results/validate-wordcloud.png/eps
 
 # top categories and labels
-# word clouds of lucid/non-lucid/nightmares
 # wordshifts
 # LIWC subset -- consider showing word contribution plots
 # word count comparison

@@ -98,7 +98,7 @@ ax.axvline(0, linewidth=1, color="black")
 
 xlabel = "change in frequency\n" + r"non-lucid$\leftarrow$$\rightarrow$lucid       "
 ax.set_xlabel(xlabel)
-ax.set_ylabel("word rank")
+ax.set_ylabel("lemma rank")
 ax.set_xlim(-.05, .05)
 ax.set_ylim(N_WORDS+1, 0)
 
