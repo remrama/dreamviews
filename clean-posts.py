@@ -188,7 +188,7 @@ df["post_txt"] = df.post_txt.str.replace(UPDATED_PATTERN, "", regex=True)
 # # r"NOTES"
 
 
-df["report_clean"], df["regex_catches"] = zip(*df["post_txt"].progress_apply(replacements))
+# df["report_clean"], df["regex_catches"] = zip(*df["post_txt"].progress_apply(replacements))
 
 # dream_txt = dream_txt.strip()
 

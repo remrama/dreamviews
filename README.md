@@ -63,12 +63,12 @@ python clean-users.py               # ==> DATA_DIR/derivatives/users-clean.csv
 python describe-timecourse.py       # ==> DATA_DIR/results/describe-timecourse.png/eps
 
 # lucid/non-lucid/nightmare overlap
-python describe-labeloverlap1.py    # ==> DATA_DIR/results/describe-labeloverlap1.png/eps
-                                    # ==> DATA_DIR/results/describe-labeloverlap1.tsv
+python describe-category_venn.py    # ==> DATA_DIR/results/describe-category_venn.png/eps
+                                    # ==> DATA_DIR/results/describe-category_venn.tsv
 
 # number of participants with both lucid and non-lucid posts
-python describe-labeloverlap2.py    # ==> DATA_DIR/results/describe-labeloverlap2.png/eps
-                                    # ==> DATA_DIR/results/describe-labeloverlap2.tsv
+python describe-category_pair.py    # ==> DATA_DIR/results/describe-category_pair.png/eps
+                                    # ==> DATA_DIR/results/describe-category_pair.tsv
 
 # reported gender and age
 python describe-demographics.py     # ==> DATA_DIR/results/describe-demographics.png/eps
@@ -82,6 +82,10 @@ python describe-userfreq.py         # ==> DATA_DIR/results/describe-userfreq.png
 
 # post length (word counts)
 python describe-wordcount.py        # ==> DATA_DIR/results/describe-wordcount.png/eps
+
+# generate a tsv for top categories and labels
+python describe-labels.py           # ==> DATA_DIR/results/describe-labels_categories.tsv
+                                    # ==> DATA_DIR/results/describe-labels_tags.tsv
 ```
 
 ### Validate/explore the lucid dreams with some non-lucid comparisons
@@ -95,8 +99,7 @@ python analysis-wordshift_plot.py   # ==> DATA_DIR/results/validate-wordshift_pl
 # draw wordclouds, never to be looked at
 python analysis-wordcloud.py  # ==> DATA_DIR/results/validate-wordcloud.png/eps
 
-# top categories and labels
-# wordshifts
 # LIWC subset -- consider showing word contribution plots
+# topic modeling
 # word count comparison
 ```

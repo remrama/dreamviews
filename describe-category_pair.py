@@ -28,8 +28,8 @@ plt.rcParams["mathtext.bf"] = "Arial:bold"
 #### i/o and load data
 
 import_fname = os.path.join(c.DATA_DIR, "derivatives", "posts-clean.tsv")
-export_fname_plot  = os.path.join(c.DATA_DIR, "results", "data-labeloverlap2.png")
-export_fname_table = os.path.join(c.DATA_DIR, "results", "data-labeloverlap2.tsv")
+export_fname_plot  = os.path.join(c.DATA_DIR, "results", "data-category_pair.png")
+export_fname_table = os.path.join(c.DATA_DIR, "results", "data-category_pair.tsv")
 
 df = pd.read_csv(import_fname, sep="\t", encoding="utf-8", index_col="post_id")
 
