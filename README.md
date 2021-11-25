@@ -27,6 +27,7 @@ See `config.py` for directory info and other configuration stuff.
 
 Run `init_data_directory_structure.py` before anything else, after manually setting the `DATA_DIR` in `config.py` to match your desired data output location.
 
+
 ### Collect, convert, and clean data
 
 ```bash
@@ -97,7 +98,11 @@ python analysis-wordshift_plot.py   # ==> DATA_DIR/results/validate-wordshift_pl
                                     # ==> DATA_DIR/results/validate-wordshift_stats.tsv
 
 # draw wordclouds, never to be looked at
-python analysis-wordcloud.py  # ==> DATA_DIR/results/validate-wordcloud.png/eps
+python analysis-wordcloud.py        # ==> DATA_DIR/results/validate-wordcloud.png/eps
+
+# generate a custom LIWC dictionary and run LIWC analysis
+python liwc-generate_mydic.py       # ==> DATA_DIR/dictionaries/myliwc.dic
+python analysis-liwc.py             # ==> DATA_DIR/results/posts-liwc.tsv
 
 # LIWC subset -- consider showing word contribution plots
 # topic modeling

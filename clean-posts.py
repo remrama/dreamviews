@@ -207,6 +207,7 @@ def tag_nltk2wordnet(nltk_tag):
     else:                          return None
 
 # this catches only words and hyphenated words
+# don't care about apostrophes??????????????????????????
 PATTERN = r"^[a-zA-Z]+\-?[a-zA-Z]*$"
 
 def lemmatize_plus(doc):
