@@ -116,3 +116,20 @@ python analysis-liwc_plot_tokens.py # ==> DATA_DIR/results/analysis-liwc_tokens.
 # topic modeling
 # word count comparison
 ```
+
+
+### post-tagtog annotation analysis section
+
+A total WiP, but a few things for now.
+
+Note that I'm using an old file from mannheim_dv results.
+It's accurate, but I still need to get a final conversion
+script and it will provide output slightly different.
+
+But I can use this for results now and make changes later.
+See previous conversion scripts in content_ld and mannheim_dv.
+
+```bash
+# draw a distribution showing when the first moment of lucidity typically occurs
+python annotations-lucidmoment.py   # ==> DATA_DIR/results/annotations-lucidmoment.png/eps
+```
