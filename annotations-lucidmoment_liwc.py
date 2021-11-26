@@ -128,10 +128,14 @@ plt.rcParams["savefig.dpi"] = 600
 plt.rcParams["interactive"] = True
 plt.rcParams["font.family"] = "sans-serif"
 plt.rcParams["font.sans-serif"] = "Arial"
+plt.rcParams["mathtext.fontset"] = "custom"
+plt.rcParams["mathtext.rm"] = "Arial"
+plt.rcParams["mathtext.it"] = "Arial:italic"
+plt.rcParams["mathtext.bf"] = "Arial:bold"
 
 n_cats = len(LIWC_CATEGORIES)
 
-BAR_ARGS = dict(width=.8, edgecolor="k", lw=.5, alpha=1)
+BAR_ARGS = dict(width=1, edgecolor="k", lw=.5, alpha=1)
 ERROR_ARGS = dict(ecolor="k", elinewidth=.5, capsize=0)
 GRIDSPEC_KWS = {
     "wspace" : .2,
@@ -141,7 +145,7 @@ GRIDSPEC_KWS = {
     "left"   : .1,
 }
 
-color_vals = [ c.COLORS["ambiguous"], c.COLORS["lucid"] ]
+color_vals = [ "gainsboro", c.COLORS["lucid"] ]
 
 _, axes = plt.subplots(ncols=n_cats, figsize=(5, 3),
     sharex=True, sharey=True, gridspec_kw=GRIDSPEC_KWS)
@@ -151,8 +155,12 @@ for ax, cat in zip(axes, LIWC_CATEGORIES):
     yvals = row[["mean-before_ld", "mean-after_ld"]].values
     yerrs = row[["sem-before_ld", "sem-after_ld"]].values
     xvals = range(len(yvals))
-    cohd = row["cohen-d"]
+    dval = row["cohen-d"]
     pval = row["p-val"]
+
+    # convert to pct for interpretability
+    yvals *= 100
+    yerrs *= 100
 
     ax.bar(xvals, yvals, yerr=yerrs, color=color_vals,
         error_kw=ERROR_ARGS, **BAR_ARGS)
@@ -161,20 +169,44 @@ for ax, cat in zip(axes, LIWC_CATEGORIES):
     ax.spines["right"].set_visible(False)
     ax.set_xticks(xvals)
     ax.set_xticklabels(["before", "after"])
-    ax.set_xlim(xvals[0]-.5, xvals[1]+.5)
-    ax.set_ylim(0, .04)
-    ax.yaxis.set(major_locator=plt.MultipleLocator(.01),
-                 minor_locator=plt.MultipleLocator(.002),
+    ax.set_xlim(xvals[0]-.8, xvals[1]+.8)
+    ax.set_ylim(0, 4.7)
+    ax.yaxis.set(major_locator=plt.MultipleLocator(1),
+                 minor_locator=plt.MultipleLocator(.2),
                  major_formatter=plt.FuncFormatter(c.no_leading_zeros))
     if ax.get_subplotspec().is_first_col():
-        ax.set_ylabel("LIWC score", fontsize=10)
+        ax.set_ylabel(r"% of dream content", fontsize=10)
         ax.set_xlabel("Before or after the moment of lucidity", ha="left", fontsize=10)
-    
-    d_str = "d=" + f"{cohd:.2f}".lstrip("0")
-    pchars = "*" * sum([ pval<cutoff for cutoff in [.05, .01, .001] ])
-    p_str = f"p<.001".lstrip("0") if pval < .001 else "p="+f"{pval:.3f}".lstrip("0")
-    txt = "\n".join([cat, p_str, d_str])
-    ax.text(.05, 1, txt, transform=ax.transAxes, ha="left", va="top")
+    ax.text(.05, 1, cat, transform=ax.transAxes, ha="left", va="top")
+
+    if pval < .001:
+        pval_str = r"$p<.001$"
+    else:
+        pval_str = f"{pval:.3f}".lstrip("0")
+        pval_str = rf"$p={pval_str}$"
+    effsize_str =  f"{abs(dval):.2f}".lstrip("0")
+    effsize_str =  rf"$d={effsize_str}$"
+    sigchars = "*" * sum([ pval<cutoff for cutoff in [.05, .01, .001] ])
+    if not sigchars:
+        sigchars = "^" if pval < .1 else "ns"
+    SPACER = .2 # space between each stacked significance text
+    y = max(yvals+yerrs) # highest of the two bars
+    x = sum(xvals)/len(xvals) # middle of the two bars
+    # draw a line a bit up from that
+    ax.hlines(y=y+SPACER, xmin=xvals[0], xmax=xvals[1],
+        linewidth=2, color="k", capstyle="round")
+    # asterisks above that
+    weight = "bold" if not sigchars.isalpha() else "normal"
+    valign = "center" if not sigchars.isalpha() else "bottom"
+    fsize = 14 if not sigchars.isalpha() else 10
+    ax.text(x, y+SPACER, sigchars, weight=weight,
+        fontsize=fsize, ha="center", va=valign)
+    # effect size above that
+    ax.text(x+BAR_ARGS["width"], y+SPACER*2, effsize_str,
+        fontsize=10, ha="right", va="bottom")
+    # pvalue above that
+    ax.text(x+BAR_ARGS["width"], y+SPACER*3, pval_str,
+        fontsize=10, ha="right", va="bottom")
 
 
 # import seaborn as sea

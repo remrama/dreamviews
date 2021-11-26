@@ -4,6 +4,7 @@ and generate dataframe with text for pre/post lucidity.
 Also save out summary moment stats.
 """
 import os
+import argparse
 import pandas as pd
 import config as c
 
@@ -13,6 +14,12 @@ plt.rcParams["savefig.dpi"] = 600
 plt.rcParams["interactive"] = True
 plt.rcParams["font.family"] = "sans-serif"
 plt.rcParams["font.sans-serif"] = "Arial"
+
+parser = argparse.ArgumentParser()
+parser.add_argument("--dreamonly", action="store_true", help="remove nondream content")
+args = parser.parse_args()
+
+DREAM_ONLY = args.dreamonly
 
 import_fname = os.path.join(c.DATA_DIR, "derivatives", "posts-annotations.csv")
 export_fname_txt = os.path.join(c.DATA_DIR, "derivatives", "posts-annotations_lucidprepost.tsv")
@@ -34,12 +41,45 @@ df["length"] = df["end"] - df["start"]
 
 ########## find the lucidity moments
 
-# find the FIRST lucid label for each post
-# and the total length of each post
-s1 = df.query("label=='lucid'").groupby("post_id"
-    )["start"].min().rename("lumo")
-s2 = df.groupby("post_id"
-    )["end"].max().rename("post_length")
+if not DREAM_ONLY:
+    ###### if using the whole report (not dropping nondream content)
+    # find the FIRST lucid label for each post
+    # and the total length of each post
+    s1 = df.query("label=='lucid'").groupby("post_id"
+        )["start"].min().rename("lumo")
+    # get dream length using either whole report or just dream content
+    s2 = df.groupby("post_id"
+        )["end"].max().rename("post_length")    # either of these work
+    #     )["length"].sum().rename("post_length") # either of these work
+
+else:
+    ###### if using only dream content, slightly more complicated
+    ## need a new "start" for the first lucidity since the existing
+    ## character count includes non-dream
+
+    # Sum up the length of nondream content prior to
+    # the first lucid moment and subtract it out.
+    # Then summing the other lengths should be fine.
+    s1 = df.query("label=='lucid'").groupby("post_id"
+        )["start"].min().rename("lumo")
+    def find_nondream_beforelumo_length(_df):
+        post_id = _df.index.unique()[0]
+        if post_id in s1:
+            lumo = s1.loc[post_id]
+            x = _df.query("label=='nondream'"
+                ).query(f"start<{lumo}"
+                )["length"].sum()
+        else:
+            x = pd.NA
+        return x
+    s0 = df.groupby("post_id").apply(find_nondream_beforelumo_length
+        ).dropna().astype(int).sort_index()
+    s1 -= s0
+
+    # get total length without nondream content
+    s2 = df.query("label!='nondream'").groupby("post_id"
+        )["length"].sum().rename("post_length")
+
 
 res = pd.concat([s1, s2], axis=1, join="inner")
 
@@ -137,10 +177,16 @@ txt_out.to_csv(export_fname_txt, sep="\t", encoding="utf-8",
 
 _, ax = plt.subplots(figsize=(3,3), constrained_layout=True)
 
+binwidth = .1 if DREAM_ONLY else .05
+ymax = 27 if DREAM_ONLY else 15
+xlabel = "Moment of lucidity\n(proportion of full report)"
+if DREAM_ONLY:
+    xlabel = xlabel.replace("full report", "dream content")
+
 sea.histplot(data=res, x="lumo_prop",
     stat="count", cumulative=False,
     element="bars", fill=True,
-    binrange=(0, 1), binwidth=.05,
+    binrange=(0, 1), binwidth=binwidth,
     color=c.COLORS["lucid"], alpha=1,
     edgecolor="black", linewidth=.5,
     kde=True, ax=ax)
@@ -150,13 +196,12 @@ ax.lines[0].set(color="black", alpha=1,
     solid_capstyle="round")
 
 ax.set_xlim(0, 1)
-ax.set_ylim(0, 15)
-ax.set_ylabel("# of dreams", fontsize=10)
-xlabel = "Moment of lucidity\n(proportion of dream report)"
+ax.set_ylim(0, ymax)
+ax.set_ylabel("# of posts", fontsize=10)
 # xlabel = "start $\leftarrow$   Moment of lucidity   $\\rightarrow$ end\n(proportion of dream report)"
 ax.set_xlabel(xlabel, fontsize=10)
-ax.xaxis.set(major_locator=plt.MultipleLocator(.25),
-             minor_locator=plt.MultipleLocator(.05),
+ax.xaxis.set(major_locator=plt.MultipleLocator(binwidth*5),
+             minor_locator=plt.MultipleLocator(binwidth),
              major_formatter=plt.FuncFormatter(c.no_leading_zeros))
 ax.yaxis.set(major_locator=plt.MultipleLocator(5),
              minor_locator=plt.MultipleLocator(1))
