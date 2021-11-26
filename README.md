@@ -139,4 +139,8 @@ See previous conversion scripts in content_ld and mannheim_dv.
 python annotations-lucidmoment.py   # ==> DATA_DIR/derivatives/posts-annotations_lucidprepost.tsv
                                     # ==> DATA_DIR/results/annotations-lucidmoment.tsv
                                     # ==> DATA_DIR/results/annotations-lucidmoment.png/eps
+
+# run LIWC on pre/post (more ideas for refining in this script)
+python annotations-lucidmoment_liwc.py # ==> DATA_DIR/results/annotations-lucidmoment_liwc.tsv
+                                    # ==> DATA_DIR/results/annotations-lucidmoment_liwc.png/eps
 ```

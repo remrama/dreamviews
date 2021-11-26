@@ -104,15 +104,25 @@ for post_id, lumo in s1.items():
     beforelucid_txt = post_txt[:lumo].strip()
     afterlucid_txt = post_txt[lumo:].strip()
 
-    txt_results[post_id] = dict(beforeld_txt=beforelucid_txt,
-        afterld_txt=afterlucid_txt)
+    txt_results[post_id] = dict(before_ld=beforelucid_txt,
+        after_ld=afterlucid_txt)
 
 txt_out = pd.DataFrame.from_dict(txt_results, orient="index"
-    ).sort_index().rename_axis("post_id")
+    ).unstack(
+    ).rename_axis(["txt_loc", "post_id"]
+    ).rename("post_txt"
+    ).swaplevel().sort_index()
 
 # remove rows with practically empty text
-txt_out = txt_out[ (txt_out.beforeld_txt.str.len().gt(50)
-    & txt_out.afterld_txt.str.len().gt(50)) ]
+### (gotta be a better way)
+### probably have to restrict in the liwc file ANYWAYS bc of tokenizing
+nchars = txt_out.groupby("post_id"
+    ).apply(lambda s: s.str.len()
+    ).reset_index(
+    ).query("post_txt>=50"
+    ).groupby("post_id").size()
+good_posts = nchars[ nchars==2 ].index.tolist()
+txt_out = txt_out.loc[good_posts]
 
 #### save
 txt_out.to_csv(export_fname_txt, sep="\t", encoding="utf-8",
