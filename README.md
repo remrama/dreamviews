@@ -130,6 +130,13 @@ But I can use this for results now and make changes later.
 See previous conversion scripts in content_ld and mannheim_dv.
 
 ```bash
+######## need something that exports
+# ==> DATA_DIR/derivatives/posts-annotations.tsv
+
 # draw a distribution showing when the first moment of lucidity typically occurs
-python annotations-lucidmoment.py   # ==> DATA_DIR/results/annotations-lucidmoment.png/eps
+# while also outputing a new file that has text
+# before/after that moment (2 rows per post)
+python annotations-lucidmoment.py   # ==> DATA_DIR/derivatives/posts-annotations_lucidprepost.tsv
+                                    # ==> DATA_DIR/results/annotations-lucidmoment.tsv
+                                    # ==> DATA_DIR/results/annotations-lucidmoment.png/eps
 ```

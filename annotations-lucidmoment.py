@@ -1,5 +1,7 @@
 """
-A script to plot distribution of lucidity moments.
+A script to plot distribution of lucidity moments
+and generate dataframe with text for pre/post lucidity.
+Also save out summary moment stats.
 """
 import os
 import pandas as pd
@@ -13,11 +15,13 @@ plt.rcParams["font.family"] = "sans-serif"
 plt.rcParams["font.sans-serif"] = "Arial"
 
 import_fname = os.path.join(c.DATA_DIR, "derivatives", "posts-annotations.csv")
-export_fname = os.path.join(c.DATA_DIR, "results", "annotations-lucidmoment.png")
+export_fname_txt = os.path.join(c.DATA_DIR, "derivatives", "posts-annotations_lucidprepost.tsv")
+export_fname_stat = os.path.join(c.DATA_DIR, "results", "annotations-lucidmoment.tsv")
+export_fname_plot = os.path.join(c.DATA_DIR, "results", "annotations-lucidmoment.png")
 
 df = pd.read_csv(import_fname, encoding="utf-8",
         index_col="report_id").rename_axis("post_id"
-    ).rename(columns=dict(txt="post_txt"))
+    ).rename(columns=dict(text="post_txt"))
 
 # only use hf's ratings for now
 df = df[df["rater_id"].eq("hf24")]
@@ -77,8 +81,49 @@ s4 = df.query("label!='nondream'"
 res = res.join(s4, how="left")
 
 
+#### save out csv with summary values
+summary = res.describe().T.rename_axis("measure")
+summary["count"] = summary["count"].astype(int)
+summary.to_csv(export_fname_stat, sep="\t", encoding="utf-8",
+    index=True, float_format="%.2f")
 
-########### draw
+
+#####################
+##################### generate dataframe with
+##################### text for before and after lucidity
+
+txt_results = {}
+for post_id, lumo in s1.items():
+
+    # get the full raw txt of report
+    # (later might be loading in another file
+    #  for this but for now text is here)
+    post_txt =  df.loc[post_id].sort_values("start"
+        )["post_txt"].str.cat()
+
+    beforelucid_txt = post_txt[:lumo].strip()
+    afterlucid_txt = post_txt[lumo:].strip()
+
+    txt_results[post_id] = dict(beforeld_txt=beforelucid_txt,
+        afterld_txt=afterlucid_txt)
+
+txt_out = pd.DataFrame.from_dict(txt_results, orient="index"
+    ).sort_index().rename_axis("post_id")
+
+# remove rows with practically empty text
+txt_out = txt_out[ (txt_out.beforeld_txt.str.len().gt(50)
+    & txt_out.afterld_txt.str.len().gt(50)) ]
+
+#### save
+txt_out.to_csv(export_fname_txt, sep="\t", encoding="utf-8",
+    index=True)
+
+
+
+#####################
+##################### draw
+#####################
+#####################
 
 _, ax = plt.subplots(figsize=(3,3), constrained_layout=True)
 
@@ -118,6 +163,6 @@ for m in ["mean", "median"]:
 
 
 # export
-plt.savefig(export_fname)
-plt.savefig(export_fname.replace(".png", c.HIRES_IMAGE_EXTENSION))
+plt.savefig(export_fname_plot)
+plt.savefig(export_fname_plot.replace(".png", c.HIRES_IMAGE_EXTENSION))
 plt.close()
