@@ -13,38 +13,18 @@ import pandas as pd
 import liwc
 import config as c
 
-
-KEEP_CATEGORIES = [ # stuff from LIWC2015 to keep (Agency will be in there by default)
-    "I",
-    "We",
-    "You",
-    "They",
-    "Affect",
-    "Posemo",
-    "Negemo",
-    "Anx",
-    "Anger",
-    "Sad",
-    "Social",
-    "Family",
-    "Friend",
-    "CogProc",
-    "Insight",
-    "Percept",
-    "See",
-    "Hear",
-    "Feel",
-    "Drives",
-    "Affiliation",
-    "Achieve",
-    "Reward",
-    "Risk",
-    "FocusPast",
-    "FocusPresent",
-    "FocusFuture",
-    "Work",
-    "Relig",
-    "Death",
+# by default all LIWC2015 category (plus Agency) are in there
+DROP_CATEGORIES = [
+    "Compare",
+    "Interrog",
+    "Number",
+    "Quant",
+    "Discrep",
+    "Informal",
+    "Swear",
+    "Netspeak",
+    "Assent",
+    "Filler",
 ]
 
 
@@ -71,7 +51,7 @@ for col in df:
 
 
 # remove unwanted categories
-dictionary = { c: wlist for c, wlist in dictionary.items() if c in KEEP_CATEGORIES }
+dictionary = { c: wlist for c, wlist in dictionary.items() if c not in DROP_CATEGORIES }
 
 
 # load in the Agency stuff. already dic file so easiest to use the nice liwc package

@@ -81,17 +81,17 @@ ax.invert_yaxis()
 ax.barh(locs, means, xerr=errors, color=colors,
     error_kw=ERROR_ARGS, **BAR_ARGS)
 
-TXT_BUFF = .001
+TXT_BUFF = .005
 for i, txt in enumerate(labels):
     yloc = i + 1
     if means[i] > 0:
         # to the right, align left of txt against high CI
         ha = "left"
-        xloc = ci[1, i]
+        xloc = ci[1, i] + TXT_BUFF
     else:
         # to the left, align right of txt against low CI
         ha = "right"
-        xloc = ci[0, i]
+        xloc = ci[0, i] - TXT_BUFF
     ax.text(xloc, yloc, txt, ha=ha, va="center", fontsize=8)
 
 ax.axvline(0, linewidth=1, color="black")

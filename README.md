@@ -102,9 +102,15 @@ python analysis-wordcloud.py        # ==> DATA_DIR/results/validate-wordcloud.pn
 
 # generate a custom LIWC dictionary and run LIWC analysis
 python liwc-generate_mydic.py       # ==> DATA_DIR/dictionaries/myliwc.dic
-python analysis-liwc_scores.py      # ==> DATA_DIR/derivatives/posts-liwc.tsv
+python analysis-liwc_scores.py -t   # ==> DATA_DIR/derivatives/posts-liwc.tsv
+                                    # ==> DATA_DIR/derivatives/posts-liwc_tokens.npz
+                                    # ==> DATA_DIR/derivatives/posts-liwc_tokens.npy
 python analysis-liwc_stats.py       # ==> DATA_DIR/results/analysis-liwc.tsv
-                                    # ==> DATA_DIR/results/analysis-liwc.png/eps
+python analysis-liwc_stats_tokens.py # ==> DATA_DIR/results/analysis-liwc_tokens.tsv
+# plot summary of all categories (not interesting)
+python analysis-liwc_plot.py        # ==> DATA_DIR/results/analysis-liwc.png/eps
+# focus on subset of relevant categories and their word contributions (interesting)
+python analysis-liwc_plot_tokens.py # ==> DATA_DIR/results/analysis-liwc_tokens.png/eps
 
 # LIWC subset -- consider showing word contribution plots
 # topic modeling
