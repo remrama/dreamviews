@@ -3,6 +3,7 @@ Visualize DreamViews activity over time.
 This shows both post and user frequency, kinda.
 """
 import os
+import argparse
 import pandas as pd
 
 import seaborn as sea
@@ -17,12 +18,31 @@ plt.rcParams["font.family"] = "sans-serif"
 plt.rcParams["font.sans-serif"] = "Arial"
 
 
+parser = argparse.ArgumentParser()
+parser.add_argument("--white", action="store_true",
+    help="To ignore labels and just plot all data in white")
+parser.add_argument("--restrict", action="store_true",
+    help="To restrict data to lucid and non-lucid labels")
+args = parser.parse_args()
+
+WHITE = args.white
+RESTRICT = args.restrict
+
+
 ### handle i/o and load in data
 
 import_fname = os.path.join(c.DATA_DIR, "derivatives", "posts-clean.tsv")
 export_fname = os.path.join(c.DATA_DIR, "results", "data-timecourse.png")
+if WHITE:
+    export_fname = export_fname.replace(".png", "_WHITE.png")
+if RESTRICT:
+    export_fname = export_fname.replace(".png", "_RESTRICT.png")
 
 df = pd.read_csv(import_fname, sep="\t", parse_dates=["timestamp"])
+
+# drop data if desired
+if RESTRICT:
+    df = df[ df["lucidity"].str.contains("lucid") ]
 
 ### generate a dataframe of user counts by month
 ### that accounts for novel/repeat users
@@ -40,7 +60,10 @@ monthly_users["novel"] = monthly_users.user_id.duplicated(
 ############################################
 ##### Need to specify a lot of parameters for plotting
 
-LUCIDITY_ORDER = ["unspecified", "ambiguous", "non-lucid", "lucid"]
+if RESTRICT:
+    LUCIDITY_ORDER = ["non-lucid", "lucid"]
+else:
+    LUCIDITY_ORDER = ["unspecified", "ambiguous", "non-lucid", "lucid"]
 USER_ORDER = ["repeat-user", "novel-user"]
 
 LEGEND_LABELS = {
@@ -114,7 +137,6 @@ CUMULATIVE_PLOT_ARGS = {
 }
 
 LEGEND_ARGS = {
-    "loc"           : "upper left",
     "borderaxespad" : 0,
     "frameon"       : False,
     "labelspacing"  : .2, # vertical space between entries
@@ -126,14 +148,18 @@ LEGEND_ARGS = {
 ##########################################
 ##### draw
 
-post_plot_args = { # for bottom axis
-    "hue"       : "lucidity",
-    "hue_order" : LUCIDITY_ORDER,
-}
-user_plot_args = { # for top axis
-    "hue"       : "novel",
-    "hue_order" : USER_ORDER,
-}
+if WHITE:
+    post_plot_args = {"color": "white"}
+    user_plot_args = {"color": "white"}
+else:
+    post_plot_args = { # for bottom axis
+        "hue"       : "lucidity",
+        "hue_order" : LUCIDITY_ORDER,
+    }
+    user_plot_args = { # for top axis
+        "hue"       : "novel",
+        "hue_order" : USER_ORDER,
+    }
 
 # open figure and create twin axes
 _, axes = plt.subplots(2, 1,
@@ -153,23 +179,30 @@ sea.histplot(ax=ax1a, data=df, **post_plot_args, **MONTHLY_PLOT_ARGS, **PLOT_ARG
 sea.histplot(ax=ax1b, data=df, **post_plot_args, **CUMULATIVE_PLOT_ARGS, **PLOT_ARGS)
 sea.histplot(ax=ax2a, data=monthly_users, **user_plot_args, **MONTHLY_PLOT_ARGS, **PLOT_ARGS)
 sea.histplot(ax=ax2b, data=monthly_users, **user_plot_args, **CUMULATIVE_PLOT_ARGS, **PLOT_ARGS)
+if WHITE:
+    ax1b.lines[0].set(color="black", alpha=1)
+    ax2b.lines[0].set(color="black", alpha=1)
 
 
-###### bottom legend
-ax1_handles = [ plt.matplotlib.patches.Patch(edgecolor="none",
-        facecolor=c.COLORS[cond], label=LEGEND_LABELS[cond])
-    for cond in LUCIDITY_ORDER ]
-ax1_legend = ax1b.legend(handles=ax1_handles,
-    bbox_to_anchor=(.6, .95), **LEGEND_ARGS)
-# ax1_legend.get_frame().set_linewidth(0)
+# legends
+if not WHITE:
+    ###### bottom legend
+    ax1_handles = [ plt.matplotlib.patches.Patch(edgecolor="none",
+            facecolor=c.COLORS[cond], label=LEGEND_LABELS[cond])
+        for cond in LUCIDITY_ORDER ]
+    ax1_legend = ax1b.legend(handles=ax1_handles,
+        bbox_to_anchor=(.6, .65), loc="lower left",
+        **LEGEND_ARGS)
+    # ax1_legend.get_frame().set_linewidth(0)
 
-###### top legend
-ax2_handles = [ plt.matplotlib.patches.Patch(edgecolor="none",
-        facecolor=c.COLORS[cond], label=LEGEND_LABELS[cond])
-    for cond in USER_ORDER ]
-ax2_legend = ax2b.legend(handles=ax2_handles,
-    bbox_to_anchor=(.6, .85), **LEGEND_ARGS)
-# ax2_legend.get_frame().set_linewidth(0)
+    ###### top legend
+    ax2_handles = [ plt.matplotlib.patches.Patch(edgecolor="none",
+            facecolor=c.COLORS[cond], label=LEGEND_LABELS[cond])
+        for cond in USER_ORDER ]
+    ax2_legend = ax2b.legend(handles=ax2_handles,
+        bbox_to_anchor=(.6, .98), loc="upper left",
+        **LEGEND_ARGS)
+    # ax2_legend.get_frame().set_linewidth(0)
 
 
 ###### aesthetics on bottom axis
