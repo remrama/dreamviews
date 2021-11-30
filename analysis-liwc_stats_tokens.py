@@ -21,8 +21,8 @@ import liwc
 import config as c
 
 
-LIWC_CATEGORIES = ["insight", "agency", "negemo"]
-TOP_N = 30 # save out the top N contributing tokens/words for each category
+LIWC_CATEGORIES = ["insight", "agency", "posemo", "negemo"]
+TOP_N = 50 # save out the top N contributing tokens/words for each category
 
 
 ###########################

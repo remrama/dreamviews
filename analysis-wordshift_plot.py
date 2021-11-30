@@ -21,7 +21,7 @@ plt.rcParams["mathtext.it"] = "Arial:italic"
 plt.rcParams["mathtext.bf"] = "Arial:bold"
 
 
-N_WORDS = 50 # number of top ranking words to plot
+N_WORDS = 30 # number of top ranking words to plot
 
 
 import_fname = os.path.join(c.DATA_DIR, "results", "validate-wordshift_perms.tsv")
@@ -76,7 +76,7 @@ BAR_ARGS = {
     "height"    : .8,
 }
 
-fig, ax = plt.subplots(figsize=(3, N_WORDS/9), constrained_layout=True)
+fig, ax = plt.subplots(figsize=(3, N_WORDS/6), constrained_layout=True)
 ax.invert_yaxis()
 ax.barh(locs, means, xerr=errors, color=colors,
     error_kw=ERROR_ARGS, **BAR_ARGS)
@@ -98,7 +98,7 @@ ax.axvline(0, linewidth=1, color="black")
 
 xlabel = "change in frequency\n" + r"non-lucid$\leftarrow$$\rightarrow$lucid       "
 ax.set_xlabel(xlabel)
-ax.set_ylabel("lemma rank")
+ax.set_ylabel("Lemma rank")
 ax.set_xlim(-.05, .05)
 ax.set_ylim(N_WORDS+1, 0)
 

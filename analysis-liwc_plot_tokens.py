@@ -39,10 +39,10 @@ GRID_COLOR = "gainsboro"
 GRIDSPEC_KWS = {
     "height_ratios" : [2, N_WORDS],
     "hspace"        : 0,
-    "wspace"        : .4,
+    "wspace"        : .3,
     "top"           : .98,
     "right"         : .98,
-    "bottom"        : .15,
+    "bottom"        : .18,
     "left"          : .08,
 }
 
@@ -51,8 +51,9 @@ yticklocs = np.linspace(0, N_WORDS, int(N_WORDS/YTICK_GAP+1))
 yticklocs[0] = 1
 
 
+FIG_SIZE = (9, 3.5)
 fig, axes = plt.subplots(nrows=2, ncols=n_cats,
-    figsize=(7, 3), sharex=True,
+    figsize=FIG_SIZE, sharex=True,
     gridspec_kw=GRIDSPEC_KWS)
 
 for i, col in enumerate(category_columns):
