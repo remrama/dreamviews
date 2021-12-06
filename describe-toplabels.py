@@ -59,6 +59,6 @@ for col in ["tags", "categories"]:
     res = res.sort_values("weight", ascending=False)
 
     # export
-    export_fname = os.path.join(c.DATA_DIR, "results", f"describe-labels_{col}.tsv")
+    export_fname = os.path.join(c.DATA_DIR, "results", f"describe-top{col}.tsv")
     res.to_csv(export_fname, sep="\t", encoding="utf-8",
         index=True, float_format="%.1f")

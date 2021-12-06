@@ -1,36 +1,37 @@
 # dreamviews_ds
 
-Turning the public [DreamViews Dream Journal](https://www.dreamviews.com/blogs/) into a usable dataset. There's lots of descriptive output and such, but the final dataset, to be used for other projects and such, can be found [here](https://media.giphy.com/media/St0Nd0Qt4WNMLy29vi/giphy.gif).
+Turning the public [DreamViews Dream Journal](https://www.dreamviews.com/blogs/) into a usable dataset. This repo is strictly for collecting, cleaning, describing, and validating the dataset. It's used in other projects and can be found [here](https://media.giphy.com/media/St0Nd0Qt4WNMLy29vi/giphy.gif).
 
-### Part 1 - Data collection and cleaning
+---
+
+See `config.py` for directory info and other configuration stuff. The `DATA_DIR` in `config.py` needs to be set first to match the desired data output location.
+
+The code filenames start with one of `init`, `collect`, `convert`, `clean`, `extract`, `describe`, `validate`, and this precursor explains which of the stages the file is used for.
+
+Raw data from the web scraping is in `DATA_DIR/source`, "middle-ground" output, like the cleaned posts and aggregated users or raw LIWC output are in `DATA_DIR/derivatives`, and any plots or statistics are output to `DATA_DIR/results`.
+
+
+### A few preliminary scripts.
+
+```shell
+# create the relevant subfolders of the data directory (specified in config.py)
+python init-generate_data_dirs.py   # ==> DATA_DIR/source/
+                                    # ==> DATA_DIR/derivatives/
+                                    # ==> DATA_DIR/results/
+python init-generate_liwc_dict.py   # ==> DATA_DIR/dictionaries/myliwc.dic
+```
+
+
+### COLLECT, CONVERT, and CLEAN data
+
 The first thing we do is grab all the data and tidy it up a bit (without being very invasive or restrictive).
-1. **collect**/scrape the DreamViews journal and relevant public profiles
-2. **convert** the html files to tsv, super minimal cleaning just to prevent errors
-3. **clean** the raw tsv data a bit for final/usable post and user files
-4. export plots and summary statistics describing the dataset
-5. minor validation steps (e.g., lucid vs non-lucid word clouds)
 
-### Part 2 - Manual annotations and validation
-We also manually clean and annotate a subset of the dataset. This subset can be used for further validation, finer-grained analyses, and development of algorithms for automated detection of lucidity. See our custom [Dream Report Annotation Manual](https://d-re-a-m.readthedocs.io/) for annotation details.
-1. extract a principled subset of the data
-2. upload the data to tagtog for annotating
-3. download and convert the tagtog data
-4. visualize and analyze interrater reliability for annotations
-5. minor results from annotations (e.g., temporal moment of lucidity)
-6. validate user-defined lucidity against experimenter-defined lucidity
-7. develop a classifier that can be used to determine lucid from non-lucid dreams and apply to the rest of the dataset (with probabilities saved out on final dataset)
+1. Collect/scrape the DreamViews journal and relevant public profiles.
+2. Convert the html files to tsv, super minimal cleaning just to prevent errors.
+3. Clean the raw tsv data a bit for final/usable post and user files.
+4. Extract a principled/controlled subset of the data for manual annotations.
 
-
-## Linear code layout
-
-See `config.py` for directory info and other configuration stuff.
-
-Run `init_data_directory_structure.py` before anything else, after manually setting the `DATA_DIR` in `config.py` to match your desired data output location.
-
-
-### Collect, convert, and clean data
-
-```bash
+```shell
 # collect raw dream journal posts as html files
 # (note we also get raw user html files, but we need to convert the
 #  raw posts first because we grab only the users who contribute posts)
@@ -39,8 +40,9 @@ python collect-posts.py             # ==> DATA_DIR/source/dreamviews-posts.zip
 
 Need to jump out and insert the timestamp of day data was collected in the `config.py` file. This is mildly annoying, but the most recent blog/journal posts are stamped as coming from "today" or "yesterday", so those need a reference. Should be a `YYYY-MM-DD` string. This is also used in both the conversion scripts, including users, so make sure they are collected on the same day.
 
-```bash
-# convert raw dream journal posts to minimally-cleaned text files
+```shell
+# convert raw html dream journal posts to a tsv (nothing cleaned yet)
+# and get the names of user profiles to pull
 python convert-posts.py             # ==> DATA_DIR/derivatives/posts-raw.tsv
                                     # ==> DATA_DIR/derivatives/users-anon_key.json
 
@@ -54,93 +56,94 @@ python tsv2txt-posts.py             # ==> DATA_DIR/derivatives/posts/<post_id>.t
 # convert and clean the users
 python convert-users.py             # ==> DATA_DIR/derivatives/users-raw.csv
 python clean-users.py               # ==> DATA_DIR/derivatives/users-clean.csv
+
+# grab a tightly controlled subset of the data for manual stuff
+python extract-subset.py            # ==> DATA_DIR/derivatives/posts-subset.csv
 ```
 
 
-### Describe data
+### DESCRIBE data
 
-```bash
+Export plots and summary statistics describing the dataset.
+
+1. Count how much data there is.
+2. Describe the breakdown of lucid/non-lucid labels.
+3. Explore the word counts before and after lemmatization.
+4. Describe the demographics.
+
+```shell
+##### Visualize the amount of data there is.
+
 # frequency of posts over time
-python describe-timecourse.py       # ==> DATA_DIR/results/describe-timecourse.png/eps
+python describe-timecourse.py       # ==> DATA_DIR/results/describe-timecourse.png
 
-# lucid/non-lucid/nightmare overlap
-python describe-category_venn.py    # ==> DATA_DIR/results/describe-category_venn.png/eps
-                                    # ==> DATA_DIR/results/describe-category_venn.tsv
-
-# number of participants with both lucid and non-lucid posts
-python describe-category_pair.py    # ==> DATA_DIR/results/describe-category_pair.png/eps
-                                    # ==> DATA_DIR/results/describe-category_pair.tsv
-
-# reported gender and age
-python describe-demographics.py     # ==> DATA_DIR/results/describe-demographics.png/eps
-
-# reported location/country
-python describe-locations.py        # ==> DATA_DIR/results/describe-locations.png
-                                    # ==> DATA_DIR/results/describe-locations.tsv
-
-# number of posts per user
-python describe-userfreq.py         # ==> DATA_DIR/results/describe-userfreq.png/eps
+# frequency of posts per user
+python describe-usercount.py         # ==> DATA_DIR/results/describe-usercount.png
 
 # post length (word counts)
-python describe-wordcount.py        # ==> DATA_DIR/results/describe-wordcount.png/eps
+python describe-wordcount.py        # ==> DATA_DIR/results/describe-wordcount.png
+
+
+##### Visualize the user demographics.
+
+# reported gender and age
+python describe-demographics.py     # ==> DATA_DIR/results/describe-demographics.png
+
+# reported location/country
+python describe-location.py         # ==> DATA_DIR/results/describe-location.tsv
+                                    # ==> DATA_DIR/results/describe-location.png
+
+
+##### Each post can have "category" or "tag" labels.
+##### Visualize the amount of posts with from each relevant category.
 
 # generate a tsv for top categories and labels
-python describe-labels.py           # ==> DATA_DIR/results/describe-labels_categories.tsv
-                                    # ==> DATA_DIR/results/describe-labels_tags.tsv
+python describe-toplabels.py        # ==> DATA_DIR/results/describe-topcategories.tsv
+                                    # ==> DATA_DIR/results/describe-toptags.tsv
+
+# lucid/non-lucid/nightmare overlap
+python describe-categorycounts.py   # ==> DATA_DIR/results/describe-categorycounts.png
+
+# number of participants with both lucid and non-lucid posts
+python describe-categorypairs.py    # ==> DATA_DIR/results/describe-categorypairs.tsv
+                                    # ==> DATA_DIR/results/describe-categorypairs.png
 ```
 
-### Validate/explore the lucid dreams with some non-lucid comparisons
 
-```bash
+### VALIDATE data
+
+Show that overall the posts "look like" dreams, and then the lucid and non-lucid posts are differentiable in predictable ways based on previous literature.
+
+1. Show that LDs and non-LDs can be distinguished with language with a BoW classifier.
+2. Visualize a general word difference between LD and non-LD.
+3. Show that LDs have more insight and agency in LIWC (lucidity and control, respectively).
+4. Explore LD language with topic modeling.
+
+```shell
+# classifier
+python validate-classifier_run.py   # ==> DATA_DIR/derivatives/validate-classifier.npz
+python validate-classifier.py       # ==> DATA_DIR/results/validate-classifier.png
+
 # words that differentiate lucid and non-lucid
-python analysis-wordshift_perms.py  # ==> DATA_DIR/results/validate-wordshift_perms.tsv
-python analysis-wordshift_plot.py   # ==> DATA_DIR/results/validate-wordshift_plot.png/eps
-                                    # ==> DATA_DIR/results/validate-wordshift_stats.tsv
+python validate-wordshift_run.py    # ==> DATA_DIR/derivatives/validate-wordshift.tsv
+python validate-wordshift.py        # ==> DATA_DIR/results/validate-wordshift.tsv
+                                    # ==> DATA_DIR/results/validate-wordshift.png
 
-# draw wordclouds, never to be looked at
-python analysis-wordcloud.py        # ==> DATA_DIR/results/validate-wordcloud.png/eps
+# run LIWC to get effects at the category and word levels
+python validate-liwc_run.py --words # ==> DATA_DIR/derivatives/posts-liwc.tsv
+                                    # ==> DATA_DIR/derivatives/posts-liwc_words-data.npz
+                                    # ==> DATA_DIR/derivatives/posts-liwc_words-attr.npz
 
-# generate a custom LIWC dictionary and run LIWC analysis
-python liwc-generate_mydic.py       # ==> DATA_DIR/dictionaries/myliwc.dic
-python analysis-liwc_scores.py -t   # ==> DATA_DIR/derivatives/posts-liwc.tsv
-                                    # ==> DATA_DIR/derivatives/posts-liwc_tokens.npz
-                                    # ==> DATA_DIR/derivatives/posts-liwc_tokens.npy
-python analysis-liwc_stats.py       # ==> DATA_DIR/results/analysis-liwc.tsv
-python analysis-liwc_stats_tokens.py # ==> DATA_DIR/results/analysis-liwc_tokens.tsv
-# plot summary of all categories (not interesting)
-python analysis-liwc_plot.py        # ==> DATA_DIR/results/analysis-liwc.png/eps
-# focus on subset of relevant categories and their word contributions (interesting)
-python analysis-liwc_plot_tokens.py # ==> DATA_DIR/results/analysis-liwc_tokens.png/eps
+# plot total insight and agency effects LD vs non-LD
+python validate-liwc.py             # ==> DATA_DIR/derivatives/validate-liwc.tsv
+                                    # ==> DATA_DIR/results/validate-liwc.tsv
+                                    # ==> DATA_DIR/results/validate-liwc.png
 
-# LIWC subset -- consider showing word contribution plots
-# topic modeling
-# word count comparison
-```
+# plot individual word contributions for insight and agency effects LD vs non-LD
+python validate-liwcwords_perms.py  # ==> DATA_DIR/results/validate-liwcwords.tsv
+python validate-liwcwords.py        # ==> DATA_DIR/results/validate-liwcwords.png
 
-
-### post-tagtog annotation analysis section
-
-A total WiP, but a few things for now.
-
-Note that I'm using an old file from mannheim_dv results.
-It's accurate, but I still need to get a final conversion
-script and it will provide output slightly different.
-
-But I can use this for results now and make changes later.
-See previous conversion scripts in content_ld and mannheim_dv.
-
-```bash
-######## need something that exports
-# ==> DATA_DIR/derivatives/posts-annotations.tsv
-
-# draw a distribution showing when the first moment of lucidity typically occurs
-# while also outputing a new file that has text
-# before/after that moment (2 rows per post)
-python annotations-lucidmoment.py   # ==> DATA_DIR/derivatives/posts-annotations_lucidprepost.tsv
-                                    # ==> DATA_DIR/results/annotations-lucidmoment.tsv
-                                    # ==> DATA_DIR/results/annotations-lucidmoment.png/eps
-
-# run LIWC on pre/post (more ideas for refining in this script)
-python annotations-lucidmoment_liwc.py # ==> DATA_DIR/results/annotations-lucidmoment_liwc.tsv
-                                    # ==> DATA_DIR/results/annotations-lucidmoment_liwc.png/eps
+# explore latent topic structure of lucid dreams
+python validate-topicmodel_run.py   # ==> DATA_DIR/results/validate-topicmodel.tsv
+python validate-topicmodel.py       # ==> DATA_DIR/results/validate-topicmodel.png
 ```

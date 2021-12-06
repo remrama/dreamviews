@@ -10,7 +10,6 @@ import numpy as np
 import pandas as pd
 import config as c
 
-import seaborn as sea
 import matplotlib.pyplot as plt
 plt.rcParams["savefig.dpi"] = 600
 plt.rcParams["interactive"] = True
@@ -24,8 +23,8 @@ plt.rcParams["mathtext.bf"] = "Arial:bold"
 N_WORDS = 30 # number of top ranking words to plot
 
 
-import_fname = os.path.join(c.DATA_DIR, "results", "validate-wordshift_perms.tsv")
-export_fname_table = os.path.join(c.DATA_DIR, "results", "validate-wordshift_stats.tsv")
+import_fname = os.path.join(c.DATA_DIR, "derivatives", "validate-wordshift.tsv")
+export_fname_table = os.path.join(c.DATA_DIR, "results", "validate-wordshift.tsv")
 export_fname_plot  = os.path.join(c.DATA_DIR, "results", "validate-wordshift.png")
 
 df = pd.read_csv(import_fname, sep="\t", encoding="utf-8")
@@ -116,5 +115,4 @@ ax.xaxis.set(major_locator=plt.MultipleLocator(.05),
 stats_df.to_csv(export_fname_table, index=True, sep="\t", encoding="utf-8")
 
 plt.savefig(export_fname_plot)
-plt.savefig(export_fname_plot.replace(".png", c.HIRES_IMAGE_EXTENSION))
 plt.close()

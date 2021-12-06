@@ -16,7 +16,7 @@ plt.rcParams["font.family"] = "sans-serif"
 plt.rcParams["font.sans-serif"] = "Arial"
 
 import_fname = os.path.join(c.DATA_DIR, "derivatives", "users-clean.tsv")
-export_fname = os.path.join(c.DATA_DIR, "results", "data-demographics.png")
+export_fname = os.path.join(c.DATA_DIR, "results", "describe-demographics.png")
 
 
 df = pd.read_csv(import_fname, sep="\t", encoding="utf-8")
@@ -96,5 +96,4 @@ legend = ax.legend(title="reported age",
 
 
 plt.savefig(export_fname)
-plt.savefig(export_fname.replace(".png", c.HIRES_IMAGE_EXTENSION))
 plt.close()

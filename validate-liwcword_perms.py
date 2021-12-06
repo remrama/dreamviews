@@ -21,21 +21,22 @@ import liwc
 import config as c
 
 
-LIWC_CATEGORIES = ["insight", "agency", "posemo", "negemo"]
-TOP_N = 50 # save out the top N contributing tokens/words for each category
+LIWC_CATEGORIES = ["insight", "agency"]
+TOP_N = 20 # save out the top N contributing tokens/words for each category
 
 
 ###########################
 ########################### i/o and loading data
 ###########################
 
-export_fname = os.path.join(c.DATA_DIR, "results", "analysis-liwc_tokens.tsv")
-
 import_fname_posts = os.path.join(c.DATA_DIR, "derivatives", "posts-clean.tsv")
 import_fname_dict = os.path.join(c.DATA_DIR, "dictionaries", "myliwc.dic")
-import_fname_data = os.path.join(c.DATA_DIR, "derivatives", "posts-liwc_tokens-data.npz")
-import_fname_attr = os.path.join(c.DATA_DIR, "derivatives", "posts-liwc_tokens-attr.npz")
-import_fname_liwc = os.path.join(c.DATA_DIR, "results", "analysis-liwc.tsv")
+import_fname_data = os.path.join(c.DATA_DIR, "derivatives", "posts-liwc_words-data.npz")
+import_fname_attr = os.path.join(c.DATA_DIR, "derivatives", "posts-liwc_words-attr.npz")
+import_fname_liwc = os.path.join(c.DATA_DIR, "results", "validate-liwc.tsv")
+
+export_fname = os.path.join(c.DATA_DIR, "results", "validate-liwcwords.tsv")
+
 
 #### load in the original posts file to get attributes lucidity and user_id
 # and drop un-labeled posts.
@@ -47,7 +48,7 @@ posts = posts[ posts["lucidity"].str.contains("lucid") ]
 #### load prior full LIWC results (i.e., category results)
 liwccats = pd.read_csv(import_fname_liwc, sep="\t", encoding="utf-8",
     index_col="category", usecols=["category", "cohen-d"], squeeze=True)
-liwccats = liwccats.loc[LIWC_CATEGORIES].drop_duplicates()
+liwccats = liwccats.loc[LIWC_CATEGORIES]
 
 #### load in dictionary lexicon
 # and flip key/value from token/category to category/word_list
@@ -108,12 +109,12 @@ for cat in LIWC_CATEGORIES:
     cat_index = es_df.index.map(lambda t: t in wordlists[cat])
     # extract only rows in this category
     df_ = es_df.loc[cat_index]
-    # get direction of effect and remove rows not in line
-    d_sign = np.sign(liwccats.loc[cat])
-    if d_sign > 0:
-        df_ = df_[ df_["cohen-d"] > 0 ]
-    else:
-        df_ = df_[ df_["cohen-d"] < 0 ]
+    # # get direction of effect and remove rows not in line
+    # d_sign = np.sign(liwccats.loc[cat])
+    # if d_sign > 0:
+    #     df_ = df_[ df_["cohen-d"] > 0 ]
+    # else:
+    #     df_ = df_[ df_["cohen-d"] < 0 ]
     # sort by effect size
     df_ = df_.sort_values("cohen-d", ascending=False, key=abs)
     # take top rows and clean up a bit
@@ -126,4 +127,4 @@ for cat in LIWC_CATEGORIES:
 out = pd.concat(token_rank_results)
 
 out.to_csv(export_fname, sep="\t", encoding="utf-8",
-    index=True, na_rep="NA")
+    index=True, na_rep="NA", float_format="%.4f")

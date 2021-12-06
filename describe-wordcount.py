@@ -123,5 +123,4 @@ for ax, countvar in zip(axes, COUNT_ORDER):
 
 
 plt.savefig(export_fname)
-plt.savefig(export_fname.replace(".png", c.HIRES_IMAGE_EXTENSION))
 plt.close()

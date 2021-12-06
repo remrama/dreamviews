@@ -13,18 +13,10 @@ import pandas as pd
 import liwc
 import config as c
 
-# by default all LIWC2015 category (plus Agency) are in there
-DROP_CATEGORIES = [
-    "Compare",
-    "Interrog",
-    "Number",
-    "Quant",
-    "Discrep",
-    "Informal",
-    "Swear",
-    "Netspeak",
-    "Assent",
-    "Filler",
+# choose from LIWC2015 categories
+# (Agency from the Agency/Communion dict is included by default)
+INCLUDE_CATEGORIES = [
+    "Insight",      ## to compare LD vs non-LD
 ]
 
 
@@ -51,7 +43,7 @@ for col in df:
 
 
 # remove unwanted categories
-dictionary = { c: wlist for c, wlist in dictionary.items() if c not in DROP_CATEGORIES }
+dictionary = { c: wlist for c, wlist in dictionary.items() if c in INCLUDE_CATEGORIES }
 
 
 # load in the Agency stuff. already dic file so easiest to use the nice liwc package

@@ -1,4 +1,4 @@
-"""plot main liwc effects and their individual word contributions
+"""plot liwc effects and their individual word contributions
 """
 import os
 import numpy as np
@@ -14,17 +14,16 @@ plt.rcParams["font.sans-serif"] = "Arial"
 
 N_WORDS = 10 # might be more stored, only plot this many
 
-import_fname = os.path.join(c.DATA_DIR, "results", "analysis-liwc_tokens.tsv")
-export_fname = os.path.join(c.DATA_DIR, "results", "analysis-liwc_tokens.png")
+import_fname = os.path.join(c.DATA_DIR, "results", "validate-liwcwords.tsv")
+export_fname = os.path.join(c.DATA_DIR, "results", "validate-liwcwords.png")
 
 df = pd.read_csv(import_fname, sep="\t", encoding="utf-8")
 
 # also add in full category liwc results (for top row)
-import_fname_fullliwc = os.path.join(c.DATA_DIR, "results", "analysis-liwc.tsv")
+import_fname_fullliwc = os.path.join(c.DATA_DIR, "results", "validate-liwc.tsv")
 liwccats = pd.read_csv(import_fname_fullliwc, sep="\t", encoding="utf-8",
     index_col="category",
     usecols=["category", "cohen-d", "cohen-d_lo", "cohen-d_hi"])
-liwccats = liwccats.drop_duplicates()
 
 
 
@@ -51,7 +50,7 @@ yticklocs = np.linspace(0, N_WORDS, int(N_WORDS/YTICK_GAP+1))
 yticklocs[0] = 1
 
 
-FIG_SIZE = (9, 3.5)
+FIG_SIZE = (4.5, 3.5)
 fig, axes = plt.subplots(nrows=2, ncols=n_cats,
     figsize=FIG_SIZE, sharex=True,
     gridspec_kw=GRIDSPEC_KWS)
@@ -86,13 +85,14 @@ for i, col in enumerate(category_columns):
         color=colors, error_kw=ERROR_ARGS, **BAR_ARGS)
 
     TXT_BUFF = .05
-    ha_align = "left" if dval > 0 else "right"
     for i, txt in enumerate(labels):
         yloc = i + 1
-        if dval > 0: # to the right, align left of txt against high CI
+        if dvals[i] > 0: # to the right, align left of txt against high CI
             xloc = d_cis[i,1] + TXT_BUFF
+            ha_align = "left"
         else: # to the left, align right of txt against low CI
             xloc = d_cis[i,0] - TXT_BUFF
+            ha_align = "right"
         ax.text(xloc, yloc, txt.replace("*","_"),
             fontstyle="italic", fontsize=8,
             ha=ha_align, va="center")
@@ -123,6 +123,7 @@ for i, col in enumerate(category_columns):
     for side in ["left", "top", "right"]:
         topax.spines[side].set_visible(False)
     xloc_txt = .02 if dval > 0 else .98
+    ha_align = "left" if dval > 0 else "right"
     topax.text(xloc_txt, .95,
         f"Total {category}\neffect",
         transform=topax.transAxes,
@@ -137,5 +138,4 @@ for i, col in enumerate(category_columns):
 
 # export
 plt.savefig(export_fname)
-plt.savefig(export_fname.replace(".png", c.HIRES_IMAGE_EXTENSION))
 plt.close()

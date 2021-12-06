@@ -36,11 +36,11 @@ import config as c
 import shifterator as sh
 
 
-N_ITERATIONS = 100
+N_ITERATIONS = 1000
 TXT_COL = "post_lemmas"
 
 import_fname = os.path.join(c.DATA_DIR, "derivatives", "posts-clean.tsv")
-export_fname = os.path.join(c.DATA_DIR, "results", "validate-wordshift_perms.tsv")
+export_fname = os.path.join(c.DATA_DIR, "derivatives", "validate-wordshift.tsv")
 df = pd.read_csv(import_fname, sep="\t", encoding="utf-8",
     usecols=["user_id", "lucidity", TXT_COL], index_col="lucidity")
 
@@ -56,15 +56,18 @@ df_list = []
 for i in tqdm.trange(N_ITERATIONS, desc="wordshift resampling"):
 
     # sample one dream per person
-    df_sample = df.groupby("user_id").sample(1, replace=False)
+    df_sample = df.groupby("user_id").sample(n=1, replace=False)
 
     # the number of lucid and non-lucid dreams will differ
     # so find the minimum amount and resample with replacement equally
+    # but don't take from a fraction of that so the data
+    # isn't as biased towards the same data every time.
     resample_size = df_sample.index.value_counts().min()
+    resample_size = int(resample_size*.8) # this tends to hover right above 1000
 
     # resample with replacement for each of LD and nonLD
-    ld_posts  = df_sample.loc["lucid",     TXT_COL].sample(resample_size, replace=True)
-    nld_posts = df_sample.loc["non-lucid", TXT_COL].sample(resample_size, replace=True)
+    ld_posts  = df_sample.loc["lucid",     TXT_COL].sample(resample_size, replace=True, random_state=i)
+    nld_posts = df_sample.loc["non-lucid", TXT_COL].sample(resample_size, replace=True, random_state=i)
 
     # convert to frequencies for shifterator
     ld_freqs  = ld_posts.str.lower().str.split().explode().value_counts().to_dict()

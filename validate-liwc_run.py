@@ -6,7 +6,6 @@ Strings need to be tokenized and lowercased.
 Details inside.
 """
 import os
-# import re
 import tqdm
 import argparse
 import pandas as pd
@@ -21,19 +20,19 @@ tqdm.tqdm.pandas()
 
 parser = argparse.ArgumentParser()
 parser.add_argument("-d", "--dic", type=str, default="myliwc")
-parser.add_argument("-t", "--tokens", action="store_true",
+parser.add_argument("-w", "--words", action="store_true",
     help="Get individual token/word contributions too. Way slower, more memory, extra file.")
 args = parser.parse_args()
 
 DICTIONARY = args.dic
-TOKEN_FREQS = args.tokens
+WORD_CONTRIBUTIONS = args.words
 
 import_fname = os.path.join(c.DATA_DIR, "derivatives", "posts-clean.tsv")
 dict_fname = os.path.join(c.DATA_DIR, "dictionaries", f"{DICTIONARY}.dic")
 export_fname = os.path.join(c.DATA_DIR, "derivatives", "posts-liwc.tsv")
-if TOKEN_FREQS:
-    export_fname2 = os.path.join(c.DATA_DIR, "derivatives", "posts-liwc_tokens-data.npz")
-    export_fname3 = os.path.join(c.DATA_DIR, "derivatives", "posts-liwc_tokens-attr.npz")
+if WORD_CONTRIBUTIONS:
+    export_fname2 = os.path.join(c.DATA_DIR, "derivatives", "posts-liwc_words-data.npz")
+    export_fname3 = os.path.join(c.DATA_DIR, "derivatives", "posts-liwc_words-attr.npz")
 
 ser = pd.read_csv(import_fname, sep="\t", encoding="utf-8",
     usecols=["post_id", "post_txt"], index_col="post_id", squeeze=True)
@@ -45,7 +44,7 @@ parse, category_names = liwc.load_token_parser(dict_fname)
 
 # need the lexicon for the token counting stuff (to catch asterisks).
 # this whole thing is kinda tricky
-if TOKEN_FREQS:
+if WORD_CONTRIBUTIONS:
     lexicon, _ = liwc.read_dic(dict_fname)
     # should all be unique anyways but sets are apparently faster to search in
     vocab = set(lexicon.keys())
@@ -67,7 +66,7 @@ def tokenize4liwc(doc):
 # there's an easier way, without token/word frequencies and more concise code.
 # so for now I'll leave that as a separate code chunk in case I want it later.
 # but otherwise this could be more concise. weird.
-if not TOKEN_FREQS: # simple
+if not WORD_CONTRIBUTIONS: # simple
 
     def liwc_single_doc(doc):
         tokenized_doc = tokenize4liwc(doc)

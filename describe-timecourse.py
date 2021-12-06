@@ -32,7 +32,7 @@ RESTRICT = args.restrict
 ### handle i/o and load in data
 
 import_fname = os.path.join(c.DATA_DIR, "derivatives", "posts-clean.tsv")
-export_fname = os.path.join(c.DATA_DIR, "results", "data-timecourse.png")
+export_fname = os.path.join(c.DATA_DIR, "results", "describe-timecourse.png")
 if WHITE:
     export_fname = export_fname.replace(".png", "_WHITE.png")
 if RESTRICT:
@@ -247,5 +247,4 @@ ax2b.yaxis.set(major_locator=plt.MultipleLocator(major_tick_loc_right),
 
 
 plt.savefig(export_fname)
-plt.savefig(export_fname.replace(".png", c.HIRES_IMAGE_EXTENSION))
 plt.close()

@@ -18,7 +18,7 @@ plt.rcParams["font.sans-serif"] = "Arial"
 
 ### handle i/o and load in data
 import_fname = os.path.join(c.DATA_DIR, "derivatives", "posts-clean.tsv")
-export_fname = os.path.join(c.DATA_DIR, "results", "describe-userfreq.png")
+export_fname = os.path.join(c.DATA_DIR, "results", "describe-usercount.png")
 df = pd.read_csv(import_fname, sep="\t", encoding="utf-8")
 
 
@@ -75,12 +75,11 @@ ax.text(c.MAX_POST_COUNT-10, 1, "max post cutoff",
 
 minor_tick_loc = np.diff(bins).mean()
 ax.set_xlim(0, c.MAX_POST_COUNT)
-ax.xaxis.set(major_locator=plt.MultipleLocator(200),
+ax.xaxis.set(major_locator=plt.MultipleLocator(100),
              minor_locator=plt.MultipleLocator(minor_tick_loc))
 # ax.tick_params(axis="both", which="both", labelsize=10)
 # ax.tick_params(axis="y", which="both", direction="in")
 
 
 plt.savefig(export_fname)
-plt.savefig(export_fname.replace(".png", c.HIRES_IMAGE_EXTENSION))
 plt.close()

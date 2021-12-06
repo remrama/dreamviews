@@ -27,7 +27,7 @@ plt.rcParams["mathtext.bf"] = "Arial:bold"
 #### i/o and load and manipulate data
 
 import_fname = os.path.join(c.DATA_DIR, "derivatives", "posts-clean.tsv")
-export_fname = os.path.join(c.DATA_DIR, "results", "data-category_venn.png")
+export_fname = os.path.join(c.DATA_DIR, "results", "describe-categorycounts.png")
 
 df = pd.read_csv(import_fname, sep="\t", encoding="utf-8", index_col="post_id")
 
@@ -177,5 +177,4 @@ for vlabel, txt in zip(venn_bot.subset_labels, venn_labels_bot):
 
 
 plt.savefig(export_fname)
-plt.savefig(export_fname.replace(".png", c.HIRES_IMAGE_EXTENSION))
 plt.close()

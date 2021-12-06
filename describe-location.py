@@ -10,8 +10,8 @@ import config as c
 import plotly.graph_objects as go
 
 import_fname = os.path.join(c.DATA_DIR, "derivatives", "users-clean.tsv")
-export_fname_plot  = os.path.join(c.DATA_DIR, "results", "describe-locations.png")
-export_fname_table = os.path.join(c.DATA_DIR, "results", "describe-locations.tsv")
+export_fname_plot  = os.path.join(c.DATA_DIR, "results", "describe-location.png")
+export_fname_table = os.path.join(c.DATA_DIR, "results", "describe-location.tsv")
 
 
 df = pd.read_csv(import_fname, sep="\t", encoding="utf-8")

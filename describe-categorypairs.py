@@ -28,8 +28,8 @@ plt.rcParams["mathtext.bf"] = "Arial:bold"
 #### i/o and load data
 
 import_fname = os.path.join(c.DATA_DIR, "derivatives", "posts-clean.tsv")
-export_fname_plot  = os.path.join(c.DATA_DIR, "results", "data-category_pair.png")
-export_fname_table = os.path.join(c.DATA_DIR, "results", "data-category_pair.tsv")
+export_fname_plot  = os.path.join(c.DATA_DIR, "results", "describe-categorypairs.png")
+export_fname_table = os.path.join(c.DATA_DIR, "results", "describe-categorypairs.tsv")
 
 df = pd.read_csv(import_fname, sep="\t", encoding="utf-8", index_col="post_id")
 
@@ -185,6 +185,5 @@ g.ax_joint.text(800, .6, txt,
 # export plots and table
 df_user.to_csv(export_fname_table, sep="\t", index=True, encoding="utf-8")
 plt.savefig(export_fname_plot)
-plt.savefig(export_fname_plot.replace(".png", c.HIRES_IMAGE_EXTENSION))
 plt.close()
 
