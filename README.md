@@ -1,12 +1,12 @@
 # dreamviews_ds
 
-Turning the public [DreamViews Dream Journal](https://www.dreamviews.com/blogs/) into a usable dataset. This repo is strictly for collecting, cleaning, describing, and validating the dataset. It's used in other projects and can be found [here](https://media.giphy.com/media/St0Nd0Qt4WNMLy29vi/giphy.gif).
+Turning the public [DreamViews Dream Journal](https://www.dreamviews.com/blogs/) into a usable dataset. This repo is strictly for collecting, cleaning, describing, and validating the dataset.
 
 ---
 
 See `config.py` for directory info and other configuration stuff. The `DATA_DIR` in `config.py` needs to be set first to match the desired data output location.
 
-The code filenames start with one of `init`, `collect`, `convert`, `clean`, `extract`, `describe`, `validate`, and this precursor explains which of the stages the file is used for.
+The code filenames start with one of `init`, `collect`, `clean`, `extract`, `describe`, `validate`, where the prefix explains which of the stages the file is used for.
 
 Raw data from the web scraping is in `DATA_DIR/source`, "middle-ground" output, like the cleaned posts and aggregated users or raw LIWC output are in `DATA_DIR/derivatives`, and any plots or statistics are output to `DATA_DIR/results`.
 
@@ -22,43 +22,27 @@ python init-generate_liwc_dict.py   # ==> DATA_DIR/dictionaries/myliwc.dic
 ```
 
 
-### COLLECT, CONVERT, and CLEAN data
+### COLLECT and CLEAN data
 
-The first thing we do is grab all the data and tidy it up a bit (without being very invasive or restrictive).
-
-1. Collect/scrape the DreamViews journal and relevant public profiles.
-2. Convert the html files to tsv, super minimal cleaning just to prevent errors.
-3. Clean the raw tsv data a bit for final/usable post and user files.
-4. Extract a principled/controlled subset of the data for manual annotations.
+The first thing we do is grab all the data and tidy it up a bit by performing minimal preprocessing on the text.
 
 ```shell
-# collect raw dream journal posts as html files
-# (note we also get raw user html files, but we need to convert the
-#  raw posts first because we grab only the users who contribute posts)
+# Collect raw dream journal posts as html files.
 python collect-posts.py             # ==> DATA_DIR/source/dreamviews-posts.zip
 ```
 
-Need to jump out and insert the timestamp of day data was collected in the `config.py` file. This is mildly annoying, but the most recent blog/journal posts are stamped as coming from "today" or "yesterday", so those need a reference. Should be a `YYYY-MM-DD` string. This is also used in both the conversion scripts, including users, so make sure they are collected on the same day.
+Need to jump out and insert the timestamp of day data was collected in the `config.py` file (as `YYYY-MM-DD` string). This is mildly annoying, but the most recent blog/journal posts are stamped as coming from "today" or "yesterday", so those need a reference. This is also used in processing the raw html text of both posts and users so make sure they are collected on the same day. Or the portal to hell will open.
 
 ```shell
-# convert raw html dream journal posts to a tsv (nothing cleaned yet)
-# and get the names of user profiles to pull
-python convert-posts.py             # ==> DATA_DIR/derivatives/posts-raw.tsv
-                                    # ==> DATA_DIR/derivatives/users-anon_key.json
+# Convert raw html posts into a cleaned tsv file.
+# This cleans the text and implemnts exclusion criteria.
+# All posts and users get unique randomized IDs (also save from this).
+python clean-posts.py               # ==> DATA_DIR/derivatives/dreamviews-posts.tsv
+                                    # ==> DATA_DIR/derivatives/dreamviews-users_key.json
 
-# now, with the usernames generated, we can collect relevant user profiles
+# Collect the relevant user profiles and clean them.
 python collect-users.py             # ==> DATA_DIR/source/dreamviews-users.zip
-
-# clean the dream journal posts, exporting a tsv and also a folder of text files
-python clean-posts.py               # ==> DATA_DIR/derivatives/posts-clean.tsv
-python tsv2txt-posts.py             # ==> DATA_DIR/derivatives/posts/<post_id>.txt
-
-# convert and clean the users
-python convert-users.py             # ==> DATA_DIR/derivatives/users-raw.csv
-python clean-users.py               # ==> DATA_DIR/derivatives/users-clean.csv
-
-# grab a tightly controlled subset of the data for manual stuff
-python extract-subset.py            # ==> DATA_DIR/derivatives/posts-subset.csv
+python clean-users.py               # ==> DATA_DIR/derivatives/dreamviews-users.tsv
 ```
 
 
@@ -68,8 +52,7 @@ Export plots and summary statistics describing the dataset.
 
 1. Count how much data there is.
 2. Describe the breakdown of lucid/non-lucid labels.
-3. Explore the word counts before and after lemmatization.
-4. Describe the demographics.
+3. Describe the demographics.
 
 ```shell
 ##### Visualize the amount of data there is.
@@ -84,18 +67,8 @@ python describe-usercount.py         # ==> DATA_DIR/results/describe-usercount.p
 python describe-wordcount.py        # ==> DATA_DIR/results/describe-wordcount.png
 
 
-##### Visualize the user demographics.
-
-# reported gender and age
-python describe-demographics.py     # ==> DATA_DIR/results/describe-demographics.png
-
-# reported location/country
-python describe-location.py         # ==> DATA_DIR/results/describe-location.tsv
-                                    # ==> DATA_DIR/results/describe-location.png
-
-
 ##### Each post can have "category" or "tag" labels.
-##### Visualize the amount of posts with from each relevant category.
+##### Visualize the amount of posts from each relevant category.
 
 # generate a tsv for top categories and labels
 python describe-toplabels.py        # ==> DATA_DIR/results/describe-topcategories.tsv
@@ -107,17 +80,25 @@ python describe-categorycounts.py   # ==> DATA_DIR/results/describe-categorycoun
 # number of participants with both lucid and non-lucid posts
 python describe-categorypairs.py    # ==> DATA_DIR/results/describe-categorypairs.tsv
                                     # ==> DATA_DIR/results/describe-categorypairs.png
+
+
+##### Visualize the user demographics.
+
+# reported gender and age
+python describe-demographics.py     # ==> DATA_DIR/results/describe-demographics.png
+
+# reported location/country
+python describe-location.py         # ==> DATA_DIR/results/describe-location.tsv
+                                    # ==> DATA_DIR/results/describe-location.png
 ```
 
 
 ### VALIDATE data
 
-Show that overall the posts "look like" dreams, and then the lucid and non-lucid posts are differentiable in predictable ways based on previous literature.
+Show that the lucid and non-lucid posts are differentiable in predictable ways based on previous literature.
 
-1. Show that LDs and non-LDs can be distinguished with language with a BoW classifier.
-2. Visualize a general word difference between LD and non-LD.
-3. Show that LDs have more insight and agency in LIWC (lucidity and control, respectively).
-4. Explore LD language with topic modeling.
+1. Show that LDs and non-LDs can be distinguished with language.
+2. Show that LDs have more insight and agency in LIWC (lucidity and control, respectively).
 
 ```shell
 # classifier
@@ -142,8 +123,4 @@ python validate-liwc.py             # ==> DATA_DIR/derivatives/validate-liwc.tsv
 # plot individual word contributions for insight and agency effects LD vs non-LD
 python validate-liwcwords_perms.py  # ==> DATA_DIR/results/validate-liwcwords.tsv
 python validate-liwcwords.py        # ==> DATA_DIR/results/validate-liwcwords.png
-
-# explore latent topic structure of lucid dreams
-python validate-topicmodel_run.py   # ==> DATA_DIR/results/validate-topicmodel.tsv
-python validate-topicmodel.py       # ==> DATA_DIR/results/validate-topicmodel.png
 ```

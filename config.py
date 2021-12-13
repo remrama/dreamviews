@@ -1,17 +1,14 @@
-DATA_DIR = r"C:\Users\rrm2308\data\dreamviews_ds"
+DATA_DIR = r"C:\Users\rrm2308\PROJECTS\dreamviews_ds\data"
 
-DATA_COLLECTION_DATE = "2021-10-09" # needed in convert-posts.py for defining today/yesterday
+DATA_COLLECTION_DATE = "2021-12-12" # needed in convert-posts.py for defining today/yesterday
 
 BLOG_TIMESTAMP_FORMAT = "%m-%d-%Y at %I:%M %p"
 
 HIRES_IMAGE_EXTENSION = ".eps" # what to save in addition to png
 
-MIN_ALPHA_CHARS = 100 # needed in convert-posts.py to restrict uber-short posts, token limit will catch the most
-MIN_TOKEN_COUNT = 50
-MAX_TOKEN_COUNT = 1000
-MAX_POST_COUNT  = 1000 # limiting the number of posts a single user can have
-MIN_LEMMA_COUNT = 3
-MIN_LEMMA_CHARS = 3
+MIN_WORDCOUNT = 50
+MAX_WORDCOUNT = 1000
+MAX_POSTCOUNT = 1000 # limiting the number of posts a single user can have
 
 COLORS = {
     "lucid"        : "royalblue",
@@ -22,6 +19,13 @@ COLORS = {
     "novel-user"   : "gold",
     "repeat-user"  : "goldenrod",
 }
+
+
+def strip_doublebracket_content(txt):
+    """match anything in double square brackets (including the brackets)
+    Beware -- will leave extra space if there was a space on both sides.
+    """
+    return re.sub(r"\[\[.*?\]\]", "", redacted_text)
 
 
 def no_leading_zeros(x, pos):

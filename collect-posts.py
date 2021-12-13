@@ -1,4 +1,4 @@
-"""Scrape all DreamViews dream journal entries,
+"""Crawl all DreamViews dream journal entries,
 saving the raw html files into a zipfile for later processing.
 """
 import os
@@ -32,7 +32,7 @@ with requests.Session() as session:
     # loop over all dream journal pages
     with zipfile.ZipFile(export_fname, mode="x", compression=zipfile.ZIP_DEFLATED) as zf:
 
-        for i in tqdm.trange(1, n_pages+1, desc="DreamViews posts scraper"):
+        for i in tqdm.trange(1, n_pages+1, desc="DreamViews posts crawl"):
 
             url = f"{DREAMVIEWS_URL}/index{i}.html"
             export_singlefile_fname = f"index{i:04d}.html"
