@@ -51,6 +51,14 @@ Export plots and summary statistics describing the dataset.
 3. Describe the demographics.
 
 ```shell
+##### Visualize user demographics.
+
+# reported gender, age, and location
+python describe-demographics.py     # ==> DATA_DIR/results/describe-demographics.png
+                                    # ==> DATA_DIR/results/describe-demographics.tsv
+                                    # ==> DATA_DIR/results/describe-demographics_locations.tsv
+
+
 ##### Visualize the amount of data there is.
 
 # frequency of posts over time
@@ -78,14 +86,6 @@ python describe-categorypairs.py    # ==> DATA_DIR/results/describe-categorypair
                                     # ==> DATA_DIR/results/describe-categorypairs.png
 
 
-##### Visualize the user demographics.
-
-# reported gender and age
-python describe-demographics.py     # ==> DATA_DIR/results/describe-demographics.png
-
-# reported location/country
-python describe-location.py         # ==> DATA_DIR/results/describe-location.tsv
-                                    # ==> DATA_DIR/results/describe-location.png
 ```
 
 
