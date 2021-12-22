@@ -5,7 +5,7 @@ BLOG_TIMESTAMP_FORMAT = "%m-%d-%Y at %I:%M %p"
 START_DATE = "2010-01-01"
 END_DATE = "2020-12-31"
 
-HIRES_IMAGE_EXTENSION = ".eps" # what to save in addition to png
+HIRES_IMAGE_EXTENSIONS = [".svg", ".eps", ".pdf"] # what to save in addition to png
 
 MIN_WORDCOUNT = 50
 MAX_WORDCOUNT = 1000

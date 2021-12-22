@@ -22,3 +22,7 @@ for subdir in DATA_SUBDIRECTORIES:
     subdir_path = os.path.join(c.DATA_DIR, subdir)
     if not os.path.isdir(subdir_path):
         os.mkdir(subdir_path)
+        # put a hires folder in the results directory for vector images
+        if subdir == "results":
+            hires_path = os.path.join(subdir_path, "hires")
+            os.mkdir(hires_path)

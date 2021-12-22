@@ -170,6 +170,10 @@ ax2.text(.05, .2, unstated_txt, transform=ax2.transAxes,
     ha="left", va="top", fontsize=8)
 
 
-
+# export with various extensions
 plt.savefig(export_fname_plot)
+for ext in c.HIRES_IMAGE_EXTENSIONS:
+    basename = os.path.basename(export_fname_plot).replace(".png", ext)
+    fname = os.path.join(c.DATA_DIR, "results", "hires", basename)
+    plt.savefig(fname)
 plt.close()
