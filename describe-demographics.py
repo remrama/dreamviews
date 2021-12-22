@@ -15,8 +15,9 @@ plt.rcParams["interactive"] = True
 plt.rcParams["font.family"] = "sans-serif"
 plt.rcParams["font.sans-serif"] = "Arial"
 
-import_fname = os.path.join(c.DATA_DIR, "derivatives", "users-clean.tsv")
-export_fname = os.path.join(c.DATA_DIR, "results", "describe-demographics.png")
+import_fname = os.path.join(c.DATA_DIR, "derivatives", "dreamviews-users.tsv")
+export_fname_plot = os.path.join(c.DATA_DIR, "results", "describe-demographics.png")
+export_fname_table = os.path.join(c.DATA_DIR, "results", "describe-demographics.tsv")
 
 
 df = pd.read_csv(import_fname, sep="\t", encoding="utf-8")
@@ -42,15 +43,19 @@ df["age"] = pd.Categorical(age_binned,
     ).fillna("unstated")
 
 
+## export specific values
+out = df.groupby(["gender","age"]).size().rename("count")
+out.to_csv(export_fname_table, sep="\t", index=True, encoding="utf-8")
+
 
 ########## draw
 
-n_ages = len(CUT_LABELS_WITH_NA)
-age_cmap = plt.cm.get_cmap("plasma")
-colorscaler = lambda i: age_cmap(i/n_ages)
-
-fig, ax = plt.subplots(figsize=(3.5, 5),
-    constrained_layout=True)
+# generate a custom color palette with one colormap
+# for the binned ages and a blank/white for no info
+cmap = plt.get_cmap("plasma", len(CUT_LABELS))
+age_colors = cmap.colors
+age_colors = np.vstack([age_colors, [1,1,1,1]]) # add a white
+age_palette = { age: rgba for age, rgba in zip(CUT_LABELS_WITH_NA, age_colors) }
 
 BAR_KWS = {
     "linewidth" : .5,
@@ -58,9 +63,12 @@ BAR_KWS = {
     "alpha" : 1,
 }
 
+fig, ax = plt.subplots(figsize=(3, 3),
+    constrained_layout=True)
+
 sea.histplot(data=df, x="gender", hue="age",
     multiple="stack", stat="count", element="bars",
-    palette="plasma",
+    palette=age_palette,
     hue_order=CUT_LABELS_WITH_NA[::-1],
     ax=ax, legend=True,
     **BAR_KWS)
@@ -95,5 +103,5 @@ legend = ax.legend(title="reported age",
 # legend._legend_box.sep = 1 # brings title up farther on top of handles/labels
 
 
-plt.savefig(export_fname)
+plt.savefig(export_fname_plot)
 plt.close()
