@@ -1,6 +1,6 @@
 # dreamviews_ds
 
-Turning the public [DreamViews Dream Journal](https://www.dreamviews.com/blogs/) into a usable dataset. This repo is strictly for collecting, cleaning, describing, and validating the dataset.
+Turning the public [DreamViews Dream Journal](https://www.dreamviews.com/blogs/) into a usable dataset. This repo is for collecting, cleaning, describing, and validating the dataset.
 
 ---
 
@@ -24,16 +24,12 @@ python init-generate_liwc_dict.py   # ==> DATA_DIR/dictionaries/myliwc.dic
 
 ### COLLECT and CLEAN data
 
-The first thing we do is grab all the data and tidy it up a bit by performing minimal preprocessing on the text.
+Grab all the data and tidy it up a bit along with minimal text preprocessing.
 
 ```shell
 # Collect raw dream journal posts as html files.
 python collect-posts.py             # ==> DATA_DIR/source/dreamviews-posts.zip
-```
 
-Need to jump out and insert the timestamp of day data was collected in the `config.py` file (as `YYYY-MM-DD` string). This is mildly annoying, but the most recent blog/journal posts are stamped as coming from "today" or "yesterday", so those need a reference. This is also used in processing the raw html text of both posts and users so make sure they are collected on the same day. Or the portal to hell will open.
-
-```shell
 # Convert raw html posts into a cleaned tsv file.
 # This cleans the text and implemnts exclusion criteria.
 # All posts and users get unique randomized IDs (also save from this).

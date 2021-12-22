@@ -11,7 +11,6 @@ import re
 import tqdm
 import json
 import zipfile
-import datetime
 import pycountry
 import pandas as pd
 from bs4 import BeautifulSoup
@@ -25,8 +24,7 @@ import_fname_user_key = os.path.join(c.DATA_DIR, "derivatives", "dreamviews-user
 
 
 # select which columns survive to final output file
-KEEP_COLUMNS = [ ## DONT include "biography" which sometimes has real names
-    "user_id",
+KEEP_COLUMNS = [ ## never include "biography" which sometimes has real names
     "gender",
     "age",
     "country",
@@ -101,21 +99,13 @@ with zipfile.ZipFile(import_fname_html, mode="r") as zf:
 # Aggregate user data into a dataframe.
 df = pd.DataFrame.from_dict(all_user_data, orient="index")
 
-# Convert timestamps to iso format for consistency with other files.
-dayonly_format   = c.BLOG_TIMESTAMP_FORMAT.split(" at ")[0]
-today            = datetime.datetime.strptime(c.DATA_COLLECTION_DATE, "%Y-%m-%d").date()
-yesterday        = today - datetime.timedelta(days=1)
-today_string     = today.strftime(dayonly_format)
-yesterday_string = yesterday.strftime(dayonly_format)
-for col in ["join_date", "last_activity", "most_recent_message"]:
-    df[col] = df[col].str.replace("Today", today_string
-                    ).str.replace("Yesterday", yesterday_string)
+# convert join date to year-month-day
+# other date columns (last_activity and most_recent_message)
+# could also be converted but they aren't that useful and
+# sometimes have they "Today/Yesterday" in them.
+# Not keeping any of them anyways so don't worry about converting.
 df["join_date"] = pd.to_datetime(df["join_date"],
     format="%m-%d-%Y").dt.strftime("%Y-%m-%d")
-df["last_activity"] = pd.to_datetime(df["last_activity"],
-    format="%m-%d-%Y %H:%M %p").dt.strftime("%Y-%m-%dT%H:%M")
-df["most_recent_message"] = pd.to_datetime(df["most_recent_message"],
-    format="%m-%d-%Y %H:%M %p").dt.strftime("%Y-%m-%dT%H:%M")
 
 df.sort_values(["join_date", "last_activity"], inplace=True)
 
@@ -179,4 +169,4 @@ df["gender"] = df["gender"].str.lower()
 # Export.
 
 df[KEEP_COLUMNS].to_csv(export_fname, encoding="ascii",
-    sep="\t", na_rep="NA", index=False)
+    sep="\t", na_rep="NA", index=True, index_label="user_id")

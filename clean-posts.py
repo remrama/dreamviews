@@ -69,8 +69,8 @@ SPACY_MODEL = "en_core_web_lg" # en_core_web_lg, en_core_web_trf (en_core_web_sm
 
 # check spaCy model
 if not spacy.util.is_package(SPACY_MODEL):
-    resp = input(f"{SPACY_MODEL} not found -- download now?? (y/n)")
-    if resp.lower() == "y":
+    resp = input(f"{SPACY_MODEL} not found -- download now?? (Y/n)")
+    if resp.lower() in ["", "y"]:
         spacy.cli.download(SPACY_MODEL)
 
 ####### Load spaCy model
@@ -143,16 +143,9 @@ import_fname = os.path.join(c.DATA_DIR, "source", "dreamviews-posts.zip")
 export_fname_posts   = os.path.join(c.DATA_DIR, "derivatives", "dreamviews-posts.tsv")
 export_fname_userkey = os.path.join(c.DATA_DIR, "derivatives", "dreamviews-users_key.json")
 
-
-# Entries use "Today" and "Yesterday" strings for time sometime so
-# need to convert those to actual dates for saving dates of blog posts.
-# In practice, this means getting actual date of today and yesterday for modifying blogdates later.
-dayonly_format   = c.BLOG_TIMESTAMP_FORMAT.split(" at ")[0]
-today            = datetime.datetime.strptime(c.DATA_COLLECTION_DATE, "%Y-%m-%d").date()
-yesterday        = today - datetime.timedelta(days=1)
-today_string     = today.strftime(dayonly_format)
-yesterday_string = yesterday.strftime(dayonly_format)
-
+# create datetime objects for comparison later
+start_datetime = datetime.datetime.strptime(c.START_DATE, "%Y-%m-%d")
+end_datetime = datetime.datetime.strptime(c.END_DATE, "%Y-%m-%d")
 
 # read in all the html files at once
 with zipfile.ZipFile(import_fname, mode="r") as zf:
@@ -297,23 +290,32 @@ for html_byt in tqdm.tqdm(html_files, desc="parsing html dream journal pages"):
             date_txt, date_descriptor = date_txt.rstrip(")").split(" (", 1)
 
             # -- RESTRICT --
+            # There is a kind of "community" dream journal focused on shared dreaming.
+            # https://www.dreamviews.com/blogs/iosdp/
+            # Remove anything from here, since sometimes the usernames are innacurate
+            # with respect to the dream content, and also they are for shared dreaming
+            # attempts specifically.
+            # They are sometimes identifiable with a username of "IOSDP" but not always.
+            # but other times not. Most effective to look at the parenthetical
+            # next to the date.
             # Take out posts from the shared shared dream journal.
             if date_descriptor == "International Oneironaut Shared Dreaming Journal":
                 continue
             
             
         # Recent posts are marked as "today" or "yesterday"
-        # so replace them with proper date strings.
-        if "Today" in date_txt:
-            date_txt = date_txt.replace("Today", today_string)
-        elif "Yesterday" in date_txt:
-            date_txt = date_txt.replace("Yesterday", yesterday_string)
-        
+        # just skip them not worth the clunky conversion and
+        # restricting before then anyways.
+        if "Today" in date_txt or "Yesterday" in date_txt:
+            continue
+
         # Convert string for iso-format for standardization.
         blogdatetime = datetime.datetime.strptime(date_txt, c.BLOG_TIMESTAMP_FORMAT)
         date_txt_iso = blogdatetime.strftime("%Y-%m-%dT%H:%M")
 
-
+        # restrict to the time window for cleanliness (and pre-2010 is weird)
+        if blogdatetime < start_datetime or blogdatetime > end_datetime:
+            continue
 
         #############################################################################
         #################   Extract/parse the Tags and Categories   #################
@@ -330,47 +332,17 @@ for html_byt in tqdm.tqdm(html_files, desc="parsing html dream journal pages"):
 
         ## Break the post text into post, tags, and categories.
 
-        # if "(Added Categories)" in post_txt:
-        #     # This gets added if the user adds to the category list during an update.
-        #     assert post_txt.count("(Added Categories)") == 1
-        #     post_txt = post_txt.replace("(Added Categories)", "")
-        # Start by skipping or handling a few weirds cases (found manually).
-
-        # Some instances where some old posts were copy/pasted into new posts.
-        # Who actually wrote the posts is unclear and there are multiple dreams so just skip and don't include them.
-        if random_state in [2198, 3539, 38044, 38075]:
+        # -- RESTRICT --
+        # There are some (10-20) posts that have multiple instances of "Tags" and/or "Categories".
+        # Sometimes they are garbage anyways to-be skipped, like when
+        # the post is actually a copy/paste of multiple prior entries.
+        # Other times they are salvageable but it's annoying and not worth
+        # it to save the handful. They are generally places where the user
+        # inserted tags or categories manually at the end as well, or
+        # when categories is in the "Updated" section that is later removed.
+        # Skip them all.
+        if post_txt.count("Categories") > 1 or post_txt.count("Tags") > 1:
             continue
-        # Sometimes a user manually added Tags and Categories to their post.
-        # They basically doubled-up, so remove the manual/body entries so only "official" get extracted.
-        # (could also just check this with counting Tags/Categories as 2 in the whole string)
-        if random_state in [19850, 22313, 23661, 33635, 33775, 33936]:
-            post_txt = re.sub(r"Tags:.*(?=\n)", "", post_txt, count=1) # removes the first Tags sequence
-        if random_state in [32498]:
-            post_txt = re.sub(r"Categories.*(?=\n)", "", post_txt, count=1)
-        # Sometimes an update has a little explanation in parentheses after it.
-        # This will all get removed later, but for now it messes up the Category splitting.
-        # For now just replace them.
-        if random_state in [6582, 41184, 45138, 65607]:
-            post_txt = re.sub(r"\(.*?Categories.*?\)", "", post_txt, count=1)
-
-        # There is a kind of "community" dream journal focused on shared dreaming.
-        # https://www.dreamviews.com/blogs/iosdp/
-        # Remove anything from here, since sometimes the usernames are innacurate
-        # with respect to the dream content, and also they are for shared dreaming
-        # attempts specifically.
-        # They are sometimes identifiable with a username of "IOSDP" but not always.
-        # but other times not. Most effective to look at the parenthetical
-        # next to the date.
-
-        # # eg, one entry that is copy/pasted multiple entries
-        # # which breaks this and shouldnt be counted anyways.
-        # # this is a good way to ensure single entries
-        # if (("Tags:" in post_txt and len(components) != 3)
-        #     or ("Tags:" not in post_txt and len(components) != 2)):
-        #     continue
-
-        # assert post_txt.count("Categories") == 1
-        # assert post_txt.count("Tags:") in [0, 1]
 
         # break blog into dream report, tags, and categories
         ## see check a few lines down that makes sure there are limited appearances of these things

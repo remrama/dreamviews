@@ -1,8 +1,9 @@
-DATA_DIR = r"C:\Users\rrm2308\PROJECTS\dreamviews_ds\data"
-
-DATA_COLLECTION_DATE = "2021-12-12" # needed in convert-posts.py for defining today/yesterday
+DATA_DIR = r"C:\Users\malle\PROJECTS\dreamviews_ds\data"
 
 BLOG_TIMESTAMP_FORMAT = "%m-%d-%Y at %I:%M %p"
+
+START_DATE = "2010-01-01"
+END_DATE = "2020-12-31"
 
 HIRES_IMAGE_EXTENSION = ".eps" # what to save in addition to png
 
