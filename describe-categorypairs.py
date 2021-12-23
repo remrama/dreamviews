@@ -14,35 +14,23 @@ import config as c
 
 import seaborn as sea
 import matplotlib.pyplot as plt
+c.load_matplotlib_settings()
 
-plt.rcParams["savefig.dpi"] = 600
-plt.rcParams["interactive"] = True
-plt.rcParams["font.family"] = "sans-serif"
-plt.rcParams["font.sans-serif"] = "Arial"
-plt.rcParams["mathtext.fontset"] = "custom"
-plt.rcParams["mathtext.rm"] = "Arial"
-plt.rcParams["mathtext.it"] = "Arial:italic"
-plt.rcParams["mathtext.bf"] = "Arial:bold"
 
 
 #### i/o and load data
 
-import_fname = os.path.join(c.DATA_DIR, "derivatives", "posts-clean.tsv")
 export_fname_plot  = os.path.join(c.DATA_DIR, "results", "describe-categorypairs.png")
 export_fname_table = os.path.join(c.DATA_DIR, "results", "describe-categorypairs.tsv")
 
-df = pd.read_csv(import_fname, sep="\t", encoding="utf-8", index_col="post_id")
+df, _ = c.load_dreamviews_data()
 
-
-#### manipulate data and generate new dataframe
-
-# only care about specified lucid/nonlucid dreams here
-df = df[ df["lucidity"].str.contains("lucid") ]
 
 # generate dataframe that has the count of lucid and
 # nonlucid dreams for each user that had at least 1
-SORT_ORDER = ["non-lucid", "lucid"]
-df_user = df.groupby(["user_id", "lucidity"]
+SORT_ORDER = ["nonlucid", "lucid"]
+df_user = df[df["lucidity"].str.contains("lucid")
+    ].groupby(["user_id", "lucidity"]
     ).size().rename("count"
     ).unstack(fill_value=0
     ).sort_values(SORT_ORDER, ascending=False
@@ -63,7 +51,7 @@ bins = list(np.concatenate(bin_sets) - .5)
 
 # intialize the facetgrid/jointgrid (this doesn't draw anything)
 g = sea.JointGrid(data=df_user,
-    x="n_non-lucid", y="n_lucid",
+    x="n_nonlucid", y="n_lucid",
     marginal_ticks=True,
     height=4,
     ratio=4, # ratio of joint-to-marginal axis heights
@@ -78,7 +66,7 @@ g.plot_joint(sea.histplot,
     cmap=sea.light_palette(c.COLORS["ambiguous"], as_cmap=True),
     bins=bins, # ignored with discrete=True or (True, True)
     vmin=1, vmax=1000,
-    norm=plt.matplotlib.colors.SymLogNorm(1),
+    norm=plt.matplotlib.colors.SymLogNorm(1, base=10),
     cbar=True, cbar_ax=cax,
     cbar_kws={"orientation" : "horizontal",
               "ticks" : [1, 10, 100, 1000],
@@ -126,7 +114,7 @@ assert max_mesh_val <= 1000
 # manually change colors bc I don't see a way at the initial stage
 x_polys = g.ax_marg_x.get_children()[0] # gets poly collection
 y_polys = g.ax_marg_y.get_children()[0]
-x_polys.set_color(c.COLORS["non-lucid"])
+x_polys.set_color(c.COLORS["nonlucid"])
 y_polys.set_color(c.COLORS["lucid"])
 
 # unlike when using JointPlot, setting
@@ -185,5 +173,6 @@ g.ax_joint.text(800, .6, txt,
 # export plots and table
 df_user.to_csv(export_fname_table, sep="\t", index=True, encoding="utf-8")
 plt.savefig(export_fname_plot)
+c.save_hires_figs(export_fname_plot)
 plt.close()
 

@@ -46,35 +46,11 @@ python clean-users.py               # ==> DATA_DIR/derivatives/dreamviews-users.
 
 Export plots and summary statistics describing the dataset.
 
-1. Count how much data there is.
-2. Describe the breakdown of lucid/non-lucid labels.
-3. Describe the demographics.
-
 ```shell
-##### Visualize user demographics.
-
-# reported gender, age, and location
-python describe-demographics.py     # ==> DATA_DIR/results/describe-demographics.png
-                                    # ==> DATA_DIR/results/describe-demographics.tsv
-                                    # ==> DATA_DIR/results/describe-demographics_locations.tsv
-
-
-##### Visualize the amount of data there is.
-
-# frequency of posts over time
-python describe-timecourse.py       # ==> DATA_DIR/results/describe-timecourse.png
-
-# frequency of posts per user
-python describe-usercount.py         # ==> DATA_DIR/results/describe-usercount.png
-
-# post length (word counts)
-python describe-wordcount.py        # ==> DATA_DIR/results/describe-wordcount.png
-
-
 ##### Each post can have "category" or "tag" labels.
 ##### Visualize the amount of posts from each relevant category.
 
-# generate a tsv for top categories and labels
+# generate top categories and labels
 python describe-toplabels.py        # ==> DATA_DIR/results/describe-topcategories.tsv
                                     # ==> DATA_DIR/results/describe-toptags.tsv
 
@@ -86,6 +62,18 @@ python describe-categorypairs.py    # ==> DATA_DIR/results/describe-categorypair
                                     # ==> DATA_DIR/results/describe-categorypairs.png
 
 
+##### Visualize user demographics.
+# reported gender, age, and location
+python describe-demographics.py     # ==> DATA_DIR/results/describe-demographics.png
+                                    # ==> DATA_DIR/results/describe-demographics.tsv
+                                    # ==> DATA_DIR/results/describe-demographics_locations.tsv
+
+
+##### Visualize the amount of data there is.
+# frequency of posts over time, posts per user, and word counts
+python describe-timecourse.py       # ==> DATA_DIR/results/describe-timecourse.png
+python describe-usercount.py         # ==> DATA_DIR/results/describe-usercount.png
+python describe-wordcount.py        # ==> DATA_DIR/results/describe-wordcount.png
 ```
 
 

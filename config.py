@@ -5,7 +5,6 @@ BLOG_TIMESTAMP_FORMAT = "%m-%d-%Y at %I:%M %p"
 START_DATE = "2010-01-01"
 END_DATE = "2020-12-31"
 
-HIRES_IMAGE_EXTENSIONS = [".svg", ".eps", ".pdf"] # what to save in addition to png
 
 MIN_WORDCOUNT = 50
 MAX_WORDCOUNT = 1000
@@ -13,7 +12,7 @@ MAX_POSTCOUNT = 1000 # limiting the number of posts a single user can have
 
 COLORS = {
     "lucid"        : "royalblue",
-    "non-lucid"    : "darkorange",
+    "nonlucid"     : "darkorange",
     "unspecified"  : "bisque",
     "ambiguous"    : "#c69c6d",
     "nightmare"    : "red",
@@ -22,11 +21,33 @@ COLORS = {
 }
 
 
+def load_dreamviews_data():
+    import os; import pandas as pd
+    posts_fname = os.path.join(DATA_DIR, "derivatives", "dreamviews-posts.tsv")
+    users_fname = os.path.join(DATA_DIR, "derivatives", "dreamviews-users.tsv")
+    posts = pd.read_csv(posts_fname, sep="\t", encoding="ascii", parse_dates=["timestamp"])
+    users = pd.read_csv(users_fname, sep="\t", encoding="ascii")
+    return posts, users
+
+
 def strip_doublebracket_content(txt):
     """match anything in double square brackets (including the brackets)
     Beware -- will leave extra space if there was a space on both sides.
     """
     return re.sub(r"\[\[.*?\]\]", "", redacted_text)
+
+
+def load_matplotlib_settings():
+    from matplotlib.pyplot import rcParams
+    rcParams["savefig.dpi"] = 600
+    rcParams["interactive"] = True
+    rcParams["font.family"] = "sans-serif"
+    rcParams["font.sans-serif"] = "Arial"
+    rcParams["mathtext.fontset"] = "custom"
+    rcParams["mathtext.rm"] = "Arial"
+    rcParams["mathtext.cal"] = "Arial"
+    rcParams["mathtext.it"] = "Arial:italic"
+    rcParams["mathtext.bf"] = "Arial:bold"
 
 
 def no_leading_zeros(x, pos):
@@ -37,3 +58,15 @@ def no_leading_zeros(x, pos):
         return val_str.replace("0", "", 1)
     else:
         return val_str
+
+
+def save_hires_figs(png_fname, hires_extensions=[".svg", ".eps", ".pdf"]):
+    # replace the extension and go down into a "hires" folder which should be there
+    import os
+    from matplotlib.pyplot import savefig
+    png_dir, png_bname = os.path.split(png_fname)
+    hires_dir = os.path.join(png_dir, "hires")
+    for ext in hires_extensions:
+        hires_bname = png_bname.replace(".png", ext)
+        hires_fname = os.path.join(hires_dir, hires_bname)
+        savefig(hires_fname)

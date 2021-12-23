@@ -11,19 +11,15 @@ import config as c
 
 import seaborn as sea
 import matplotlib.pyplot as plt
-plt.rcParams["savefig.dpi"] = 600
-plt.rcParams["interactive"] = True
-plt.rcParams["font.family"] = "sans-serif"
-plt.rcParams["font.sans-serif"] = "Arial"
+c.load_matplotlib_settings()
 
-import_fname = os.path.join(c.DATA_DIR, "derivatives", "dreamviews-users.tsv")
 
 export_fname_plot = os.path.join(c.DATA_DIR, "results", "describe-demographics.png")
 export_fname_table = os.path.join(c.DATA_DIR, "results", "describe-demographics.tsv")
 export_fname_table_locs = os.path.join(c.DATA_DIR, "results", "describe-demographics_locations.tsv")
 
 
-df = pd.read_csv(import_fname, sep="\t", encoding="utf-8")
+_, df = c.load_dreamviews_data()
 
 
 ####### country choropleth stuff
@@ -172,8 +168,5 @@ ax2.text(.05, .2, unstated_txt, transform=ax2.transAxes,
 
 # export with various extensions
 plt.savefig(export_fname_plot)
-for ext in c.HIRES_IMAGE_EXTENSIONS:
-    basename = os.path.basename(export_fname_plot).replace(".png", ext)
-    fname = os.path.join(c.DATA_DIR, "results", "hires", basename)
-    plt.savefig(fname)
+c.save_hires_figs(export_fname_plot)
 plt.close()

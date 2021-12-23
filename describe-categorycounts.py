@@ -11,29 +11,21 @@ import pandas as pd
 import config as c
 
 import matplotlib.pyplot as plt
-
 from matplotlib_venn import venn2, venn3
+c.load_matplotlib_settings()
 
-plt.rcParams["savefig.dpi"] = 600
-plt.rcParams["interactive"] = True
-plt.rcParams["font.family"] = "sans-serif"
-plt.rcParams["font.sans-serif"] = "Arial"
-# plt.rcParams["mathtext.fontset"] = "custom"
-plt.rcParams["mathtext.rm"] = "Arial"
-plt.rcParams["mathtext.it"] = "Arial:italic"
-plt.rcParams["mathtext.bf"] = "Arial:bold"
 
 
 #### i/o and load and manipulate data
 
-import_fname = os.path.join(c.DATA_DIR, "derivatives", "posts-clean.tsv")
 export_fname = os.path.join(c.DATA_DIR, "results", "describe-categorycounts.png")
 
-df = pd.read_csv(import_fname, sep="\t", encoding="utf-8", index_col="post_id")
+df, _ = c.load_dreamviews_data()
+df = df.set_index("post_id")
 
 # make new columns that denote lucid/non-lucid, independent of overlap
 df["lucid"]    = df["lucidity"].isin(["ambiguous", "lucid"])
-df["nonlucid"] = df["lucidity"].isin(["ambiguous", "non-lucid"])
+df["nonlucid"] = df["lucidity"].isin(["ambiguous", "nonlucid"])
 # and unspecified by itself for smaller/bottom axis
 df["unspecified"] = df["lucidity"].eq("unspecified")
 
@@ -42,89 +34,8 @@ df["unspecified"] = df["lucidity"].eq("unspecified")
 
 ## requires generating 7 (or 3) venn values in a specific order
 
-VENN_ORDER_TOP = ["non-lucid", "lucid", "nightmare"]
-VENN_ORDER_BOT = ["unspecified", "nightmare"]
-
-
-##### main 3-circle venn
-
-# generate boolean series' to calculate them
-Abc = ( df.nonlucid & ~df.lucid & ~df.nightmare)
-aBc = (~df.nonlucid &  df.lucid & ~df.nightmare)
-ABc = ( df.nonlucid &  df.lucid & ~df.nightmare)
-abC = (~df.nonlucid & ~df.lucid &  df.nightmare)
-AbC = ( df.nonlucid & ~df.lucid &  df.nightmare)
-aBC = (~df.nonlucid &  df.lucid &  df.nightmare)
-ABC = ( df.nonlucid &  df.lucid &  df.nightmare)
-
-
-# put the series in the necessary order
-series_list_top = [Abc, aBc, ABc, abC, AbC, aBC, ABC]
-
-# use the series to get the number of posts AND users at each venn location
-n_posts_top = [ s.sum() for s in series_list_top ]
-n_users_top = [ df.loc[s, "user_id"].nunique() for s in series_list_top ]
-
-# calculate the report:user fraction for each venn location
-venn_sizes_top = [ p/u for p, u in zip(n_posts_top, n_users_top) ]
-
-# generate new txt labels too
-venn_labels_top = []
-for i, (p, u) in enumerate(zip(n_posts_top, n_users_top)):
-    if i == 0:
-        txt = (r"$n_{posts}=$" + str(p)
-            + "\n(" + r"$n_{users}=$" + str(u) + ")")
-    else:
-        txt = f"{p}\n({u})"
-    venn_labels_top.append(txt)
-
-venn_colors_top = [ c.COLORS[x] for x in VENN_ORDER_TOP ]
-
-top_venn_args = {
-    "subsets"    : venn_sizes_top,
-    "set_labels" : VENN_ORDER_TOP,
-    "set_colors" : venn_colors_top,
-}
-
-
-##### same idea for 2-circle venn
-### (should probably be a function or something)
-
-Ab = ( df.unspecified & ~df.nightmare)
-aB = (~df.unspecified &  df.nightmare)
-AB = ( df.unspecified &  df.nightmare)
-
-series_list_bot = [Ab, aB, AB]
-
-n_posts_bot = [ s.sum() for s in series_list_bot ]
-n_users_bot = [ df.loc[s, "user_id"].nunique() for s in series_list_bot ]
-
-venn_sizes_bot = [ p/u for p, u in zip(n_posts_bot, n_users_bot) ]
-venn_labels_bot = [ f"{p}\n({u})" for p, u in zip(n_posts_bot, n_users_bot) ]
-
-venn_colors_bot = [ c.COLORS[x] for x in VENN_ORDER_BOT ]
-
-bot_venn_args = {
-    "subsets"    : venn_sizes_bot,
-    "set_labels" : VENN_ORDER_BOT,
-    "set_colors" : venn_colors_bot,
-}
-
-
-
-
-#### open up the main figure and create both axes to be drawn on
-
-fig, ax_top = plt.subplots(figsize=(4, 3.5),
-    gridspec_kw=dict(top=1, bottom=0, left=.12, right=1))
-# (using ax_top and bottom instead of 1/2 or a/b bc of possible confusion with Venn terms)
-ax_top.set_title("Individual dream report category overlap")
-
-ax_bot = ax_top.inset_axes([-.11, -.04, .46, .3])
-ax_bot.axis("off")
-
-
-## draw both venns
+VENN_ORDER_1 = ["nonlucid", "lucid", "nightmare"]
+VENN_ORDER_2 = ["unspecified", "nightmare"]
 
 VENN_ARGS = {
     "alpha" : .4,
@@ -132,49 +43,110 @@ VENN_ARGS = {
     "normalize_to" : 1,
 }
 
-venn_top = venn3(ax=ax_top, **top_venn_args, **VENN_ARGS)
-venn_bot = venn2(ax=ax_bot, **bot_venn_args, **VENN_ARGS)
 
-# venn aesthetics
+#### open up the main figure and create both axes to be drawn on
 
-# highlight the lucid circles in the main plot
-for setid in ["100", "010"]:
-    patch = venn_top.get_patch_by_id(setid)
-    patch.set_lw(1)
-    # to disentangle alpha of edge and face, need to 
-    # first get the orig facecolor (which as alpha in rgba format)
-    # then unset the main alpha and set edgecolor as rgba set.
-    # (basically, rgba values don't work if alpha param is set, it overrides)
-    facecolor_rgba = patch.get_facecolor()
-    patch.set_alpha(None)
-    patch.set_ec((0,0,0,1))
-    patch.set_fc(facecolor_rgba)
+fig, ax1 = plt.subplots(figsize=(4, 3.5),
+    gridspec_kw=dict(top=1, bottom=0, left=.12, right=1))
+# (using ax_top and bottom instead of 1/2 or a/b bc of possible confusion with Venn terms)
+ax1.set_title("Individual dream report category overlap")
+ax2 = ax1.inset_axes([-.11, -.04, .46, .3])
+ax2.axis("off")
 
-# change the font of text within circles/patches
-for setid in ["100", "010", "001", "10", "01"]:
-    if len(setid) == 3:
-        venn_top.get_label_by_id(setid).set_fontsize(10)
-    else:
-        venn_bot.get_label_by_id(setid).set_fontsize(10)
 
-# change the font of the outer labels (e.g., non-lucid)
-for setid in ["A", "B", "C"]:
-    venn_top.get_label_by_id(setid).set_fontsize(10)
-    venn_top.get_label_by_id(setid).set_style("italic")
-    if setid != "C":
-        venn_bot.get_label_by_id(setid).set_fontsize(10)
-        venn_bot.get_label_by_id(setid).set_style("italic")
+def draw_venn_plot(ax, columns):
+    
+    n_venns = len(columns)
 
-# change the txt within each circle
-for vlabel, txt in zip(venn_top.subset_labels, venn_labels_top):
-    vlabel.set_text(txt)
-    vlabel.set_fontsize(8)
+    # generate boolean series' to calculate them
+    if n_venns == 3:
+        Abc = ( df[columns[0]] & ~df[columns[1]] & ~df[columns[2]])
+        aBc = (~df[columns[0]] &  df[columns[1]] & ~df[columns[2]])
+        ABc = ( df[columns[0]] &  df[columns[1]] & ~df[columns[2]])
+        abC = (~df[columns[0]] & ~df[columns[1]] &  df[columns[2]])
+        AbC = ( df[columns[0]] & ~df[columns[1]] &  df[columns[2]])
+        aBC = (~df[columns[0]] &  df[columns[1]] &  df[columns[2]])
+        ABC = ( df[columns[0]] &  df[columns[1]] &  df[columns[2]])
+        series_list = [Abc, aBc, ABc, abC, AbC, aBC, ABC]
 
-for vlabel, txt in zip(venn_bot.subset_labels, venn_labels_bot):
-    vlabel.set_text(txt)
-    vlabel.set_fontsize(8)
+    elif n_venns == 2:
+        Ab = ( df[columns[0]] & ~df[columns[1]])
+        aB = (~df[columns[0]] &  df[columns[1]])
+        AB = ( df[columns[0]] &  df[columns[1]])
+        series_list = [Ab, aB, AB]
 
+
+    # use the series to get the number of posts AND users at each venn location
+    n_posts = [ s.sum() for s in series_list ]
+    n_users = [ df.loc[s, "user_id"].nunique() for s in series_list ]
+
+    # calculate the report:user fraction for each venn location
+    venn_sizes = [ p/u for p, u in zip(n_posts, n_users) ]
+
+    # generate new txt labels
+    venn_labels = []
+    for i, (p, u) in enumerate(zip(n_posts, n_users)):
+        if i == 0 and n_venns == 3:
+            txt = (r"$n_{posts}=$" + str(p)
+                + "\n(" + r"$n_{users}=$" + str(u) + ")")
+        else:
+            txt = f"{p}\n({u})"
+        venn_labels.append(txt)
+
+    venn_colors = [ c.COLORS[x] for x in columns ]
+    outer_labels = [ "non-lucid" if x == "nonlucid" else x for x in columns ]
+
+    plot_venn_args = {
+        "ax" : ax,
+        "subsets" : venn_sizes,
+        "set_labels" : outer_labels,
+        "set_colors" : venn_colors
+    }
+
+    if n_venns == 3:
+        ven = venn3(**plot_venn_args, **VENN_ARGS)
+    elif n_venns == 2:
+        ven = venn2(**plot_venn_args, **VENN_ARGS)
+
+    # venn aesthetics
+
+    # highlight the lucid circles in the main plot
+    if n_venns == 3:
+        for setid in ["100", "010"]:
+            patch = ven.get_patch_by_id(setid)
+            patch.set_lw(1)
+            # to disentangle alpha of edge and face, need to 
+            # first get the orig facecolor (which as alpha in rgba format)
+            # then unset the main alpha and set edgecolor as rgba set.
+            # (basically, rgba values don't work if alpha param is set, it overrides)
+            facecolor_rgba = patch.get_facecolor()
+            patch.set_alpha(None)
+            patch.set_ec((0,0,0,1))
+            patch.set_fc(facecolor_rgba)
+
+    # change the font of text within circles/patches
+    for setid in ["100", "010", "001", "10", "01"]:
+        if n_venns == 2 and len(setid) == 3: continue
+        ven.get_label_by_id(setid).set_fontsize(10)
+
+    # change the font of the outer labels (e.g., non-lucid)
+    for setid in ["A", "B", "C"]:
+        if n_venns == 2 and setid == "C": continue
+        ven.get_label_by_id(setid).set_fontsize(10)
+        ven.get_label_by_id(setid).set_style("italic")
+
+    # change the txt within each circle
+    for vlabel, txt in zip(ven.subset_labels, venn_labels):
+        vlabel.set_text(txt)
+        vlabel.set_fontsize(8)
+
+
+
+draw_venn_plot(ax=ax1, columns=VENN_ORDER_1)
+draw_venn_plot(ax=ax2, columns=VENN_ORDER_2)
 
 
 plt.savefig(export_fname)
+# leave out eps bc of transparency
+c.save_hires_figs(export_fname, hires_extensions=[".svg", ".pdf"])
 plt.close()

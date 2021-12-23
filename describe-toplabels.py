@@ -6,31 +6,22 @@ Categories are more useful bc they are constrained by the DreamViews site.
 Tags are a free-for-all so lots of misspellings etc.
 """
 import os
-import ast
 import pandas as pd
 import config as c
 
 
-import_fname1 = os.path.join(c.DATA_DIR, "derivatives", "posts-clean.tsv")
-import_fname2 = os.path.join(c.DATA_DIR, "derivatives", "posts-raw.tsv")
 # export filename changes over 2 loop iterations so see below
 
 N_MIN_LABELS = 10
 N_MIN_USERS = 10 # per label
 
-# load in clean data for limited dataset
-# but also need the raw file for tags and categories
-df = pd.read_csv(import_fname1, sep="\t", encoding="utf-8", index_col="post_id")
-ser = pd.read_csv(import_fname2, sep="\t", encoding="utf-8",
-    usecols=["post_id", "tags", "categories"], index_col="post_id")
-
-df = df.join(ser, how="left")
+df, _ = c.load_dreamviews_data()
 
 for col in ["tags", "categories"]:
 
-    # tag and category columns are strings that look like lists.
-    # convert them to actual lists
-    df[col] = df[col].apply(ast.literal_eval)
+    # tag and category columns are strings with double colons separating labels
+    # convert them to lists
+    df[col] = df[col].str.split("::")
     
     # generate a new axis name
     singular = "tag" if col == "tags" else "category"

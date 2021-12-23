@@ -1,22 +1,18 @@
 """
 Visualize DreamViews activity over time.
 This shows both post and user frequency, kinda.
+
+The command line arguments are just for special presentation plots.
 """
 import os
 import argparse
 import pandas as pd
+import config as c
 
 import seaborn as sea
 import matplotlib.pyplot as plt
 import matplotlib.dates as mdates
-
-import config as c
-
-plt.rcParams["savefig.dpi"] = 600
-plt.rcParams["interactive"] = True
-plt.rcParams["font.family"] = "sans-serif"
-plt.rcParams["font.sans-serif"] = "Arial"
-
+c.load_matplotlib_settings()
 
 parser = argparse.ArgumentParser()
 parser.add_argument("--white", action="store_true",
@@ -31,14 +27,13 @@ RESTRICT = args.restrict
 
 ### handle i/o and load in data
 
-import_fname = os.path.join(c.DATA_DIR, "derivatives", "posts-clean.tsv")
 export_fname = os.path.join(c.DATA_DIR, "results", "describe-timecourse.png")
 if WHITE:
     export_fname = export_fname.replace(".png", "_WHITE.png")
 if RESTRICT:
     export_fname = export_fname.replace(".png", "_RESTRICT.png")
 
-df = pd.read_csv(import_fname, sep="\t", parse_dates=["timestamp"])
+df, _ = c.load_dreamviews_data()
 
 # drop data if desired
 if RESTRICT:
@@ -61,15 +56,15 @@ monthly_users["novel"] = monthly_users.user_id.duplicated(
 ##### Need to specify a lot of parameters for plotting
 
 if RESTRICT:
-    LUCIDITY_ORDER = ["non-lucid", "lucid"]
+    LUCIDITY_ORDER = ["nonlucid", "lucid"]
 else:
-    LUCIDITY_ORDER = ["unspecified", "ambiguous", "non-lucid", "lucid"]
+    LUCIDITY_ORDER = ["unspecified", "ambiguous", "nonlucid", "lucid"]
 USER_ORDER = ["repeat-user", "novel-user"]
 
 LEGEND_LABELS = {
     "unspecified" : "unspecified",
     "ambiguous"   : "ambiguous (both)",
-    "non-lucid"   : "non-lucid",
+    "nonlucid"    : "non-lucid",
     "lucid"       : "lucid",
     "novel-user"  : "novel",
     "repeat-user" : "repeat",
@@ -246,5 +241,7 @@ ax2b.yaxis.set(major_locator=plt.MultipleLocator(major_tick_loc_right),
 
 
 
+# export with various extensions
 plt.savefig(export_fname)
+c.save_hires_figs(export_fname)
 plt.close()
