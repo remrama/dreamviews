@@ -87,11 +87,11 @@ Show that the lucid and non-lucid posts are differentiable in predictable ways b
 ```shell
 # classifier
 python validate-classifier_run.py   # ==> DATA_DIR/derivatives/validate-classifier.npz
-python validate-classifier.py       # ==> DATA_DIR/results/validate-classifier.png
+python validate-classifier_stat.py  # ==> DATA_DIR/results/validate-classifier.png
 
 # words that differentiate lucid and non-lucid
 python validate-wordshift_run.py    # ==> DATA_DIR/derivatives/validate-wordshift.tsv
-python validate-wordshift.py        # ==> DATA_DIR/results/validate-wordshift.tsv
+python validate-wordshift_stat.py   # ==> DATA_DIR/results/validate-wordshift.tsv
                                     # ==> DATA_DIR/results/validate-wordshift.png
 
 # run LIWC to get effects at the category and word levels
@@ -100,11 +100,11 @@ python validate-liwc_run.py --words # ==> DATA_DIR/derivatives/posts-liwc.tsv
                                     # ==> DATA_DIR/derivatives/posts-liwc_words-attr.npz
 
 # plot total insight and agency effects LD vs non-LD
-python validate-liwc.py             # ==> DATA_DIR/derivatives/validate-liwc.tsv
+python validate-liwc_stat.py        # ==> DATA_DIR/derivatives/validate-liwc.tsv
                                     # ==> DATA_DIR/results/validate-liwc.tsv
                                     # ==> DATA_DIR/results/validate-liwc.png
 
 # plot individual word contributions for insight and agency effects LD vs non-LD
-python validate-liwcwords_perms.py  # ==> DATA_DIR/results/validate-liwcwords.tsv
-python validate-liwcwords.py        # ==> DATA_DIR/results/validate-liwcwords.png
+python validate-liwcwords_perm.py   # ==> DATA_DIR/results/validate-liwcwords.tsv
+python validate-liwcwords_stat.py   # ==> DATA_DIR/results/validate-liwcwords.png
 ```

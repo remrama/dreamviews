@@ -8,13 +8,7 @@ import config as c
 from sklearn import metrics
 
 import matplotlib.pyplot as plt
-plt.rcParams["savefig.dpi"] = 600
-plt.rcParams["interactive"] = True
-plt.rcParams["font.family"] = "sans-serif"
-plt.rcParams["font.sans-serif"] = "Arial"
-plt.rcParams["mathtext.rm"] = "Arial"
-plt.rcParams["mathtext.it"] = "Arial:italic"
-plt.rcParams["mathtext.bf"] = "Arial:bold"
+c.load_matplotlib_settings()
 
 
 
@@ -83,4 +77,5 @@ ax.yaxis.set(major_locator=plt.MultipleLocator(.2),
 
 # export
 plt.savefig(export_fname)
+c.save_hires_figs(export_fname, [".svg", ".pdf"])
 plt.close()

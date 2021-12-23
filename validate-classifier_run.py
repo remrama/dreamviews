@@ -34,21 +34,19 @@ from sklearn.model_selection import ShuffleSplit
 ##### variable setup
 
 TXT_COL = "post_lemmas" # raw txt or lemmas
-N_PERMUTATIONS = 10 # for shuffling
+N_PERMUTATIONS = 1000 # for shuffling
 N_SPLITS = 5
 NONLUCID_DIGIT = 0
 LUCID_DIGIT = 1
 TRAIN_SIZE = .7 # proportion of data
 
-import_fname = os.path.join(c.DATA_DIR, "derivatives", "posts-clean.tsv")
+
 export_fname = os.path.join(c.DATA_DIR, "derivatives", "validate-classifier.npz")
 
 
-##### load in the relevant data
-
 usecols = ["post_id", "user_id", "lucidity", TXT_COL]
-df = pd.read_csv(import_fname, sep="\t", encoding="utf-8",
-    usecols=usecols, index_col="post_id")
+df, _ = c.load_dreamviews_data()
+df = df[usecols].set_index("post_id")
 
 # drop non-lucid data
 df = df[ df["lucidity"].str.contains("lucid") ]
@@ -78,7 +76,7 @@ df = df.groupby("lucidity").sample(n=n_per_class, replace=False, random_state=1)
 
 corpus = df[TXT_COL].tolist()
 X = vectorizer.fit_transform(corpus)
-y = df["lucidity"].map({"non-lucid":NONLUCID_DIGIT, "lucid":LUCID_DIGIT}).values
+y = df["lucidity"].map({"nonlucid":NONLUCID_DIGIT, "lucid":LUCID_DIGIT}).values
 
 
 ######### main cross-validation results for true accuracy
