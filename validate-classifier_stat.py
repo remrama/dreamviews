@@ -1,81 +1,42 @@
 """
-plot the classifier results and get some stats(?)
+export a table of classifier results
 """
 import os
 import numpy as np
+import pandas as pd
 import config as c
 
 from sklearn import metrics
 
-import matplotlib.pyplot as plt
-c.load_matplotlib_settings()
-
-
 
 import_fname = os.path.join(c.DATA_DIR, "derivatives", "validate-classifier.npz")
-export_fname = os.path.join(c.DATA_DIR, "results", "validate-classifier.png")
+export_fname_cv = os.path.join(c.DATA_DIR, "results", "validate-classifier.tsv")
+export_fname_avg = os.path.join(c.DATA_DIR, "results", "validate-classifier.tex")
 
 data = np.load(import_fname)
 
-cv_true = data["cv_true_labels"]
-cv_pred = data["cv_pred_labels"]
-permuted_true = data["permuted_true_labels"]
-permuted_pred = data["permuted_pred_labels"]
+cv_true = data["true_labels"]
+cv_pred = data["predicted_labels"]
 
 
-# get all the roc curves and interpolate
-# so they have the same amount of points
+########## get some classification performance measures for a table
 
-fpr_list = []
-tpr_list = []
-for fold_true, fold_pred in zip(cv_true, cv_pred):
-    # acc = metrics.accuracy_score(fold_true, fold_pred)
-    # f1 = metrics.f1_score(fold_true, fold_pred, average="binary")
-    fpr, tpr, _ = metrics.roc_curve(fold_true, fold_pred)
-    fpr_list.append(fpr)
-    tpr_list.append(tpr)
+METRICS = ["accuracy", "f1", "precision", "recall", "roc_auc"]
+results = { m: [] for m in METRICS }
+for t, p in zip(cv_true, cv_pred):
+    for m in METRICS:
+        score = metrics.get_scorer(m)._score_func(t, p)
+        results[m].append(score)
 
-interpolated_tprs = []
-base_fpr = np.linspace(0, 1, 101)
-for fpr, tpr in zip(fpr_list, tpr_list):
-    interp_tpr = np.interp(base_fpr, fpr, tpr)
-    interp_tpr[0] = 0
-    interpolated_tprs.append(interp_tpr)
+df = pd.DataFrame(results).rename_axis("cv")
+df.index += 1
 
-# get the mean and CI for plotting
-true_positive_rates = np.row_stack(interpolated_tprs)
-
-mean = np.mean(true_positive_rates, axis=0)
-ci = np.quantile(true_positive_rates, [.025, .975], axis=0)
+# average over cross-validations for results table
+avg = df.agg(["mean","std"]).T.rename_axis("scorer")
+avg.columns = avg.columns.map(lambda x: "CV "+x)
 
 
-fig, ax = plt.subplots(figsize=(3, 3), constrained_layout=True)
 
-# plot the individual cv folds
-for fpr, tpr in zip(fpr_list, tpr_list):
-    ax.plot(fpr, tpr, color="g", lw=1, ls="-", alpha=.3)
-
-# plot the aggregate
-ax.fill_between(base_fpr, ci[0], ci[1], color="k", alpha=.1)
-ax.plot(base_fpr, mean, color="k", lw=1, ls="-", alpha=.3)
-
-# plot theoretical chance line
-ax.plot([0,1], [0,1], color="k", lw=1, ls="--", alpha=1)
-
-# aesthetics
-ax.set_xlim(0, 1)
-ax.set_ylim(0, 1)
-ax.set_xlabel("false positive rate")
-ax.set_ylabel("true positive rate")
-ax.tick_params(axis="both", direction="in", top=True, right=True)
-ax.grid(color="gainsboro")
-ax.xaxis.set(major_locator=plt.MultipleLocator(.2),
-             major_formatter=plt.FuncFormatter(c.no_leading_zeros))
-ax.yaxis.set(major_locator=plt.MultipleLocator(.2),
-             major_formatter=plt.FuncFormatter(c.no_leading_zeros))
-
-
-# export
-plt.savefig(export_fname)
-c.save_hires_figs(export_fname, [".svg", ".pdf"])
-plt.close()
+########### export individual CV and mean results
+df.to_csv(export_fname_cv, index=True, sep="\t", encoding="utf-8")
+avg.to_latex(buf=export_fname_avg, index=True, float_format="%.2f", encoding="utf-8")

@@ -87,7 +87,8 @@ Show that the lucid and non-lucid posts are differentiable in predictable ways b
 ```shell
 # classifier
 python validate-classifier_run.py   # ==> DATA_DIR/derivatives/validate-classifier.npz
-python validate-classifier_stat.py  # ==> DATA_DIR/results/validate-classifier.png
+python validate-classifier_stat.py  # ==> DATA_DIR/results/validate-classifier.tsv
+                                    # ==> DATA_DIR/results/validate-classifier.tex
 
 # words that differentiate lucid and non-lucid
 python validate-wordshift_run.py    # ==> DATA_DIR/derivatives/validate-wordshift.tsv
