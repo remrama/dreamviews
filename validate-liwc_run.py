@@ -15,7 +15,7 @@ from collections import Counter
 import liwc
 import nltk
 
-tqdm.tqdm.pandas()
+tqdm.tqdm.pandas(desc="liwcing")
 
 
 parser = argparse.ArgumentParser()
@@ -27,15 +27,14 @@ args = parser.parse_args()
 DICTIONARY = args.dic
 WORD_CONTRIBUTIONS = args.words
 
-import_fname = os.path.join(c.DATA_DIR, "derivatives", "posts-clean.tsv")
 dict_fname = os.path.join(c.DATA_DIR, "dictionaries", f"{DICTIONARY}.dic")
 export_fname = os.path.join(c.DATA_DIR, "derivatives", "posts-liwc.tsv")
 if WORD_CONTRIBUTIONS:
     export_fname2 = os.path.join(c.DATA_DIR, "derivatives", "posts-liwc_words-data.npz")
     export_fname3 = os.path.join(c.DATA_DIR, "derivatives", "posts-liwc_words-attr.npz")
 
-ser = pd.read_csv(import_fname, sep="\t", encoding="utf-8",
-    usecols=["post_id", "post_txt"], index_col="post_id", squeeze=True)
+df, _ = c.load_dreamviews_data()
+ser = df.set_index("post_id")["post_text"]
 
 # load the dictionary file
 parse, category_names = liwc.load_token_parser(dict_fname)

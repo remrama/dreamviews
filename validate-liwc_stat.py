@@ -8,29 +8,22 @@ import pingouin as pg
 import config as c
 
 import matplotlib.pyplot as plt
-plt.rcParams["savefig.dpi"] = 600
-plt.rcParams["interactive"] = True
-plt.rcParams["font.family"] = "sans-serif"
-plt.rcParams["font.sans-serif"] = "Arial"
-plt.rcParams["mathtext.rm"] = "Arial"
-plt.rcParams["mathtext.it"] = "Arial:italic"
-plt.rcParams["mathtext.bf"] = "Arial:bold"
-
+c.load_matplotlib_settings()
 
 LIWC_CATS = ["insight", "agency"]
-LUCID_ORDER = ["non-lucid", "lucid"]
+LUCID_ORDER = ["nonlucid", "lucid"]
 
 
 import_fname_liwc = os.path.join(c.DATA_DIR, "derivatives", "posts-liwc.tsv")
-import_fname_attr = os.path.join(c.DATA_DIR, "derivatives", "posts-clean.tsv")
 export_fname_table = os.path.join(c.DATA_DIR, "derivatives", "validate-liwc.tsv")
 export_fname_stats = os.path.join(c.DATA_DIR, "results", "validate-liwc.tsv")
 export_fname_plot  = os.path.join(c.DATA_DIR, "results", "validate-liwc.png")
 
 
 # merge the clean data file and all its attributes with the liwc results
+df, _ = c.load_dreamviews_data()
+df_attr = df.set_index("post_id")
 df_liwc = pd.read_csv(import_fname_liwc, sep="\t", encoding="utf-8", index_col="post_id")
-df_attr = pd.read_csv(import_fname_attr, sep="\t", encoding="utf-8", index_col="post_id")
 df = df_attr.join(df_liwc, how="inner")
 assert len(df) == len(df_attr) == len(df_liwc)
 
@@ -62,7 +55,7 @@ descriptives.to_csv(export_fname_table, sep="\t", encoding="utf-8",
 
 wilcoxon_results = []
 for cat in tqdm.tqdm(LIWC_CATS, desc="wilcoxon tests"):
-    ld, nld = avgs[cat][["lucid", "non-lucid"]].T.values
+    ld, nld = avgs[cat][["lucid", "nonlucid"]].T.values
     stats_ = pg.wilcoxon(ld, nld, alternative="two-sided")
     stats_.index = [cat]
     stats_["cohen-d"] = pg.compute_effsize(ld, nld, paired=True, eftype="cohen")
@@ -115,7 +108,7 @@ ax2.set_xticks(xticks)
 ax2.set_xticklabels(LIWC_CATS, fontsize=10)
 ax2.set_xlim(min(xvals)-1, max(xvals)+1)
 
-ax1.set_ylabel(r"% of total word count", fontsize=10)
+ax1.set_ylabel(r"total word category %", fontsize=10)
 ax1.set_ylim(YMIN, YMAX)
 ax2.set_ylim(0, .01) # arbitrarily low, just avoid any ticks
 
@@ -163,4 +156,5 @@ legend = ax1.legend(handles=legend_handles,
 
 # export
 plt.savefig(export_fname_plot)
+c.save_hires_figs(export_fname_plot)
 plt.close()    

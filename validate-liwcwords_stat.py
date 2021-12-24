@@ -6,13 +6,10 @@ import pandas as pd
 import config as c
 
 import matplotlib.pyplot as plt
-plt.rcParams["savefig.dpi"] = 600
-plt.rcParams["interactive"] = True
-plt.rcParams["font.family"] = "sans-serif"
-plt.rcParams["font.sans-serif"] = "Arial"
+c.load_matplotlib_settings()
 
 
-N_WORDS = 10 # might be more stored, only plot this many
+TOP_N = 10 # might be more stored, only plot this many
 
 import_fname = os.path.join(c.DATA_DIR, "results", "validate-liwcwords.tsv")
 export_fname = os.path.join(c.DATA_DIR, "results", "validate-liwcwords.png")
@@ -36,7 +33,7 @@ ERROR_ARGS = dict(ecolor="k", elinewidth=.5, capsize=0)
 GRID_COLOR = "gainsboro"
 
 GRIDSPEC_KWS = {
-    "height_ratios" : [2, N_WORDS],
+    "height_ratios" : [2, TOP_N],
     "hspace"        : 0,
     "wspace"        : .3,
     "top"           : .98,
@@ -46,7 +43,7 @@ GRIDSPEC_KWS = {
 }
 
 YTICK_GAP = 10
-yticklocs = np.linspace(0, N_WORDS, int(N_WORDS/YTICK_GAP+1))
+yticklocs = np.linspace(0, TOP_N, int(TOP_N/YTICK_GAP+1))
 yticklocs[0] = 1
 
 
@@ -65,21 +62,21 @@ for i, col in enumerate(category_columns):
     dval = liwccats.loc[category, "cohen-d"]
     d_ci = liwccats.loc[category, ["cohen-d_lo", "cohen-d_hi"]].values
     derr = np.abs(dval-d_ci).reshape(2,1)
-    color = c.COLORS["lucid"] if dval>0 else c.COLORS["non-lucid"]
+    color = c.COLORS["lucid"] if dval>0 else c.COLORS["nonlucid"]
     topax.barh(0, dval, xerr=derr,
         color=color, error_kw=ERROR_ARGS, **BAR_ARGS)
 
     # grab top N tokens for THIS category and sort it
     subdf = df.loc[ df[col].notna()
         ].sort_values(col, ascending=True
-        )[:N_WORDS]
+        )[:TOP_N]
 
     dvals = subdf["cohen-d"].values
     d_cis = subdf[["cohen-d_lo", "cohen-d_hi"]].values
     derrs = np.abs(dvals-d_cis.T)
     labelvals = np.arange(len(dvals)) + 1
     labels = subdf["token"].tolist()
-    colors = [ c.COLORS["lucid"] if d>0 else c.COLORS["non-lucid"] for d in dvals ]
+    colors = [ c.COLORS["lucid"] if d>0 else c.COLORS["nonlucid"] for d in dvals ]
 
     ax.barh(labelvals, dvals, xerr=derrs,
         color=colors, error_kw=ERROR_ARGS, **BAR_ARGS)
@@ -125,7 +122,7 @@ for i, col in enumerate(category_columns):
     xloc_txt = .02 if dval > 0 else .98
     ha_align = "left" if dval > 0 else "right"
     topax.text(xloc_txt, .95,
-        f"Total {category}\neffect",
+        f"{category} total",
         transform=topax.transAxes,
         fontsize=8, fontweight="bold",
         ha=ha_align, va="top")
@@ -138,4 +135,5 @@ for i, col in enumerate(category_columns):
 
 # export
 plt.savefig(export_fname)
+c.save_hires_figs(export_fname)
 plt.close()

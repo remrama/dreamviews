@@ -29,7 +29,6 @@ TOP_N = 20 # save out the top N contributing tokens/words for each category
 ########################### i/o and loading data
 ###########################
 
-import_fname_posts = os.path.join(c.DATA_DIR, "derivatives", "posts-clean.tsv")
 import_fname_dict = os.path.join(c.DATA_DIR, "dictionaries", "myliwc.dic")
 import_fname_data = os.path.join(c.DATA_DIR, "derivatives", "posts-liwc_words-data.npz")
 import_fname_attr = os.path.join(c.DATA_DIR, "derivatives", "posts-liwc_words-attr.npz")
@@ -41,8 +40,8 @@ export_fname = os.path.join(c.DATA_DIR, "results", "validate-liwcwords.tsv")
 #### load in the original posts file to get attributes lucidity and user_id
 # and drop un-labeled posts.
 # merge the clean data file and all its attributes with the liwc results
-posts = pd.read_csv(import_fname_posts, sep="\t", encoding="utf-8",
-    index_col="post_id", usecols=["post_id", "user_id", "lucidity"])
+posts, _ = c.load_dreamviews_data()
+posts = posts.set_index("post_id")[["user_id", "lucidity"]]
 posts = posts[ posts["lucidity"].str.contains("lucid") ]
 
 #### load prior full LIWC results (i.e., category results)
@@ -89,7 +88,7 @@ avgs = df.groupby(["user_id", "lucidity"]
 # sizes for all of them.
 effectsize_results = []
 for tok in tqdm.tqdm(relevant_tokens, desc="effect sizes"):
-    ld, nld = avgs[tok][["lucid", "non-lucid"]].T.values
+    ld, nld = avgs[tok][["lucid", "nonlucid"]].T.values
     stats = {}
     stats["cohen-d"] = pg.compute_effsize(ld, nld, paired=True, eftype="cohen")
     stats["cohen-d_lo"], stats["cohen-d_hi"] = pg.compute_bootci(ld, nld,
@@ -121,7 +120,6 @@ for cat in LIWC_CATEGORIES:
     df_ = df_[:TOP_N]
     df_[f"{cat}_rank"] = np.arange(TOP_N) + 1
     token_rank_results.append(df_)
-
 
 
 out = pd.concat(token_rank_results)
