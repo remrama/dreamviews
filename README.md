@@ -94,6 +94,8 @@ python validate-classifier_stat.py  # ==> DATA_DIR/results/validate-classifier.t
 python validate-wordshift_run.py    # ==> DATA_DIR/derivatives/validate-wordshift.tsv
 python validate-wordshift_stat.py   # ==> DATA_DIR/results/validate-wordshift.tsv
                                     # ==> DATA_DIR/results/validate-wordshift.png
+python validate-wordshift_full.py   # ==> DATA_DIR/results/validate-wordshift_entropy.png
+                                    # ==> DATA_DIR/results/validate-wordshift_jsd.png
 
 # run LIWC to get effects at the category and word levels
 python validate-liwc_run.py --words # ==> DATA_DIR/derivatives/posts-liwc.tsv

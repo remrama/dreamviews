@@ -11,13 +11,7 @@ import pandas as pd
 import config as c
 
 import matplotlib.pyplot as plt
-plt.rcParams["savefig.dpi"] = 600
-plt.rcParams["interactive"] = True
-plt.rcParams["font.family"] = "sans-serif"
-plt.rcParams["font.sans-serif"] = "Arial"
-plt.rcParams["mathtext.rm"] = "Arial"
-plt.rcParams["mathtext.it"] = "Arial:italic"
-plt.rcParams["mathtext.bf"] = "Arial:bold"
+c.load_matplotlib_settings()
 
 
 N_WORDS = 30 # number of top ranking words to plot
@@ -43,11 +37,15 @@ def pval(x):
     lowest = np.min(fracs)
     return lowest / 2
 
+# add sign to the shift score
+df["type2shift_score"] *= df["type2s_ref_diff"].transform(np.sign)
+
 stats_df = df.groupby("token")["type2shift_score"].agg(
     ["mean", ci_lo, ci_hi, pval])
 
 # sort by absolute mean
 stats_df = stats_df.sort_values("mean", key=abs, ascending=False)
+
 
 
 ################ plotting
@@ -61,8 +59,7 @@ ci     = plot_df[["ci_lo", "ci_hi"]].values.T
 errors = abs(means-ci)
 locs   = np.arange(means.size) + 1
 
-colors = [ c.COLORS["lucid"] if x>0 else c.COLORS["non-lucid"]
-    for x in means]
+colors = [ c.COLORS["lucid"] if x>0 else c.COLORS["nonlucid"] for x in means]
 
 
 ERROR_ARGS = {
@@ -75,7 +72,7 @@ BAR_ARGS = {
     "height"    : .8,
 }
 
-fig, ax = plt.subplots(figsize=(3, N_WORDS/6), constrained_layout=True)
+fig, ax = plt.subplots(figsize=(2.5, N_WORDS/6), constrained_layout=True)
 ax.invert_yaxis()
 ax.barh(locs, means, xerr=errors, color=colors,
     error_kw=ERROR_ARGS, **BAR_ARGS)
@@ -95,16 +92,17 @@ for i, txt in enumerate(labels):
 
 ax.axvline(0, linewidth=1, color="black")
 
-xlabel = "change in frequency\n" + r"non-lucid$\leftarrow$$\rightarrow$lucid       "
+xlabel = "JSD shift contribution score\n" + r"non-lucid$\leftarrow$$\rightarrow$lucid       "
 ax.set_xlabel(xlabel)
-ax.set_ylabel("Lemma rank")
-ax.set_xlim(-.05, .05)
+ax.set_ylabel("lemma contribution rank")
+XLIM = .04
+ax.set_xlim(-XLIM, XLIM)
 ax.set_ylim(N_WORDS+1, 0)
 
 yticklocs = np.linspace(0, N_WORDS, int(N_WORDS/10+1))
 yticklocs[0] = 1
 ax.yaxis.set(major_locator=plt.FixedLocator(yticklocs))
-ax.xaxis.set(major_locator=plt.MultipleLocator(.05),
+ax.xaxis.set(major_locator=plt.MultipleLocator(XLIM),
              minor_locator=plt.MultipleLocator(.01),
              major_formatter=plt.FuncFormatter(c.no_leading_zeros))
 
@@ -115,4 +113,5 @@ ax.xaxis.set(major_locator=plt.MultipleLocator(.05),
 stats_df.to_csv(export_fname_table, index=True, sep="\t", encoding="utf-8")
 
 plt.savefig(export_fname_plot)
+c.save_hires_figs(export_fname_plot)
 plt.close()

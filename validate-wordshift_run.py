@@ -34,29 +34,37 @@ import pandas as pd
 import config as c
 
 import shifterator as sh
+from nltk.corpus import stopwords
+
+try:
+    stops = set(stopwords.words("english"))
+except LookupError:
+    import nltk
+    nltk.download("stopwords")
+    stops = set(stopwords.words("english"))
 
 
 N_ITERATIONS = 1000
 TXT_COL = "post_lemmas"
 
-import_fname = os.path.join(c.DATA_DIR, "derivatives", "posts-clean.tsv")
-export_fname = os.path.join(c.DATA_DIR, "derivatives", "validate-wordshift.tsv")
-df = pd.read_csv(import_fname, sep="\t", encoding="utf-8",
-    usecols=["user_id", "lucidity", TXT_COL], index_col="lucidity")
+export_fname1 = os.path.join(c.DATA_DIR, "derivatives", "validate-wordshift_types.tsv")
+export_fname2 = os.path.join(c.DATA_DIR, "derivatives", "validate-wordshift_total.tsv")
 
+df, _ = c.load_dreamviews_data()
+df = df[["user_id", "lucidity", TXT_COL]].set_index("lucidity")
 
 # reduce to only lucid and non-lucid
-df = df.loc[["lucid", "non-lucid"]]
+df = df.loc[["lucid", "nonlucid"]]
 
 
 # initialize a list to hold all the results
 df_list = []
-
+# total_res_dict = {}
 
 for i in tqdm.trange(N_ITERATIONS, desc="wordshift resampling"):
 
     # sample one dream per person
-    df_sample = df.groupby("user_id").sample(n=1, replace=False)
+    df_sample = df.groupby("user_id").sample(n=1, replace=False, random_state=i)
 
     # the number of lucid and non-lucid dreams will differ
     # so find the minimum amount and resample with replacement equally
@@ -66,25 +74,43 @@ for i in tqdm.trange(N_ITERATIONS, desc="wordshift resampling"):
     resample_size = int(resample_size*.8) # this tends to hover right above 1000
 
     # resample with replacement for each of LD and nonLD
-    ld_posts  = df_sample.loc["lucid",     TXT_COL].sample(resample_size, replace=True, random_state=i)
-    nld_posts = df_sample.loc["non-lucid", TXT_COL].sample(resample_size, replace=True, random_state=i)
+    ld_posts  = df_sample.loc["lucid",    TXT_COL].sample(resample_size, replace=True, random_state=i)
+    nld_posts = df_sample.loc["nonlucid", TXT_COL].sample(resample_size, replace=True, random_state=i)
 
     # convert to frequencies for shifterator
     ld_freqs  = ld_posts.str.lower().str.split().explode().value_counts().to_dict()
     nld_freqs = nld_posts.str.lower().str.split().explode().value_counts().to_dict()
 
-    # get differences
-    shift = sh.ProportionShift(type2freq_1=nld_freqs, type2freq_2=ld_freqs)
-    # shift = sh.JSDivergenceShift(type2freq_1=nld_freqs, type2freq_2=ld_freqs,
-    #     weight_1=0.5, weight_2=0.5, base=2, alpha=1)
+    # remove stop words
+    ld_freqs = { k: v for k, v in ld_freqs.items() if k not in stops }
+    nld_freqs = { k: v for k, v in nld_freqs.items() if k not in stops }
 
-    # extract some relevant measures from results
-    metric_dicts = { attr: shift.__getattribute__(attr)
-        for attr in shift.__dict__.keys() if attr.startswith("type2") }
-    # type_scores = [ (k,v) for k, v in shift.type2shift_score.items() ]
+    # get differences
+    shift = sh.JSDivergenceShift(type2freq_1=nld_freqs, type2freq_2=ld_freqs,
+        weight_1=0.5, weight_2=0.5, base=2, alpha=1, normalization="variation")
+
+    # # get total summary stuff and add total JSD difference
+    # components = shift.get_shift_component_sums()
+    # components["diff"] = shift.diff
+    # total_res_dict[i] = components
+
+    scores = shift.get_shift_scores(details=True)
+    metrics = [
+        "type2p_diff",
+        "type2s_diff",
+        "type2p_avg",
+        "type2s_ref_diff",
+        "type2shift_score",
+    ]
+
+    score_dicts = { m: s for m, s in zip(metrics, scores) }
+    # # extract some relevant measures from results
+    # score_dicts = { attr: shift.__getattribute__(attr)
+    #     for attr in shift.__dict__.keys() if attr.startswith("type2") }
+    # # type_scores = [ (k,v) for k, v in shift.type2shift_score.items() ]
     
     # convert to a dataframe and save to results list
-    res = pd.DataFrame(metric_dicts)
+    res = pd.DataFrame(score_dicts)
     res.columns = res.columns.map(lambda c: f"{c}-{i+1}")
     df_list.append(res)
 
@@ -94,10 +120,10 @@ results_wide = pd.concat(df_list, axis=1, join="inner"
     ).rename_axis("token").reset_index(drop=False)
 
 results = pd.wide_to_long(results_wide,
-        stubnames=metric_dicts.keys(),
+        stubnames=score_dicts.keys(),
         i="token", j="iteration", sep="-"
     ).swaplevel(
     ).sort_index()
 
 
-results.to_csv(export_fname, index=True, na_rep="NA", sep="\t", encoding="utf-8")
+results.to_csv(export_fname1, index=True, na_rep="NA", sep="\t", encoding="utf-8")
