@@ -50,6 +50,8 @@ for col in ["tags", "categories"]:
     res = res.sort_values("weight", ascending=False)
 
     # export
-    export_fname = os.path.join(c.DATA_DIR, "results", f"describe-top{col}.tsv")
-    res.to_csv(export_fname, sep="\t", encoding="utf-8",
+    export_fname1 = os.path.join(c.DATA_DIR, "results", f"describe-top{col}.tsv")
+    export_fname2 = os.path.join(c.DATA_DIR, "results", f"describe-top{col}.tex")
+    res.to_csv(export_fname1, sep="\t", encoding="utf-8",
         index=True, float_format="%.1f")
+    res.to_latex(buf=export_fname2, index=True, float_format="%.1f", encoding="utf-8")

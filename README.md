@@ -52,7 +52,9 @@ Export plots and summary statistics describing the dataset.
 
 # generate top categories and labels
 python describe-toplabels.py        # ==> DATA_DIR/results/describe-topcategories.tsv
+                                    # ==> DATA_DIR/results/describe-topcategories.tex
                                     # ==> DATA_DIR/results/describe-toptags.tsv
+                                    # ==> DATA_DIR/results/describe-toptags.tex
 
 # lucid/non-lucid/nightmare overlap
 python describe-categorycounts.py   # ==> DATA_DIR/results/describe-categorycounts.png
@@ -72,7 +74,7 @@ python describe-demographics.py     # ==> DATA_DIR/results/describe-demographics
 ##### Visualize the amount of data there is.
 # frequency of posts over time, posts per user, and word counts
 python describe-timecourse.py       # ==> DATA_DIR/results/describe-timecourse.png
-python describe-usercount.py         # ==> DATA_DIR/results/describe-usercount.png
+python describe-usercount.py        # ==> DATA_DIR/results/describe-usercount.png
 python describe-wordcount.py        # ==> DATA_DIR/results/describe-wordcount.png
 ```
 
