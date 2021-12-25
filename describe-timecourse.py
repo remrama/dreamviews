@@ -240,6 +240,18 @@ ax2b.yaxis.set(major_locator=plt.MultipleLocator(major_tick_loc_right),
                minor_locator=plt.MultipleLocator(minor_tick_loc_right))
 
 
+##### draw total counts on the plot
+n_total_posts = df.shape[0]
+n_total_users = df["user_id"].nunique()
+# label_counts = df["lucidity"].value_counts().rename_axis("n_posts")
+# n_users_per_label = df.groupby("lucidity").user_id.nunique("")
+counts_txt = fr"$n_{{total}}={n_total_posts}$"
+users_txt = fr"$n_{{total}}={n_total_users}$"
+
+
+ax1a.text(.3, .9, counts_txt, transform=ax1a.transAxes, ha="left", va="top", fontsize=10)
+ax2a.text(.3, .9, users_txt, transform=ax2a.transAxes, ha="left", va="top", fontsize=10)
+
 
 # export with various extensions
 plt.savefig(export_fname)
