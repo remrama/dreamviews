@@ -23,8 +23,8 @@ counts = df["user_id"].value_counts(
 N_BINS = 50
 bins = np.linspace(0, c.MAX_POSTCOUNT, N_BINS+1)
 
-fig, ax = plt.subplots(figsize=(4, 2.5),
-    constrained_layout=True)
+FIGSIZE = (3.5, 2.5)
+fig, ax = plt.subplots(figsize=FIGSIZE, constrained_layout=True)
 
 HIST_ARGS = dict(lw=.5, color="gainsboro")
 

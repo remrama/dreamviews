@@ -63,6 +63,9 @@ python describe-categorycounts.py   # ==> DATA_DIR/results/describe-categorycoun
 python describe-categorypairs.py    # ==> DATA_DIR/results/describe-categorypairs.tsv
                                     # ==> DATA_DIR/results/describe-categorypairs.png
 
+# generate a single figure with the two category images
+python combine_category_plots.py    # ==> DATA_DIR/results/hires/describe-categories.pdf
+
 
 ##### Visualize user demographics.
 # reported gender, age, and location
@@ -76,7 +79,8 @@ python describe-demographics.py     # ==> DATA_DIR/results/describe-demographics
 # frequency of posts over time, posts per user, and word counts
 python describe-timecourse.py       # ==> DATA_DIR/results/describe-timecourse.png
 python describe-usercount.py        # ==> DATA_DIR/results/describe-usercount.png
-python describe-wordcount.py        # ==> DATA_DIR/results/describe-wordcount.png
+python describe-wordcount.py        # ==> DATA_DIR/results/describe-wordcount.tsv
+                                    # ==> DATA_DIR/results/describe-wordcount.png
 ```
 
 

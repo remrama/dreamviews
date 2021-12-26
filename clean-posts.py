@@ -118,7 +118,7 @@ def lemmatize(doc, pos_remove_list=["PROPN", "SMY"]):
             ) and (not token.like_email
             ) and (not token.like_url
             ) and (not token.like_num
-            # ) and (not token.is_stop
+            ) and (not token.is_stop
             ) and (not token.pos_ in pos_remove_list):
             token_list.append( token.lemma_.lower() ) # *almost* always lowercase by default
     return " ".join(token_list) if token_list else None
@@ -181,7 +181,7 @@ user_counts = Counter()  # to keep track of n posts per user
 # zip file stays the same* then the random IDs should be reproducible.
 random_state = 0
 
-for html_byt in tqdm.tqdm(html_files, desc="parsing html dream journal pages"):
+for html_byt in tqdm.tqdm(html_files, desc="parsing html and processing text"):
 
     # # convert from bytes to string
     # html_str = html_byt.decode(encoding="windows-1252", errors="strict") # windows-1252 == cp1252
@@ -350,12 +350,15 @@ for html_byt in tqdm.tqdm(html_files, desc="parsing html dream journal pages"):
         if tags_are_present:
             # split_rule_re = r"Tags:|(?<!Added )Categories")
             split_rule_re = r"Tags:|Categories"
-            post_txt, tag_txt, cat_txt = re.split(split_rule_re, post_txt)
+            a, tag_txt, cat_txt = re.split(split_rule_re, post_txt)
         else:
             split_rule_re = r"Categories"
             post_txt, cat_txt = re.split(split_rule_re, post_txt)
             tag_txt = None
-       
+
+        # get rid of sometimes where there is an "Attached Thumbnails" section at the end
+        cat_txt = cat_txt.split("Attached Thumbnails")[0]
+        
         # Strip excess whitespace off everything.
         post_txt = post_txt.strip()
         cat_txt = cat_txt.strip()

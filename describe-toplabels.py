@@ -15,6 +15,8 @@ import config as c
 N_MIN_LABELS = 10
 N_MIN_USERS = 10 # per label
 
+TOP_N = 10 # for latex output only
+
 df, _ = c.load_dreamviews_data()
 
 for col in ["tags", "categories"]:
@@ -45,13 +47,11 @@ for col in ["tags", "categories"]:
     res = res[ res["n_posts"] >= N_MIN_LABELS ]
     res = res[ res["n_users"] >= N_MIN_LABELS ]
 
-    # generate a weight thingy
-    res["weight"] = res["n_posts"] * res["n_users"]/res.size
-    res = res.sort_values("weight", ascending=False)
+    res = res.sort_values("n_posts", ascending=False)
 
     # export
     export_fname1 = os.path.join(c.DATA_DIR, "results", f"describe-top{col}.tsv")
     export_fname2 = os.path.join(c.DATA_DIR, "results", f"describe-top{col}.tex")
-    res.to_csv(export_fname1, sep="\t", encoding="utf-8",
-        index=True, float_format="%.1f")
-    res.to_latex(buf=export_fname2, index=True, float_format="%.1f", encoding="utf-8")
+    res.to_csv(export_fname1, sep="\t", encoding="utf-8", index=True)
+    res[:TOP_N].reset_index(drop=False).to_latex(buf=export_fname2, index=False, encoding="utf-8",
+        column_format="rrr")

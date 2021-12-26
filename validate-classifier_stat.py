@@ -39,4 +39,7 @@ avg.columns = avg.columns.map(lambda x: "CV "+x)
 
 ########### export individual CV and mean results
 df.to_csv(export_fname_cv, index=True, sep="\t", encoding="utf-8")
-avg.to_latex(buf=export_fname_avg, index=True, float_format="%.2f", encoding="utf-8")
+avg.reset_index(drop=False).to_latex(buf=export_fname_avg, index=False, encoding="utf-8",
+        float_format="%.2f", column_format="rrr",
+        caption="Lucid vs non-lucid classification performance. Chance accuracy is 50\\%.",
+        label="table:classification")

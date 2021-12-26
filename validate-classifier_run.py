@@ -61,7 +61,7 @@ vectorizer = CountVectorizer(
     max_features=5000,
     binary=False)
 
-clf = SVC()
+clf = SVC(kernel="linear", C=1.)
 
 # downsample to one dream per user
 df = df.groupby("user_id").sample(n=1, replace=False, random_state=0)
@@ -87,10 +87,10 @@ for train_index, test_index in tqdm.tqdm(cv.split(X, y), total=N_SPLITS, desc="c
     y_train, y_test = y[train_index], y[test_index]
     clf.fit(X_train, y_train)
     y_pred = clf.predict(X_test)
-    cv_true_labels_list.append(y_test)
-    cv_pred_labels_list.append(y_pred)
-cv_true_labels = np.row_stack(cv_true_labels_list)
-cv_pred_labels = np.row_stack(cv_pred_labels_list)
+    true_labels_list.append(y_test)
+    pred_labels_list.append(y_pred)
+cv_true_labels = np.row_stack(true_labels_list)
+cv_pred_labels = np.row_stack(pred_labels_list)
 
 
 # export
