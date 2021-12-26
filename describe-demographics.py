@@ -17,9 +17,26 @@ c.load_matplotlib_settings()
 export_fname_plot = os.path.join(c.DATA_DIR, "results", "describe-demographics.png")
 export_fname_table = os.path.join(c.DATA_DIR, "results", "describe-demographics.tsv")
 export_fname_table_locs = os.path.join(c.DATA_DIR, "results", "describe-demographics_locations.tsv")
+export_fname_table_reported = os.path.join(c.DATA_DIR, "results", "describe-demographics_reported.tsv")
 
 
 _, df = c.load_dreamviews_data()
+
+
+#### save out table of how many participants provide demographic info
+
+reported_bool = df[["gender", "age", "country"]].notnull()
+reported_sum = reported_bool.sum()
+reported_sum.loc["gender+age"] = reported_bool[["gender","age"]].all(axis=1).sum()
+reported_sum.loc["gender+country"] = reported_bool[["gender","country"]].all(axis=1).sum()
+reported_sum.loc["age+country"] = reported_bool[["age","country"]].all(axis=1).sum()
+reported_sum.loc["gender+age+country"] = reported_bool.all(axis=1).sum()
+reported_pct = (reported_sum / len(df) * 100).round(0).astype(int)
+
+reported = pd.concat([reported_sum, reported_pct], axis=1)
+reported.columns = ["n_reported", "pct_reported"]
+reported.to_csv(export_fname_table_reported, index_label="demographic_variable", sep="\t", encoding="utf-8")
+
 
 
 ####### country choropleth stuff
@@ -34,10 +51,12 @@ country_counts = df["country"].fillna("unstated"
 ## save before dropping the unstated and converting to log values
 country_counts.to_csv(export_fname_table_locs, sep="\t", index=True, encoding="utf-8")
 
-# generate string to show how many users are not included
+
+# pop out the unstated bc it isn't for the plot
 unstated_n = country_counts.pop("unstated")
-unstated_pct = unstated_n / (unstated_n+country_counts.sum()) * 100
-unstated_txt = f"{unstated_n} ({unstated_pct:.0f}%) did not report location"
+# generate string to show how many users are not included
+# unstated_pct = unstated_n / (unstated_n+country_counts.sum()) * 100
+# unstated_txt = f"{unstated_n} ({unstated_pct:.0f}%) did not report location"
 
 # # convert for plotting benefits
 # country_counts = country_counts.apply(np.log10)
@@ -162,8 +181,8 @@ myworld.plot(
 )
 ax2.axis("off")
 
-ax2.text(.05, .2, unstated_txt, transform=ax2.transAxes,
-    ha="left", va="top", fontsize=8)
+# ax2.text(.05, .2, unstated_txt, transform=ax2.transAxes,
+#     ha="left", va="top", fontsize=8)
 
 
 # export with various extensions

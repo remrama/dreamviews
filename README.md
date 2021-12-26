@@ -69,6 +69,7 @@ python describe-categorypairs.py    # ==> DATA_DIR/results/describe-categorypair
 python describe-demographics.py     # ==> DATA_DIR/results/describe-demographics.png
                                     # ==> DATA_DIR/results/describe-demographics.tsv
                                     # ==> DATA_DIR/results/describe-demographics_locations.tsv
+                                    # ==> DATA_DIR/results/describe-demographics_reported.tsv
 
 
 ##### Visualize the amount of data there is.
