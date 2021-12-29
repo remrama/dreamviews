@@ -92,7 +92,8 @@ YMIN = 1.9
 YMAX = 3.4
 HEIGHT_RATIOS = [15, 1]
 
-fig, axes = plt.subplots(nrows=2, figsize=(3, 4),
+FIGSIZE = (2, 3)
+fig, axes = plt.subplots(nrows=2, figsize=FIGSIZE,
     sharex=True, sharey=False,
     gridspec_kw=dict(hspace=.04, height_ratios=HEIGHT_RATIOS,
         top=.98, right=.95, bottom=.1, left=.15))
