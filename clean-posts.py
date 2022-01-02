@@ -57,7 +57,7 @@ import pandas as pd
 
 from bs4 import BeautifulSoup
 
-from collections import Counter
+# from collections import Counter
 
 import config as c
 
@@ -115,10 +115,12 @@ def lemmatize(doc, pos_remove_list=["PROPN", "SMY"]):
     token_list = []
     for token in doc:
         if (token.is_alpha
+            ) and (len(token) >= 3
             ) and (not token.like_email
             ) and (not token.like_url
             ) and (not token.like_num
             ) and (not token.is_stop
+            ) and (not token.is_oov
             ) and (not token.pos_ in pos_remove_list):
             token_list.append( token.lemma_.lower() ) # *almost* always lowercase by default
     return " ".join(token_list) if token_list else None
@@ -171,7 +173,7 @@ extra_ascii_chars = r"[\x1b\x7f]+"
 # Gets turned into dataframe for export at the end.
 data = {} # ( post_id, post_data ) key, value pairs
 user_raw2id_mapping = {} # ( raw_username, unique_username ) key, value pairs
-user_counts = Counter()  # to keep track of n posts per user
+# user_counts = Counter()  # to keep track of n posts per user
 
 # Initialize a random state value.
 # This will get incremented every post that gets *looked* at,
@@ -350,7 +352,7 @@ for html_byt in tqdm.tqdm(html_files, desc="parsing html and processing text"):
         if tags_are_present:
             # split_rule_re = r"Tags:|(?<!Added )Categories")
             split_rule_re = r"Tags:|Categories"
-            a, tag_txt, cat_txt = re.split(split_rule_re, post_txt)
+            post_txt, tag_txt, cat_txt = re.split(split_rule_re, post_txt)
         else:
             split_rule_re = r"Categories"
             post_txt, cat_txt = re.split(split_rule_re, post_txt)
@@ -548,15 +550,15 @@ for html_byt in tqdm.tqdm(html_files, desc="parsing html and processing text"):
         #################   Save to running dictionary   #################
         ##################################################################
 
-        # -- RESTRICT -- based on the number of posts per user.
-        user_counts.update([unique_user_id])
-        nposts_this_user = user_counts[unique_user_id]
-        if nposts_this_user > c.MAX_POSTCOUNT:
-            continue
+        # # -- RESTRICT -- based on the number of posts per user.
+        # user_counts.update([unique_user_id])
+        # nposts_this_user = user_counts[unique_user_id]
+        # if nposts_this_user > c.MAX_POSTCOUNT:
+        #     continue
 
         single_post_data = {
             "user_id"     : unique_user_id,
-            "user_postn"  : nposts_this_user,
+            # "user_postn"  : nposts_this_user,
             "timestamp"   : date_txt_iso,
             "title"       : title_txt,
             "tags"        : tags,
@@ -589,16 +591,20 @@ df = pd.DataFrame.from_dict(data, orient="index"
 # # a few strange duplicated reports (<1%)
 # df = df.drop_duplicates(subset="post_txt", keep="first")
 
-# # Add a column that identifies the post # in sequence for a given user.
+# Add a column that identifies the post # in sequence for a given user.
 # df = df.sort_values(["user_id", "timestamp"]) # should be redundant but it's critical
-# df.insert(df.shape[0]-1, "post_number",
-#     df.groupby("user_id")["timestamp"].transform(lambda s: range(1, 1+len(s)))
-# )
+df.insert(1, "nth_post",
+    df.groupby("user_id")["timestamp"].transform(lambda s: range(1, 1+len(s)))
+)
+
+# -- RESTRICT -- based on the number of posts per user.
+df = df[ df["nth_post"].le(c.MAX_POSTCOUNT) ]
+
 
 # Drop the raw2id mapping dictionary to ONLY those users that survived restrictions
 #### so that only "used" users go into the raw2id mapping key.
 out_mapping_key = { username: userid for username, userid in user_raw2id_mapping.items()
-    if userid in user_counts }
+    if userid in df["user_id"].unique() }
 
 
 ## Write two files.
