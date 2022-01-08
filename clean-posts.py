@@ -485,7 +485,7 @@ for html_byt in tqdm.tqdm(html_files, desc="parsing html and processing text"):
         # The text already has some "@[email\xa0protected]" parts, basically anything after an @. Kinda dumb.
         # They aren't always emails so just replace with nothing.
         post_txt = re.sub(r"@\[email protected\]", "", post_txt) # first
-        post_txt = re.sub(r"\S*@\S*\s?", "[[EMAIL]]", post_txt) # just in case there are still any
+        post_txt = re.sub(r"\S*@\S*\s?", "[[URL]]", post_txt) # just in case there are still any
 
         # redact URLs
         post_txt = re.sub(r"https?://\S+", "[[URL]]", post_txt, flags=re.IGNORECASE)

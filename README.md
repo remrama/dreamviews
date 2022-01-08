@@ -118,3 +118,10 @@ python validate-liwc_stat.py        # ==> DATA_DIR/derivatives/validate-liwc.tsv
 python validate-liwcwords_perm.py   # ==> DATA_DIR/results/validate-liwcwords.tsv
 python validate-liwcwords_stat.py   # ==> DATA_DIR/results/validate-liwcwords.png
 ```
+
+
+### Generate a *super*-anonymized dataset
+
+```shell
+python anonymize-posts.py           # ==> DATA_DIR/derivatives/dreamviews-posts_anon.tsv
+```

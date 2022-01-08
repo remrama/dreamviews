@@ -1,4 +1,6 @@
-DATA_DIR = r"C:\Users\malle\PROJECTS\dreamviews_ds\data"
+import os
+DATA_DIR = "~/PROJECTS/dreamviews_ds/data"
+DATA_DIR = os.path.expanduser(DATA_DIR)
 
 BLOG_TIMESTAMP_FORMAT = "%m-%d-%Y at %I:%M %p"
 
@@ -21,14 +23,17 @@ COLORS = {
 }
 
 
-def load_dreamviews_data():
+def load_dreamviews_users():
+    import os; import pandas as pd
+    users_fname = os.path.join(DATA_DIR, "derivatives", "dreamviews-users.tsv")
+    users = pd.read_csv(users_fname, sep="\t", encoding="ascii")
+    return users
+
+def load_dreamviews_posts():
     import os; import pandas as pd
     posts_fname = os.path.join(DATA_DIR, "derivatives", "dreamviews-posts.tsv")
-    users_fname = os.path.join(DATA_DIR, "derivatives", "dreamviews-users.tsv")
     posts = pd.read_csv(posts_fname, sep="\t", encoding="ascii", parse_dates=["timestamp"])
-    users = pd.read_csv(users_fname, sep="\t", encoding="ascii")
-    return posts, users
-
+    return posts
 
 def strip_doublebracket_content(txt):
     """match anything in double square brackets (including the brackets)
