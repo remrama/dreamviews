@@ -98,11 +98,12 @@ python validate-classifier_stat.py  # ==> DATA_DIR/results/validate-classifier.t
                                     # ==> DATA_DIR/results/validate-classifier.tex
 
 # words that differentiate lucid and non-lucid
-python validate-wordshift_run.py    # ==> DATA_DIR/derivatives/validate-wordshift.tsv
-python validate-wordshift_stat.py   # ==> DATA_DIR/results/validate-wordshift.tsv
-                                    # ==> DATA_DIR/results/validate-wordshift.png
-python validate-wordshift_full.py   # ==> DATA_DIR/results/validate-wordshift_entropy.png
-                                    # ==> DATA_DIR/results/validate-wordshift_jsd.png
+python validate-wordshift_run.py    # ==> DATA_DIR/derivatives/validate-wordshift_scores-jsd.tsv
+                                    # ==> DATA_DIR/derivatives/validate-wordshift_scores-fear_nm.tsv
+                                    # ==> DATA_DIR/results/validate-wordshift-jsd.png
+                                    # ==> DATA_DIR/results/validate-wordshift-proportion.png
+                                    # ==> DATA_DIR/results/validate-wordshift-fear_nm.png
+python validate-wordshift_plot.py   # ==> DATA_DIR/results/validate-wordshift.png
 
 # run LIWC to get effects at the category and word levels
 python validate-liwc_run.py --words # ==> DATA_DIR/derivatives/posts-liwc.tsv
