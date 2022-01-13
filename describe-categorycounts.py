@@ -20,7 +20,7 @@ c.load_matplotlib_settings()
 
 export_fname = os.path.join(c.DATA_DIR, "results", "describe-categorycounts.png")
 
-df, _ = c.load_dreamviews_data()
+df = c.load_dreamviews_posts()
 df = df.set_index("post_id")
 
 # make new columns that denote lucid/non-lucid, independent of overlap
@@ -46,7 +46,7 @@ VENN_ARGS = {
 
 #### open up the main figure and create both axes to be drawn on
 
-fig, ax1 = plt.subplots(figsize=(4, 3.5),
+fig, ax1 = plt.subplots(figsize=(3.5, 3),
     gridspec_kw=dict(top=1, bottom=0, left=.12, right=1))
 # (using ax_top and bottom instead of 1/2 or a/b bc of possible confusion with Venn terms)
 ax1.set_title("Individual dream report category overlap")

@@ -23,7 +23,7 @@ c.load_matplotlib_settings()
 export_fname_plot  = os.path.join(c.DATA_DIR, "results", "describe-categorypairs.png")
 export_fname_table = os.path.join(c.DATA_DIR, "results", "describe-categorypairs.tsv")
 
-df, _ = c.load_dreamviews_data()
+df = c.load_dreamviews_posts()
 
 
 # generate dataframe that has the count of lucid and
@@ -53,9 +53,9 @@ bins = list(np.concatenate(bin_sets) - .5)
 g = sea.JointGrid(data=df_user,
     x="n_nonlucid", y="n_lucid",
     marginal_ticks=True,
-    height=4,
+    height=3.5,
     ratio=4, # ratio of joint-to-marginal axis heights
-    space=.4, # spate between joint and marginal axes
+    space=.4, # space between joint and marginal axes
 )
 
 # create in inset axis for the colorbar legend

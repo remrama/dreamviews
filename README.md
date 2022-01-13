@@ -39,6 +39,9 @@ python clean-posts.py               # ==> DATA_DIR/derivatives/dreamviews-posts.
 # Collect the relevant user profiles and clean them.
 python collect-users.py             # ==> DATA_DIR/source/dreamviews-users.zip
 python clean-users.py               # ==> DATA_DIR/derivatives/dreamviews-users.tsv
+
+# Generate a *super*-anonymized dataset
+python anonymize-posts.py           # ==> DATA_DIR/derivatives/dreamviews-posts_supanon.tsv
 ```
 
 
@@ -62,10 +65,6 @@ python describe-categorycounts.py   # ==> DATA_DIR/results/describe-categorycoun
 # number of participants with both lucid and non-lucid posts
 python describe-categorypairs.py    # ==> DATA_DIR/results/describe-categorypairs.tsv
                                     # ==> DATA_DIR/results/describe-categorypairs.png
-
-# generate a single figure with the two category images
-python combine_category_plots.py    # ==> DATA_DIR/results/hires/describe-categories.pdf
-
 
 ##### Visualize user demographics.
 # reported gender, age, and location
@@ -118,11 +117,4 @@ python validate-liwc_stat.py        # ==> DATA_DIR/derivatives/validate-liwc.tsv
 # plot individual word contributions for insight and agency effects LD vs non-LD
 python validate-liwcwords_perm.py   # ==> DATA_DIR/results/validate-liwcwords.tsv
 python validate-liwcwords_stat.py   # ==> DATA_DIR/results/validate-liwcwords.png
-```
-
-
-### Generate a *super*-anonymized dataset
-
-```shell
-python anonymize-posts.py           # ==> DATA_DIR/derivatives/dreamviews-posts_anon.tsv
 ```
