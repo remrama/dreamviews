@@ -10,8 +10,8 @@ from sklearn import metrics
 
 
 import_fname = os.path.join(c.DATA_DIR, "derivatives", "validate-classifier.npz")
-export_fname_cv = os.path.join(c.DATA_DIR, "results", "validate-classifier.tsv")
-export_fname_avg = os.path.join(c.DATA_DIR, "results", "validate-classifier.tex")
+export_fname_cv = os.path.join(c.DATA_DIR, "derivatives", "validate-classifier_cv.tsv")
+export_fname_avg = os.path.join(c.DATA_DIR, "derivatives", "validate-classifier_avg.tsv")
 
 data = np.load(import_fname)
 
@@ -39,7 +39,4 @@ avg.columns = avg.columns.map(lambda x: "CV "+x)
 
 ########### export individual CV and mean results
 df.to_csv(export_fname_cv, index=True, sep="\t", encoding="utf-8")
-avg.reset_index(drop=False).to_latex(buf=export_fname_avg, index=False, encoding="utf-8",
-        float_format="%.2f", column_format="rrr",
-        caption="Lucid vs non-lucid classification performance. Chance accuracy is 50\\%.",
-        label="table:classification")
+avg.to_csv(export_fname_avg, index=True, sep="\t", encoding="utf-8")

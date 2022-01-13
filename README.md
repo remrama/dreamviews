@@ -54,10 +54,8 @@ Export plots and summary statistics describing the dataset.
 ##### Visualize the amount of posts from each relevant category.
 
 # generate top categories and labels
-python describe-toplabels.py        # ==> DATA_DIR/results/describe-topcategories.tsv
-                                    # ==> DATA_DIR/results/describe-topcategories.tex
-                                    # ==> DATA_DIR/results/describe-toptags.tsv
-                                    # ==> DATA_DIR/results/describe-toptags.tex
+python describe-toplabels.py        # ==> DATA_DIR/derivatives/describe-topcategories.tsv
+                                    # ==> DATA_DIR/derivatives/describe-toptags.tsv
 
 # lucid/non-lucid/nightmare overlap
 python describe-categorycounts.py   # ==> DATA_DIR/results/describe-categorycounts.png
@@ -93,8 +91,8 @@ Show that the lucid and non-lucid posts are differentiable in predictable ways b
 ```shell
 # classifier
 python validate-classifier_run.py   # ==> DATA_DIR/derivatives/validate-classifier.npz
-python validate-classifier_stat.py  # ==> DATA_DIR/results/validate-classifier.tsv
-                                    # ==> DATA_DIR/results/validate-classifier.tex
+python validate-classifier_stat.py  # ==> DATA_DIR/derivatives/validate-classifier_cv.tsv
+                                    # ==> DATA_DIR/derivatives/validate-classifier_avg.tsv
 
 # words that differentiate lucid and non-lucid
 python validate-wordshift_run.py    # ==> DATA_DIR/derivatives/validate-wordshift_scores-jsd.tsv
@@ -117,4 +115,12 @@ python validate-liwc_stat.py        # ==> DATA_DIR/derivatives/validate-liwc.tsv
 # plot individual word contributions for insight and agency effects LD vs non-LD
 python validate-liwcwords_perm.py   # ==> DATA_DIR/results/validate-liwcwords.tsv
 python validate-liwcwords_stat.py   # ==> DATA_DIR/results/validate-liwcwords.png
+```
+
+```shell
+# make some latex tables from raw tsv output
+for bn in describe-topcategories describe-toptags validate-classifier_avg
+do
+    python tsv2latex.py --basename ${bn}    # ==> DATA_DIR/results/<bn>.tex
+done
 ```

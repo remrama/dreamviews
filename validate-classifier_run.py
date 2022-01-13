@@ -43,7 +43,7 @@ export_fname = os.path.join(c.DATA_DIR, "derivatives", "validate-classifier.npz"
 
 
 usecols = ["post_id", "user_id", "lucidity", TXT_COL]
-df, _ = c.load_dreamviews_data()
+df = c.load_dreamviews_posts()
 df = df[usecols].set_index("post_id")
 
 # drop non-lucid data

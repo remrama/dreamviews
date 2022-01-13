@@ -15,9 +15,7 @@ import config as c
 N_MIN_LABELS = 10
 N_MIN_USERS = 10 # per label
 
-TOP_N = 10 # for latex output only
-
-df, _ = c.load_dreamviews_data()
+df = c.load_dreamviews_posts()
 
 for col in ["tags", "categories"]:
 
@@ -50,8 +48,5 @@ for col in ["tags", "categories"]:
     res = res.sort_values("n_posts", ascending=False)
 
     # export
-    export_fname1 = os.path.join(c.DATA_DIR, "results", f"describe-top{col}.tsv")
-    export_fname2 = os.path.join(c.DATA_DIR, "results", f"describe-top{col}.tex")
-    res.to_csv(export_fname1, sep="\t", encoding="utf-8", index=True)
-    res[:TOP_N].reset_index(drop=False).to_latex(buf=export_fname2, index=False, encoding="utf-8",
-        column_format="rrr")
+    export_fname = os.path.join(c.DATA_DIR, "derivatives", f"describe-top{col}.tsv")
+    res.to_csv(export_fname, sep="\t", encoding="utf-8", index=True)
