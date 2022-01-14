@@ -16,7 +16,7 @@ elif [[ $# -eq 1 ]]; then
   fi
 fi
 
-# set up directories
+# setup
 python init-data_dirs.py
 
 # scrape and clean
@@ -46,6 +46,8 @@ if [[ -z "$1" ]]; then # no argument supplied (ie, run liwc)
   python validate-liwc_word_stats.py
   python validate-liwc_word_plot.py
 fi
+
+# cleanup
 for bn in describe-wordcount describe-topcategories describe-toptags validate-classifier_avg
 do
     python tsv2latex.py --basename ${bn}

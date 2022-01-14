@@ -1,9 +1,12 @@
-"""
-Plot output from wordshift.
+"""Visualize word shift scores from shifterator.
 
-I'm recreating the wordshift plots from shifterator
-with minor tweaks, and both panels (lucid JSD and
-nightmare fear) are generated here.
+IMPORTS
+=======
+    - raw JSD shift scores for lucidity,           results/validate-wordshift_jsd-scores.tsv
+    - raw NRC-fear shift scores for nightmares,    results/validate-wordshift_fear-scores.tsv
+EXPORTS
+=======
+    - visualization with both JSD and fear shifts, results/validate-wordshifts.png
 """
 import os
 import numpy as np
@@ -90,12 +93,12 @@ NRC_FEAR_BOUNDS = (0, 1) # minimum and maximum scores for fear ratings in shifte
                          # also assumes later that the ref differences scores are this range but centered around 0
 
 # Iterate over the two axes/panels and draw each plot.
-for shift_id, ax in zip(["jsd", "fear_nm"], axes):
-    assert shift_id in ["jsd", "fear_nm"], f"Not prepared to handle shift id: {shift_id}"
+for shift_id, ax in zip(["jsd", "fear"], axes):
+    assert shift_id in ["jsd", "fear"], f"Not prepared to handle shift id: {shift_id}"
 
     # load relevant shift scores
-    basename = f"validate-wordshift_scores-{shift_id}.tsv"
-    import_fname = os.path.join(c.DATA_DIR, "derivatives", basename)
+    basename = f"validate-wordshift_{shift_id}-scores.tsv"
+    import_fname = os.path.join(c.DATA_DIR, "results", basename)
     df = pd.read_csv(import_fname, index_col="ngram", sep="\t", encoding="utf-8")
 
     # reduce to the top N shift scores
@@ -120,7 +123,7 @@ for shift_id, ax in zip(["jsd", "fear_nm"], axes):
         # norm = plt.matplotlib.colors.CenteredNorm()
         cmin, cmax = colors.min(), colors.max()
         norm = plt.Normalize(vmin=cmin, vmax=cmax)
-    elif shift_id == "fear_nm":
+    elif shift_id == "fear":
         # NRC emotion scale in shifterator is 0-1
         # but the colormaps values are between -.5 and 5
         # because they are a difference measure.
@@ -196,7 +199,7 @@ for shift_id, ax in zip(["jsd", "fear_nm"], axes):
     if shift_id == "jsd":
         major_cticks = plt.MultipleLocator(.5)
         minor_cticks = plt.MultipleLocator(.1)
-    elif shift_id == "fear_nm":
+    elif shift_id == "fear":
         major_cticks = plt.FixedLocator([-fear_halfrange, cmask_min, 0, cmask_max, fear_halfrange])
         minor_cticks = plt.MultipleLocator(.1)
     cbar.locator = major_cticks

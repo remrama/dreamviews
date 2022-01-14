@@ -1,6 +1,6 @@
 # dreamviews_ds
 
-Turning the public [DreamViews Dream Journal](https://www.dreamviews.com/blogs/) into a usable dataset. This repo is for collecting, cleaning, describing, and validating the dataset.
+Turning the public [DreamViews dream journal](https://www.dreamviews.com/blogs/) into a usable dataset. This repo is for scraping, cleaning, describing, and validating the dataset.
 
 See [preprint]() for details and motivation.
 
@@ -8,16 +8,10 @@ See [preprint]() for details and motivation.
 
 See `config.py` for directory info and other configuration stuff.
 
-You can `runall.sh`, but first make sure you adjust the `DATA_DIR` in `config.py` first to be wherever you want things output. Also use the `environment.yml` file to set up a conda environment that should be able to run smoothly and reproduce my exact output.
-
-The code filenames start with one of `init`, `scrape`, `clean`, `describe`, `validate`, where the prefix explains which of the stages the file is used for.
-
-Raw data from the web scraping is in `DATA_DIR/source`, "middle-ground" output, like the cleaned posts and aggregated users or raw LIWC output are in `DATA_DIR/derivatives`, and any final numbers (eg, descriptive stats and significance tests) and plots are in `DATA_DIR/results`.
-
-Everything's in Python, and _almost_ everything runs with freely available tools. LIWC is the only hiccup, the dictionary file is proprietary so it's not included in the repo. You can run all the code at once using `runall.sh`, but without the LIWC file use `runall.sh noliwc`.
+You can `runall.sh`, but first make sure you adjust the `DATA_DIR` in `config.py` first to be wherever you want things output. Also use the `environment.yml` file to set up a conda environment that should be able to run smoothly and reproduce my exact output. Also add the argument `runall.sh noliwc` unless you have a LIWC file lying around.
 
 
-### A preliminary script
+### Setup
 
 ```shell
 # create the relevant subfolders of the data directory (specified in config.py)
@@ -67,14 +61,14 @@ python describe-categorycounts.py           # ==> DATA_DIR/results/describe-cate
 python describe-categorypairs.py            # ==> DATA_DIR/results/describe-categorypairs.tsv
                                             # ==> DATA_DIR/results/describe-categorypairs.png
 
-# Visualize user demographics.
+# Count the frequencies of reports age, gender, and location clusters.
 python describe-demographics.py             # ==> DATA_DIR/results/describe-demographics_provided.tsv
                                             # ==> DATA_DIR/results/describe-demographics_agegender.tsv
                                             # ==> DATA_DIR/results/describe-demographics_location.tsv
                                             # ==> DATA_DIR/results/describe-demographics.png
 
 # Count how many words are in each post.
-python describe-wordcount.py                # ==> DATA_DIR/derivatives/describe-wordcount.tsv
+python describe-wordcount.py                # ==> DATA_DIR/results/describe-wordcount.tsv
                                             # ==> DATA_DIR/results/describe-wordcount.png
 ```
 
@@ -82,21 +76,20 @@ python describe-wordcount.py                # ==> DATA_DIR/derivatives/describe-
 ### Validate certain aspects of the dataset 
 
 ```shell
-# Train/test a classifier to identify the lucidity of a post.
+# Train/test a classifier on the lucidity of a post.
 python validate-classifier.py               # ==> DATA_DIR/derivatives/validate-classifier.npz
 python validate-classifier_stats.py         # ==> DATA_DIR/derivatives/validate-classifier_cv.tsv
-                                            # ==> DATA_DIR/derivatives/validate-classifier_avg.tsv
+                                            # ==> DATA_DIR/results/validate-classifier_avg.tsv
 
-# Identify words that distinguish lucid and non-lucid posts.
-# (Also words that distinguish nightmares from non-nightmares.)
-python validate-wordshift.py                # ==> DATA_DIR/results/validate-wordshift_scores-jsd.tsv
-                                            # ==> DATA_DIR/results/validate-wordshift_scores-fear_nm.tsv
-                                            # ==> DATA_DIR/results/validate-wordshift-jsd.png
-                                            # ==> DATA_DIR/results/validate-wordshift-proportion.png
-                                            # ==> DATA_DIR/results/validate-wordshift-fear_nm.png
+# Identify words that distinguish lucid and non-lucid posts (and nightmares from non-nightmares).
+python validate-wordshift.py                # ==> DATA_DIR/results/validate-wordshift_jsd-scores.tsv
+                                            # ==> DATA_DIR/results/validate-wordshift_jsd-plot.png
+                                            # ==> DATA_DIR/results/validate-wordshift_fear-scores.tsv
+                                            # ==> DATA_DIR/results/validate-wordshift_fear-plot.png
+                                            # ==> DATA_DIR/results/validate-wordshift_proportion-plot.png
 python validate-wordshift_plot.py           # ==> DATA_DIR/results/validate-wordshift.png
 
-# Compare lucid and non-lucid reports using LIWC categories of interest (Agency and Insight).
+# Compare lucid and non-lucid reports using LIWC categories Insight and Agency.
 python validate-liwc.py --words             # ==> DATA_DIR/derivatives/validate-liwc_scores.tsv
                                             # ==> DATA_DIR/derivatives/validate-liwc_wordscores-data.npz
                                             # ==> DATA_DIR/derivatives/validate-liwc_wordscores-attr.npz
@@ -105,7 +98,12 @@ python validate-liwc_stats.py               # ==> DATA_DIR/results/validate-liwc
                                             # ==> DATA_DIR/results/validate-liwc_scores-plot.png
 python validate-liwc_word_stats.py          # ==> DATA_DIR/results/validate-liwc_wordscores-stats.tsv
 python validate-liwc_word_plot.py           # ==> DATA_DIR/results/validate-liwc_wordscores-plot.png
+```
 
+
+### Cleanup
+
+```shell
 # Generate some latex tables from the tsv output, for manuscript.
 for bn in describe-wordcount describe-topcategories describe-toptags validate-classifier_avg
 do

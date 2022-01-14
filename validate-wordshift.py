@@ -1,40 +1,24 @@
-"""
-Run resampled wordshifts on lemmatized dream reports.
-Outputs tsv files that have different shift contribution
-scores for lots of words at lots of resampled iterations.
-
-Before resampling, save out a few wordshifts using whole dataset.
-Useful for diagnostics, to make sure my custom plots and the
-resampling don't stray too far off.
-
-
-Output is used in other scripts to:
-    0. first gets aggregated into summary table
-    1. plot JSD shift for lucidity
-    2. plot Fear shift for nightmares
-    3. generate latex table of bigram contributions
+"""Use wordshift scores (and default visualizations) to separate texts.
 
 Wordshifts are very easy to generate using shifterator.
-Why am I making it so complicated?
-Two related things: user-dependent contributions and significance testing.
+https://github.com/ryanjgallagher/shifterator
 
-(A) Account for biased user contributions, some have 1000 others have 1.
-----
-Solution: An ngram's score is no longer just count, it's now
-    normalized by number of docs for that user and then
-    that -- instead of raw counts -- is summed.
+This dataset is huge biases in how many users contribute posts.
+Some users include 1000 posts, others 1. Word frequencies are
+normalized to account for this, before being passed to shifterator.
 
-(B) Some imperfect way of determining whether a word's contribution is "meaningful".
-----
-Solution: Resample the shift scores to get 95% confidence intervals
-    and compare to zero. (aggregated in another file)
+Bigrams are included in the wordshift by first transforming text with gensim.
 
-(C) Include bigrams.
-----
-Solution: Run on posts transformed with gensim bigram model.
-
-I'm also running (D) different wordshifts and (E) including nightmares
-so this all leads to a lengthy if not overcomplicated script.
+IMPORTS
+=======
+    - lemmatized posts, derivatives/dreamviews-posts.tsv
+EXPORTS
+=======
+    - raw JSD shift scores for lucidity,          results/validate-wordshift_jsd-scores.tsv
+    - default JSD shift plot for lucidity,        results/validate-wordshift_jsd-plot.png
+    - raw NRC-fear shift scores for nightmares,   results/validate-wordshift_fear-scores.tsv
+    - default NRC-fear shift plot for nightmares, results/validate-wordshift_fear-plot.tsv
+    - default proportion shift plot for lucidity, results/validate-wordshift_proportion-plot.tsv
 """
 import os
 import tqdm
@@ -50,31 +34,27 @@ from gensim.models.phrases import Phrases, Phraser
 import matplotlib.pyplot as plt # to close shift plots
 
 parser = argparse.ArgumentParser()
-parser.add_argument("--nobigrams", action="store_true",
-    help="Don't include bigrams in the wordshift, just for development.")
-parser.add_argument("--nonorm", action="store_true",
-    help="Don't account for biased contributions, just for development.")
+parser.add_argument("--nobigrams", action="store_true", help="Don't include bigrams in the wordshift, just for development.")
+parser.add_argument("--nonorm", action="store_true", help="Don't account for biased contributions, just for development.")
 args = parser.parse_args()
 
 NO_BIGRAMS = args.nobigrams
 NO_NORMING = args.nonorm
 
-TOP_N = 30 # save out top N ngrams to table
 
-# ### most export filenames are below
-# export_fname = os.path.join(c.DATA_DIR, "derivatives", "validate-wordshift_scores.tsv")
-# export_fname_stats = os.path.join(c.DATA_DIR, "results", "validate-wordshift_scores.tsv")
-# if NIGHTMARES:
-#     export_fname = export_fname.replace(".tsv", "-nightmares.tsv")
-#     export_fname_stats = export_fname_stats.replace(".tsv", "-nightmares.tsv")
-#     export_ext = "-nightmares.png"
-# else:
-#     export_ext = ".png"
+################################### I/O
 
+export_fname_jsd_table  = os.path.join(c.DATA_DIR, "results", f"validate-wordshift_jsd-scores.tsv")
+export_fname_jsd_plot   = os.path.join(c.DATA_DIR, "results", f"validate-wordshift_jsd-plot.png")
+export_fname_fear_table = os.path.join(c.DATA_DIR, "results", f"validate-wordshift_fear-scores.tsv")
+export_fname_fear_plot  = os.path.join(c.DATA_DIR, "results", f"validate-wordshift_fear-plot.png")
+export_fname_prop_plot  = os.path.join(c.DATA_DIR, "results", f"validate-wordshift_proportion-plot.png")
 
 df = c.load_dreamviews_posts()
 
-TXT_COL = "post_lemmas"
+
+
+################################### Connect common bigrams.
 
 # # remove stopwords from text column
 # replace_regex = r"(?<=\b)(" + r"|".join(stops) + r")(?=\b)"
@@ -100,58 +80,88 @@ if not NO_BIGRAMS: # sorry for the double negative
 #     doc = x.split()
 #     return " ".join(map(lambda x: "-".join(x), find_ngrams(doc, n)))
 
-
 # reduce user bias
 # df = df.groupby("user_id").sample(n=1, replace=False)
 
-df["nightmare"] = df["nightmare"].map({True:"nightmare", False:"nonnightmare"})
-nm_ser = df.set_index(["nightmare", "user_id"])[TXT_COL]
 
+
+################################### Extract data for analyses.
+
+TXT_COL = "post_lemmas"
+
+# lucidity series for JSD and proportion shifts
 ld_ser = df.query("lucidity.str.contains('lucid')", engine="python"
     ).set_index(["lucidity", "user_id"])[TXT_COL]
 
+# nightmare series for the NRC fear shift
+df["nightmare"] = df["nightmare"].map({True:"nightmare", False:"nonnightmare"})
+nm_ser = df.set_index(["nightmare", "user_id"])[TXT_COL]
 
 
 
+
+################################### Create functions for normalization.
+
+def shift2df(shift, detail_level=2):
+    """Convert shifterator object into pandas dataframe of scores.
+    detail level 0 : shift scores
+    detail level 1 : shift scores and difference measures
+    detail level 2 : shift scores and difference measures and scores to calculate differences
+    """
+    assert detail_level in [0, 1, 2]
+    if detail_level == 0:
+        shift_scores = shift.get_shift_scores(details=False)
+        shift_score_names = ["type2shift_score"]
+        score_dicts = { n: s for n, s in zip(shift_score_names, shift_scores) }
+    elif detail_level == 1:
+        shift_scores = shift.get_shift_scores(details=True)
+        shift_score_names = ["type2p_diff", "type2s_diff", "type2p_avg",
+            "type2s_ref_diff", "type2shift_score"]
+        score_dicts = { n: s for n, s in zip(shift_score_names, shift_scores) }
+    elif detail_level == 2:
+        score_dicts = { k: shift.__getattribute__(k)
+            for k in shift.__dict__.keys() if k.startswith("type2") }
+    df_ = pd.DataFrame(score_dicts).sort_index().rename_axis("ngram")
+    return df_
 
 def get_simple_freqs(series, group1, group2):
-    ### simple way -- not controlling for user contributions
-    # get ngram frequencies
-    # explode to one ngram per row
+    """Return word frequencies without any normalization.
+    Just raw counts.
+    """
+    # split reports and explode to one ngram per row
     ngram_ser = series.str.lower().str.split().explode()
     ngrams_1 = ngram_ser.loc[group1]
     ngrams_2 = ngram_ser.loc[group2]
+    # count ngram frequencies
     ngram2freq_1 = ngrams_1.value_counts().to_dict()
     ngram2freq_2 = ngrams_2.value_counts().to_dict()
     return ngram2freq_1, ngram2freq_2
 
 
 def get_normed_freqs(series, group1, group2):
-    ### control for user counts
-    # an ngram's score is no longer a count/int
-    # but normalized by number of docs for that user
-    # and then added across normalized frequencies
-
-    # get number of documents per user
-    # user2freq_1 = ngrams_1.index.value_counts().to_dict()
-    # user2freq_2 = ngrams_2.index.value_counts().to_dict()
+    """Return word frequencies normalized by user contributions.
+    Ngram frequencies are counted within each user, and then
+    divided by the amount of posts that user contributed.
+    Then *those* are added across the corpus, instead of raw counts.
+    """
+    # get post frequency per user, for each corpus
     user2freq_1 = series.loc[group1].groupby("user_id").size()
     user2freq_2 = series.loc[group2].groupby("user_id").size()
+    # user2freq_1 = ngrams_1.index.value_counts().to_dict()
+    # user2freq_2 = ngrams_2.index.value_counts().to_dict()
 
-    # get ngrams frequencies for each user
-    # get ngram frequencies
+    # get ngram frequencies per user, for each corpus
     ngram_ser = series.str.lower().str.split().explode()
     ngrams_1 = ngram_ser.loc[group1]
     ngrams_2 = ngram_ser.loc[group2]
     userngrams2freq_1 = ngrams_1.groupby("user_id").value_counts()
     userngrams2freq_2 = ngrams_2.groupby("user_id").value_counts()
 
-    # get normalized ngram score for each ngram/user combo.
-    # divide user's ngram frequency by number of documents
-    userngrams2norm_1 = userngrams2freq_1 / user2freq_1
+    # normalize each ngram frequency for each user, for each corpus
+    userngrams2norm_1 = userngrams2freq_1 / user2freq_1 # (user's ngram frequency over document frequency)
     userngrams2norm_2 = userngrams2freq_2 / user2freq_2
 
-    # sum across normed scores for each ngram instead of frequency
+    # sum across normalized user/ngram frequencies, for each corpus
     ngram2freq_1 = userngrams2norm_1.groupby(TXT_COL).sum().to_dict()
     ngram2freq_2 = userngrams2norm_2.groupby(TXT_COL).sum().to_dict()
 
@@ -198,87 +208,70 @@ def get_normed_freqs(series, group1, group2):
 # score_dicts = { n: s for n, s in zip(shift_score_names, shift_scores) }
 
 
-#########################
-######################### Plots using whole dataset.
-######################### For sanity checking later.
-######################### And curiosity.
-######################### But too much or paper.
-#########################
+
+################################### Run word shifts
 
 
-def shift2df(shift, detail_level=2):
-    assert detail_level in [0, 1, 2]
-    if detail_level == 0:
-        shift_scores = shift.get_shift_scores(details=False)
-        shift_score_names = ["type2shift_score"]
-        score_dicts = { n: s for n, s in zip(shift_score_names, shift_scores) }
-    elif detail_level == 1:
-        shift_scores = shift.get_shift_scores(details=True)
-        shift_score_names = ["type2p_diff", "type2s_diff", "type2p_avg",
-            "type2s_ref_diff", "type2shift_score"]
-        score_dicts = { n: s for n, s in zip(shift_score_names, shift_scores) }
-    elif detail_level == 2:
-        score_dicts = { k: shift.__getattribute__(k)
-            for k in shift.__dict__.keys() if k.startswith("type2") }
-    df_ = pd.DataFrame(score_dicts).sort_index().rename_axis("ngram")
-    return df_
+##### run NRC fear shift comparing nightmares vs non-nightmares
 
-################### do the one-off nightmare one first
+# get frequencies
 nm_group1, nm_group2 = "nonnightmare", "nightmare"
 if NO_NORMING:
     ngram2freq_1, ngram2freq_2 = get_simple_freqs(nm_ser, nm_group1, nm_group2)
 else:
     ngram2freq_1, ngram2freq_2 = get_normed_freqs(nm_ser, nm_group1, nm_group2)
 
-### Fear shift for nightmares
+# get shift scores
 shift = sh.WeightedAvgShift(type2freq_1=ngram2freq_1, type2freq_2=ngram2freq_2,
-    type2score_1="NRC-emotion_fear_English", normalization="variation",
-    stop_lens=[(.3, .7)])
-out_fname = os.path.join(c.DATA_DIR, "results", f"validate-wordshift-fear_nm.png")
+    type2score_1="NRC-emotion_fear_English",
+    normalization="variation", stop_lens=[(.3, .7)])
+
+# export plot
 shift.get_shift_graph(top_n=50, system_names=[nm_group1, nm_group2],
-    detailed=True, show_plot=False, filename=out_fname)
+    detailed=True, show_plot=False, filename=export_fname_fear_plot)
 plt.close()
 
+# export scores
 out_df = shift2df(shift)
-export_fname = os.path.join(c.DATA_DIR, "derivatives", f"validate-wordshift_scores-fear_nm.tsv")
-out_df.to_csv(export_fname, index=True, na_rep="NA", sep="\t", encoding="utf-8")
+out_df.to_csv(export_fname_fear_table, index=True, na_rep="NA", sep="\t", encoding="utf-8")
 
 
+##### run JSD shift comparing lucids vs non-lucids
 
-###################################### LUCID STUFF
-
+# get frequencies
 ld_group1, ld_group2 = "nonlucid", "lucid"
 if NO_NORMING:
     ngram2freq_1, ngram2freq_2 = get_simple_freqs(ld_ser, ld_group1, ld_group2)
 else:
     ngram2freq_1, ngram2freq_2 = get_normed_freqs(ld_ser, ld_group1, ld_group2)
 
-### Basic proportion shift to understand if the the fancy stuff is worth it.
-shift = sh.ProportionShift(type2freq_1=ngram2freq_1, type2freq_2=ngram2freq_2)
-out_fname = os.path.join(c.DATA_DIR, "results", f"validate-wordshift-proportion.png")
-shift.get_shift_graph(top_n=50, system_names=[ld_group1, ld_group2],
-    detailed=False, show_plot=False, filename=out_fname)
-plt.close()
-
-### JSD shift because this is the main one of interest.
+# get shift scores
 shift = sh.JSDivergenceShift(type2freq_1=ngram2freq_1, type2freq_2=ngram2freq_2,
     weight_1=0.5, weight_2=0.5, base=2,
     normalization="variation", alpha=1, reference_value="average")
-out_fname = os.path.join(c.DATA_DIR, "results", f"validate-wordshift-jsd.png")
+
+# export plot
 shift.get_shift_graph(top_n=50, system_names=[ld_group1, ld_group2],
-    detailed=True, show_plot=False, filename=out_fname)
+    detailed=True, show_plot=False, filename=export_fname_jsd_plot)
 plt.close()
 
-### Save out JSD word-level results, which has proportions in it too
-# a = jsd_df.sort_values("type2p_diff", ascending=False, key=abs)
-# a[a.index.str.contains("_")][:40]
+# export scores
 out_df = shift2df(shift)
-export_fname = os.path.join(c.DATA_DIR, "derivatives", f"validate-wordshift_scores-jsd.tsv")
-out_df.to_csv(export_fname, index=True, na_rep="NA", sep="\t", encoding="utf-8")
+out_df.to_csv(export_fname_jsd_table, index=True, na_rep="NA", sep="\t", encoding="utf-8")
 
-# ### and these might be worth saving
-# shift_component_sums = shift.get_shift_component_sums()
-# jsd_score = shift.diff
+
+##### run proportion shift comparing lucids vs non-lucids
+
+# get shift scores
+shift = sh.ProportionShift(type2freq_1=ngram2freq_1, type2freq_2=ngram2freq_2)
+
+# export plot
+shift.get_shift_graph(top_n=50, system_names=[ld_group1, ld_group2],
+    detailed=False, show_plot=False, filename=export_fname_prop_plot)
+plt.close()
+
+
+
 
 
 # #### recreating shift score

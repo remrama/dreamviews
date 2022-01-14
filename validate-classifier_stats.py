@@ -20,7 +20,7 @@ from sklearn import metrics
 
 import_fname = os.path.join(c.DATA_DIR, "derivatives", "validate-classifier.npz")
 export_fname_cv = os.path.join(c.DATA_DIR, "derivatives", "validate-classifier_cv.tsv")
-export_fname_cv_avg = os.path.join(c.DATA_DIR, "derivatives", "validate-classifier_avg.tsv")
+export_fname_cv_avg = os.path.join(c.DATA_DIR, "results", "validate-classifier_avg.tsv")
 
 data = np.load(import_fname)
 cv_true = data["true_labels"]
