@@ -25,6 +25,12 @@ df = pd.read_csv(import_fname, sep="\t", encoding="utf-8")
 if IMPORT_BASENAME in ["describe-toptags", "describe-topcategories"]:
     df = df.head(10) # only want top of the table
 
+# elif IMPORT_BASENAME == "describe-wordcount":
+#     df.columns.names = [None, None]
+#     df.index.name = None
+#     df.to_latex(buf=export_fname, index=True, encoding="utf-8",
+#         float_format="%.0f")
+
 
 # export to a latex table file
 df.to_latex(buf=export_fname,

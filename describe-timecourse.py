@@ -1,8 +1,15 @@
 """
 Visualize DreamViews activity over time.
-This shows both post and user frequency, kinda.
+The main plot is for post frequency but user frequency is on top too.
 
-The command line arguments are just for special presentation plots.
+The optional command line arguments are just for changes to make presentation plots (can ignore).
+
+IMPORTS
+=======
+    - posts, derivatives/dreamviews-posts.tsv
+EXPORTS
+=======
+    - visualization, results/describe-timecourse.png
 """
 import os
 import argparse
@@ -15,17 +22,15 @@ import matplotlib.dates as mdates
 c.load_matplotlib_settings()
 
 parser = argparse.ArgumentParser()
-parser.add_argument("--white", action="store_true",
-    help="To ignore labels and just plot all data in white")
-parser.add_argument("--restrict", action="store_true",
-    help="To restrict data to lucid and non-lucid labels")
+parser.add_argument("--white", action="store_true", help="To ignore labels and just plot all data in white")
+parser.add_argument("--restrict", action="store_true", help="To restrict data to lucid and non-lucid labels")
 args = parser.parse_args()
 
 WHITE = args.white
 RESTRICT = args.restrict
 
 
-### handle i/o and load in data
+################################ I/O
 
 export_fname = os.path.join(c.DATA_DIR, "results", "describe-timecourse.png")
 if WHITE:
@@ -33,7 +38,7 @@ if WHITE:
 if RESTRICT:
     export_fname = export_fname.replace(".png", "_RESTRICT.png")
 
-df, _ = c.load_dreamviews_data()
+df = c.load_dreamviews_posts()
 
 # drop data if desired
 if RESTRICT:
@@ -52,8 +57,10 @@ monthly_users["novel"] = monthly_users.user_id.duplicated(
     keep="first").map({True: "repeat-user", False: "novel-user"})
 
 
-############################################
-##### Need to specify a lot of parameters for plotting
+
+################################ Plotting
+
+############ first specify a lot of parameters for plotting
 
 if RESTRICT:
     LUCIDITY_ORDER = ["nonlucid", "lucid"]
@@ -138,11 +145,6 @@ LEGEND_ARGS = {
     "handletextpad" : .2, # space between legend markers and labels
 }
 
-
-
-##########################################
-##### draw
-
 if WHITE:
     post_plot_args = {"color": "white"}
     user_plot_args = {"color": "white"}
@@ -155,6 +157,10 @@ else:
         "hue"       : "novel",
         "hue_order" : USER_ORDER,
     }
+
+
+############ now draw
+
 
 # open figure and create twin axes
 _, axes = plt.subplots(2, 1,
@@ -178,7 +184,6 @@ if WHITE:
     ax1b.lines[0].set(color="black", alpha=1)
     ax2b.lines[0].set(color="black", alpha=1)
 
-
 # legends
 if not WHITE:
     ###### bottom legend
@@ -198,7 +203,6 @@ if not WHITE:
         bbox_to_anchor=(.6, .98), loc="upper left",
         **LEGEND_ARGS)
     # ax2_legend.get_frame().set_linewidth(0)
-
 
 ###### aesthetics on bottom axis
 ax1a.set_xlabel("date (year)")
@@ -239,7 +243,6 @@ ax1b.yaxis.set(major_locator=plt.MultipleLocator(major_tick_loc_right),
 ax2b.yaxis.set(major_locator=plt.MultipleLocator(major_tick_loc_right),
                minor_locator=plt.MultipleLocator(minor_tick_loc_right))
 
-
 ##### draw total counts on the plot
 n_total_posts = df.shape[0]
 n_total_users = df["user_id"].nunique()
@@ -247,13 +250,11 @@ n_total_users = df["user_id"].nunique()
 # n_users_per_label = df.groupby("lucidity").user_id.nunique("")
 counts_txt = fr"$n_{{total}}={n_total_posts}$"
 users_txt = fr"$n_{{total}}={n_total_users}$"
-
-
 ax1a.text(.3, .9, counts_txt, transform=ax1a.transAxes, ha="left", va="top", fontsize=10)
 ax2a.text(.3, .9, users_txt, transform=ax2a.transAxes, ha="left", va="top", fontsize=10)
 
 
-# export with various extensions
+# export
 plt.savefig(export_fname)
 c.save_hires_figs(export_fname)
 plt.close()

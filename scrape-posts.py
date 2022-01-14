@@ -1,4 +1,4 @@
-"""Crawl all DreamViews dream journal entries,
+"""Scrape all DreamViews dream journal entries,
 saving the raw html files into a zipfile for later processing.
 """
 import os

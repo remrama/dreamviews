@@ -1,6 +1,12 @@
-"""
-plot word counts
-lemmas or tokens
+"""Count the word (and lemma) frequencies across all posts.
+
+IMPORTS
+=======
+    - posts, derivatives/dreamviews-posts.tsv
+EXPORTS
+=======
+    - table of word counts, results/describe-wordcount.tsv
+    - visualization,        results/describe-wordcount.png
 """
 import os
 import numpy as np
@@ -12,17 +18,16 @@ import matplotlib.pyplot as plt
 c.load_matplotlib_settings()
 
 
-### handle i/o and load in data
-export_fname_plot = os.path.join(c.DATA_DIR, "results", "describe-wordcount.png")
-export_fname_table1 = os.path.join(c.DATA_DIR, "results", "describe-wordcount.tsv")
-export_fname_table2 = os.path.join(c.DATA_DIR, "results", "describe-wordcount.tex")
+################################ I/O
+export_fname_table = os.path.join(c.DATA_DIR, "results", "describe-wordcount.tsv")
+export_fname_plot  = os.path.join(c.DATA_DIR, "results", "describe-wordcount.png")
+df = c.load_dreamviews_posts()
 
-df, _ = c.load_dreamviews_data()
 
+################################ some data manipulation
 
 # token counts column already exists, but need to add lemma one
 df["lemmacount"] = df["post_lemmas"].str.split().str.len()
-
 
 # a table counting how many words per dream type
 df[["wordcount","lemmacount"]].describe().round(1)
@@ -35,14 +40,8 @@ lucidity_wc = lucidity_wc.T.pivot_table(columns="tokentype", index="stat"
     )[["nonlucid", "lucid"]
     ].swaplevel(axis=1).sort_index(axis=1)
 
-lucidity_wc.to_csv(export_fname_table1, sep="\t", encoding="utf-8",
-    index=True, float_format="%.1f")
+lucidity_wc.to_csv(export_fname_table, float_format="%.1f", index=True, sep="\t", encoding="utf-8")
 
-lucidity_wc.columns.names = [None, None]
-lucidity_wc.index.name = None
-
-lucidity_wc.to_latex(buf=export_fname_table2, index=True, encoding="utf-8",
-    float_format="%.0f")
 
 # counts = df.groupby(["user_id","lucidity"]
 #     ).size().rename("n_posts").reset_index()
@@ -53,9 +52,15 @@ lucidity_wc.to_latex(buf=export_fname_table2, index=True, encoding="utf-8",
 #     ).fillna(0).astype(int)
 
 
+################################ visualizeeeeee
+
 # LUCIDITY_ORDER = ["unspecified", "ambiguous", "nonlucid", "lucid"]
 # COUNT_ORDER = ["word", "lemma"]
+# legend_handles = [ plt.matplotlib.patches.Patch(edgecolor="none",
+#         facecolor=c.COLORS[cond], label=cond)
+#     for cond in LUCIDITY_ORDER ]
 
+# define some plotting variables
 LINE_ARGS = {
     "linewidth" : .5,
     "alpha"     : 1,
@@ -64,13 +69,13 @@ LINE_ARGS = {
     "clip_on"   : False,
     "zorder"    : 0,
 }
-
-# legend_handles = [ plt.matplotlib.patches.Patch(edgecolor="none",
-#         facecolor=c.COLORS[cond], label=cond)
-#     for cond in LUCIDITY_ORDER ]
-
-# bins/ticks
-# generate bins
+BAR_ARGS = {
+    "alpha" : 1,
+    "color" : "gainsboro",
+    "clip_on" : False,
+    "bins" : bins,
+}
+# bins/ticks, generate bins
 N_BINS = 20
 bin_min = 0
 bin_max = c.MAX_WORDCOUNT
@@ -78,18 +83,12 @@ bins = np.linspace(0, bin_max, N_BINS+1)
 minor_tick_loc = np.diff(bins).mean()
 
 
+# open figure
 fig, axes = plt.subplots(nrows=3, figsize=(3, 3),
     sharex=True, sharey=False,
     constrained_layout=True)
 
-
-BAR_ARGS = {
-    "alpha" : 1,
-    "color" : "gainsboro",
-    "clip_on" : False,
-    "bins" : bins,
-}
-
+# loop over axes and word vs lemma counts
 for i, ax in enumerate(axes):
 
     if i == 2:
@@ -107,7 +106,7 @@ for i, ax in enumerate(axes):
     else:
         linecolor = "black"
         linewidth = .5
-        alpha = 1
+        # alpha = 1
         if i == 0:
             ser = df.wordcount
             ymax = 10000
@@ -149,7 +148,6 @@ for i, ax in enumerate(axes):
             ytop = 1-.2*j
             ax.text(1, ytop, txt, transform=ax.transAxes, ha="right", va="top", fontsize=10)
 
-
     # txt flags
     if i == 0:
         ax.axvline(c.MIN_WORDCOUNT, **LINE_ARGS)
@@ -164,6 +162,8 @@ for i, ax in enumerate(axes):
 
 ax.set_xlabel("# words", fontsize=10)
 
+
+# export
 plt.savefig(export_fname_plot)
 c.save_hires_figs(export_fname_plot)
 plt.close()

@@ -19,11 +19,11 @@ import config as c
 
 random.seed(6)
 
-export_fname = os.path.join(c.DATA_DIR, "derivatives", "dreamviews-posts_anon.tsv")
+export_fname = os.path.join(c.DATA_DIR, "derivatives", "dreamviews-posts_superanon.tsv")
 
 df = c.load_dreamviews_posts()
 
-KEEP_COLUMNS = ["post_id", "user_id", "lucidity", "nightmare", "post_lemmas"]
+KEEP_COLUMNS = ["post_id", "user_id", "lucidity", "post_lemmas"]
 df = df[KEEP_COLUMNS]
 
 df["post_lemmas"] = df["post_lemmas"].str.split(

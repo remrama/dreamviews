@@ -1,6 +1,20 @@
-"""
-plot reported user gender and age AND LOCATION NOW
-and how they interact
+"""Describe demographics (age, gender, location) and how frequently they were provided.
+
+This is a bit much putting the choropleth/location
+stuff in the same script as the age/gender stuff.
+Should be separate but I like having them on one
+plot and generating it all at once. Still could
+at least break the counts/tables out separately.
+
+IMPORTS
+=======
+    - user info, derivatives/dreamviews-posts.tsv
+EXPORTS
+=======
+    - table of how many people provided info, results/describe-demographics_provided.tsv
+    - table of reported ages and genders,     results/describe-demographics_agegender.tsv
+    - table of reported ages and genders,     results/describe-demographics_location.tsv
+    - visualization of it all,                results/describe-demographics.png
 """
 import os
 import numpy as np
@@ -15,15 +29,15 @@ c.load_matplotlib_settings()
 
 
 export_fname_plot = os.path.join(c.DATA_DIR, "results", "describe-demographics.png")
-export_fname_table = os.path.join(c.DATA_DIR, "results", "describe-demographics.tsv")
-export_fname_table_locs = os.path.join(c.DATA_DIR, "results", "describe-demographics_locations.tsv")
-export_fname_table_reported = os.path.join(c.DATA_DIR, "results", "describe-demographics_reported.tsv")
+export_fname_agegender = os.path.join(c.DATA_DIR, "results", "describe-demographics_agegender.tsv")
+export_fname_locations = os.path.join(c.DATA_DIR, "results", "describe-demographics_location.tsv")
+export_fname_provided = os.path.join(c.DATA_DIR, "results", "describe-demographics_provided.tsv")
 
 
-_, df = c.load_dreamviews_data()
+df = c.load_dreamviews_users()
 
 
-#### save out table of how many participants provide demographic info
+######################### count how many participants provided demographic info
 
 reported_bool = df[["gender", "age", "country"]].notnull()
 reported_sum = reported_bool.sum()
@@ -35,40 +49,18 @@ reported_pct = (reported_sum / len(df) * 100).round(0).astype(int)
 
 reported = pd.concat([reported_sum, reported_pct], axis=1)
 reported.columns = ["n_reported", "pct_reported"]
-reported.to_csv(export_fname_table_reported, index_label="demographic_variable", sep="\t", encoding="utf-8")
+
+# export
+reported.to_csv(export_fname_provided, index_label="demographic_variable", sep="\t", encoding="utf-8")
 
 
 
-####### country choropleth stuff
-
-# load the world geopandas data to get country geometries
-world = geopandas.read_file(geopandas.datasets.get_path("naturalearth_lowres"))
-
-# get a count per country
-country_counts = df["country"].fillna("unstated"
-    ).value_counts().rename("n_users").rename_axis("iso_a3")
-
-## save before dropping the unstated and converting to log values
-country_counts.to_csv(export_fname_table_locs, sep="\t", index=True, encoding="utf-8")
-
-
-# pop out the unstated bc it isn't for the plot
-unstated_n = country_counts.pop("unstated")
-# generate string to show how many users are not included
-# unstated_pct = unstated_n / (unstated_n+country_counts.sum()) * 100
-# unstated_txt = f"{unstated_n} ({unstated_pct:.0f}%) did not report location"
-
-# # convert for plotting benefits
-# country_counts = country_counts.apply(np.log10)
-
-
-########## age/gender
+######################### get age and gender frequencies
 
 # replace gender NAs
 GENDER_ORDER = ["male", "female", "trans", "unstated"]
 df["gender"] = pd.Categorical(df["gender"].fillna("unstated"),
     categories=GENDER_ORDER, ordered=True)
-
 
 # replace age NAs and bin age
 max_age = df["age"].max()
@@ -83,13 +75,24 @@ df["age"] = pd.Categorical(age_binned,
         ordered=True
     ).fillna("unstated")
 
-
-## export specific values
+# export
 out = df.groupby(["gender","age"]).size().rename("count")
-out.to_csv(export_fname_table, sep="\t", index=True, encoding="utf-8")
+out.to_csv(export_fname_agegender, index=True, sep="\t", encoding="utf-8")
 
 
-########## draw
+
+######################### get location frequencies
+
+# get a count per country
+country_counts = df["country"].fillna("unstated"
+    ).value_counts().rename("n_users").rename_axis("iso_a3")
+
+# export (before dropping the unstated and converting to log values)
+country_counts.to_csv(export_fname_locations, index=True, sep="\t", encoding="utf-8")
+
+
+
+######################### visualization
 
 # generate a custom color palette with one colormap
 # for the binned ages and a blank/white for no info
@@ -103,7 +106,6 @@ BAR_KWS = {
     "edgecolor" : "black",
     "alpha" : 1,
 }
-
 
 ###### open figure for both
 # fig, (ax, ax2) = plt.subplots(ncols=2, figsize=(6,3),
@@ -122,7 +124,6 @@ ax3 = fig.add_subplot(gs3[0])
 
 fig.text(0, 1, "A", fontsize=12, fontweight="bold", ha="left", va="top")
 fig.text(.33, 1, "B", fontsize=12, fontweight="bold", ha="left", va="top")
-
 
 sea.histplot(data=df, x="gender", hue="age",
     multiple="stack", stat="count", element="bars",
@@ -162,8 +163,19 @@ legend = ax1.legend(title="reported age",
 # legend._legend_box.sep = 1 # brings title up farther on top of handles/labels
 
 
-
 ########### choropleth
+
+# load the world geopandas data to get country geometries
+world = geopandas.read_file(geopandas.datasets.get_path("naturalearth_lowres"))
+
+# pop out the unstated bc it isn't for the plot
+unstated_n = country_counts.pop("unstated")
+# generate string to show how many users are not included
+# unstated_pct = unstated_n / (unstated_n+country_counts.sum()) * 100
+# unstated_txt = f"{unstated_n} ({unstated_pct:.0f}%) did not report location"
+
+# # convert for plotting benefits
+# country_counts = country_counts.apply(np.log10)
 
 # add the user counts per country to the world geodataframe
 myworld = world.merge(country_counts, left_on="iso_a3", right_index=True, how="left")
@@ -185,7 +197,7 @@ ax2.axis("off")
 #     ha="left", va="top", fontsize=8)
 
 
-# export with various extensions
+# export
 plt.savefig(export_fname_plot)
 c.save_hires_figs(export_fname_plot)
 plt.close()

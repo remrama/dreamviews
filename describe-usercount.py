@@ -1,5 +1,11 @@
-"""
-# of dream reports per user
+"""Visualize the number of dream reports per user.
+
+IMPORTS
+=======
+    - posts, derivatives/dreamviews-posts.tsv
+EXPORTS
+=======
+    - visualization, results/describe-wordcount.png
 """
 import os
 import numpy as np
@@ -11,30 +17,33 @@ import matplotlib.pyplot as plt
 c.load_matplotlib_settings()
 
 
-### handle i/o and load in data
+################################ I/O
 export_fname = os.path.join(c.DATA_DIR, "results", "describe-usercount.png")
+df = c.load_dreamviews_posts()
 
-df, _ = c.load_dreamviews_data()
-
+# get counts
 counts = df["user_id"].value_counts(
     ).rename_axis("user_id").rename("n_posts")
 
-# generate bins
-N_BINS = 50
-bins = np.linspace(0, c.MAX_POSTCOUNT, N_BINS+1)
+
+################################ plot
 
 FIGSIZE = (3.5, 2.5)
-fig, ax = plt.subplots(figsize=FIGSIZE, constrained_layout=True)
-
+N_BINS = 50
 HIST_ARGS = dict(lw=.5, color="gainsboro")
 
+# generate bins
+bins = np.linspace(0, c.MAX_POSTCOUNT, N_BINS+1)
+
+# open figure and draw
+fig, ax = plt.subplots(figsize=FIGSIZE, constrained_layout=True)
 ax.hist(counts.values, bins=bins, log=True,
     color="gainsboro", linewidth=.5, edgecolor="black")
 
+# aesthetics
 ax.set_xlabel("# posts per user", fontsize=10)
 ax.set_ylabel("# users", fontsize=10)
 ax.set_ybound(upper=10000)
-
 ax.spines["top"].set_visible(False)
 ax.spines["right"].set_visible(False)
 
@@ -58,6 +67,7 @@ ax.xaxis.set(major_locator=plt.MultipleLocator(100),
 # ax.tick_params(axis="y", which="both", direction="in")
 
 
+# export
 plt.savefig(export_fname)
-c.save_hires_figs(export_fname, [".svg", ".pdf"])
+c.save_hires_figs(export_fname)
 plt.close()

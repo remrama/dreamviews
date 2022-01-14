@@ -1,11 +1,14 @@
-"""
-joint plot showing how many participants
-report lucid and nonlucid dreams
+"""Count the number of participants with lucidity-labeled posts.
 
-mostly for planning analyses
+This was really annoying and I think there's more manual adjusting than normal.
 
-plenty of manual playing around with sizes here
-so not that easy to go in and change :/
+IMPORTS
+=======
+    - posts, derivatives/dreamviews-posts.tsv
+EXPORTS
+=======
+    - raw counts, results/describe-categorypairs.tsv
+    - visualization, results/describe-categorypairs.png
 """
 import os
 import numpy as np
@@ -18,13 +21,12 @@ c.load_matplotlib_settings()
 
 
 
-#### i/o and load data
+################################# I/O
 
-export_fname_plot  = os.path.join(c.DATA_DIR, "results", "describe-categorypairs.png")
 export_fname_table = os.path.join(c.DATA_DIR, "results", "describe-categorypairs.tsv")
+export_fname_plot  = os.path.join(c.DATA_DIR, "results", "describe-categorypairs.png")
 
 df = c.load_dreamviews_posts()
-
 
 # generate dataframe that has the count of lucid and
 # nonlucid dreams for each user that had at least 1
@@ -38,7 +40,8 @@ df_user = df[df["lucidity"].str.contains("lucid")
 df_user.columns = df_user.columns.map(lambda c: "n_"+c)
 
 
-#### plotting
+
+################################# plotting
 
 # define bins, this is weird with the symlog scale, i hated it
 bin_sets = [

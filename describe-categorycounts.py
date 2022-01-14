@@ -1,9 +1,14 @@
-"""
-venn diagram showing how the category labels
-that users apply to their posts overlap
+"""Visualize the amount of data for each label/category of interest
+(ie, lucid, non-lucid, and nightmare labels).
 
-Includes a main 3-circle venn about lucidity and nightmares
-then a smaller 2-circle venn to show the posts without specificed lucidity
+Use a venn diagram to see how often the labels overlap.
+
+IMPORTS
+=======
+    - posts, derivatives/dreamviews-posts.tsv
+EXPORTS
+=======
+    - visualization, results/describe-categorycounts.png
 """
 import os
 import numpy as np
@@ -16,7 +21,7 @@ c.load_matplotlib_settings()
 
 
 
-#### i/o and load and manipulate data
+######################## I/O
 
 export_fname = os.path.join(c.DATA_DIR, "results", "describe-categorycounts.png")
 
@@ -30,9 +35,8 @@ df["nonlucid"] = df["lucidity"].isin(["ambiguous", "nonlucid"])
 df["unspecified"] = df["lucidity"].eq("unspecified")
 
 
-#################### generate venn info for both axes
 
-## requires generating 7 (or 3) venn values in a specific order
+######################## define some stuff
 
 VENN_ORDER_1 = ["nonlucid", "lucid", "nightmare"]
 VENN_ORDER_2 = ["unspecified", "nightmare"]
@@ -44,8 +48,12 @@ VENN_ARGS = {
 }
 
 
-#### open up the main figure and create both axes to be drawn on
 
+######################## generate counts and venn info
+
+## requires generating 7 (or 3) venn values in a specific order
+
+#### open up the main figure and create both axes to be drawn on
 fig, ax1 = plt.subplots(figsize=(3.5, 3),
     gridspec_kw=dict(top=1, bottom=0, left=.12, right=1))
 # (using ax_top and bottom instead of 1/2 or a/b bc of possible confusion with Venn terms)

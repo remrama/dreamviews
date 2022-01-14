@@ -1,19 +1,21 @@
-"""
-save out 2 csvs
-1 for top categories
-1 for top tags
-Categories are more useful bc they are constrained by the DreamViews site.
-Tags are a free-for-all so lots of misspellings etc.
+"""Generate tables of labels (ie, categories and tags) ordered by frequency.
+
+IMPORTS
+=======
+    - posts, derivatives/dreamviews-posts.tsv
+EXPORTS
+=======
+    - ordered table of topcategories, results/describe-topcategories.tsv
+    - ordered table of top tags,      results/describe-toptags.tsv
 """
 import os
 import pandas as pd
 import config as c
 
 
-# export filename changes over 2 loop iterations so see below
-
-N_MIN_LABELS = 10
-N_MIN_USERS = 10 # per label
+# ignore labels that don't reach a bare minimum frequency
+N_MIN_LABELS = 10 # only keep labels that show up >= 10 times
+N_MIN_USERS = 10  # across >= 10 unique users
 
 df = c.load_dreamviews_posts()
 
@@ -48,5 +50,5 @@ for col in ["tags", "categories"]:
     res = res.sort_values("n_posts", ascending=False)
 
     # export
-    export_fname = os.path.join(c.DATA_DIR, "derivatives", f"describe-top{col}.tsv")
-    res.to_csv(export_fname, sep="\t", encoding="utf-8", index=True)
+    export_fname = os.path.join(c.DATA_DIR, "results", f"describe-top{col}.tsv")
+    res.to_csv(export_fname, index=True, sep="\t", encoding="utf-8")
