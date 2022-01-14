@@ -87,6 +87,8 @@ python validate-wordshift.py                # ==> DATA_DIR/results/validate-word
                                             # ==> DATA_DIR/results/validate-wordshift_fear-scores.tsv
                                             # ==> DATA_DIR/results/validate-wordshift_fear-plot.png
                                             # ==> DATA_DIR/results/validate-wordshift_proportion-plot.png
+                                            # ==> DATA_DIR/results/validate-wordshift_proportion-top1grams.tsv
+                                            # ==> DATA_DIR/results/validate-wordshift_proportion-top2grams.tsv
 python validate-wordshift_plot.py           # ==> DATA_DIR/results/validate-wordshift.png
 
 # Compare lucid and non-lucid reports using LIWC categories Insight and Agency.

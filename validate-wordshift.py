@@ -19,6 +19,8 @@ EXPORTS
     - raw NRC-fear shift scores for nightmares,   results/validate-wordshift_fear-scores.tsv
     - default NRC-fear shift plot for nightmares, results/validate-wordshift_fear-plot.tsv
     - default proportion shift plot for lucidity, results/validate-wordshift_proportion-plot.tsv
+    - table of top 1-gram proportion LD diffs,    results/validate-wordshift_proportion-top1grams.tsv
+    - table of top 2-gram proportion LD diffs,    results/validate-wordshift_proportion-top2grams.tsv
 """
 import os
 import tqdm
@@ -49,9 +51,13 @@ export_fname_jsd_plot   = os.path.join(c.DATA_DIR, "results", f"validate-wordshi
 export_fname_fear_table = os.path.join(c.DATA_DIR, "results", f"validate-wordshift_fear-scores.tsv")
 export_fname_fear_plot  = os.path.join(c.DATA_DIR, "results", f"validate-wordshift_fear-plot.png")
 export_fname_prop_plot  = os.path.join(c.DATA_DIR, "results", f"validate-wordshift_proportion-plot.png")
+export_fname_top1grams  = os.path.join(c.DATA_DIR, "results", f"validate-wordshift_proportion-top1grams.tsv")
+export_fname_top2grams  = os.path.join(c.DATA_DIR, "results", f"validate-wordshift_proportion-top2grams.tsv")
 
 df = c.load_dreamviews_posts()
 
+TXT_COL = "post_lemmas"
+TOP_N = 30 # just for the tables of top 1- and 2-grams raw proportion differences
 
 
 ################################### Connect common bigrams.
@@ -87,7 +93,6 @@ if not NO_BIGRAMS: # sorry for the double negative
 
 ################################### Extract data for analyses.
 
-TXT_COL = "post_lemmas"
 
 # lucidity series for JSD and proportion shifts
 ld_ser = df.query("lucidity.str.contains('lucid')", engine="python"
@@ -102,7 +107,7 @@ nm_ser = df.set_index(["nightmare", "user_id"])[TXT_COL]
 
 ################################### Create functions for normalization.
 
-def shift2df(shift, detail_level=2):
+def shift2df(shift, detail_level):
     """Convert shifterator object into pandas dataframe of scores.
     detail level 0 : shift scores
     detail level 1 : shift scores and difference measures
@@ -232,7 +237,7 @@ shift.get_shift_graph(top_n=50, system_names=[nm_group1, nm_group2],
 plt.close()
 
 # export scores
-out_df = shift2df(shift)
+out_df = shift2df(shift, detail_level=2)
 out_df.to_csv(export_fname_fear_table, index=True, na_rep="NA", sep="\t", encoding="utf-8")
 
 
@@ -256,7 +261,7 @@ shift.get_shift_graph(top_n=50, system_names=[ld_group1, ld_group2],
 plt.close()
 
 # export scores
-out_df = shift2df(shift)
+out_df = shift2df(shift, detail_level=2)
 out_df.to_csv(export_fname_jsd_table, index=True, na_rep="NA", sep="\t", encoding="utf-8")
 
 
@@ -270,6 +275,23 @@ shift.get_shift_graph(top_n=50, system_names=[ld_group1, ld_group2],
     detailed=False, show_plot=False, filename=export_fname_prop_plot)
 plt.close()
 
+# generate tables for top 1-gram and 2-grams differences
+prop_df = shift2df(shift, detail_level=1)
+
+# reduce to the top N differences
+##### !!!! Note
+#####      For the proportion shifts, the final shift
+#####      score is just the p_diff but normalized. So
+#####      just use p_diff, which could also come from
+#####      the JSD output, so this could happen in a few places.
+grams1 = prop_df.loc[~prop_df.index.str.contains("_")]
+grams2 = prop_df.loc[ prop_df.index.str.contains("_")]
+top_1grams = grams1["type2p_diff"].sort_values(ascending=False, key=abs)[:TOP_N]
+top_2grams = grams2["type2p_diff"].sort_values(ascending=False, key=abs)[:TOP_N]
+
+# export
+top_1grams.to_csv(export_fname_top1grams, index=True, sep="\t", encoding="utf-8")
+top_2grams.to_csv(export_fname_top2grams, index=True, sep="\t", encoding="utf-8")
 
 
 
