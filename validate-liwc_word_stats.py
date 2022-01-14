@@ -1,6 +1,15 @@
-"""
-run analyses on JUST A SUBSET of liwc categories
-and look at their word contributions.
+"""Analyze word-level LIWC scores between lucid and non-lucid dreams.
+***Note this does not re-run LIWC, but loads in prior results.
+
+IMPORTS
+=======
+    - original post info,     derivatives/dreamviews-posts.tsv
+    - word-level LIWC scores, derivatives/validate-liwc_wordscores.tsv
+    - LIWC dictionary,        dictionaries/custom.dic
+EXPORTS
+=======
+    - effect sizes (d) for top words from each category, results/validate-liwc_wordscores-stats.tsv
+
 
 Some of this is copy/pasted from the general liwc_stats script,
 but this is way messier so better alone.
@@ -29,25 +38,25 @@ TOP_N = 20 # save out the top N contributing tokens/words for each category
 ########################### i/o and loading data
 ###########################
 
-import_fname_dict = os.path.join(c.DATA_DIR, "dictionaries", "myliwc.dic")
-import_fname_data = os.path.join(c.DATA_DIR, "derivatives", "posts-liwc_words-data.npz")
-import_fname_attr = os.path.join(c.DATA_DIR, "derivatives", "posts-liwc_words-attr.npz")
-import_fname_liwc = os.path.join(c.DATA_DIR, "results", "validate-liwc.tsv")
+import_fname_dict = os.path.join(c.DATA_DIR, "dictionaries", "custom.dic")
+import_fname_data = os.path.join(c.DATA_DIR, "derivatives", "validate-liwc_wordscores-data.npz")
+import_fname_attr = os.path.join(c.DATA_DIR, "derivatives", "validate-liwc_wordscores-attr.npz")
+# import_fname_liwc = os.path.join(c.DATA_DIR, "results", "validate-liwc.tsv")
 
-export_fname = os.path.join(c.DATA_DIR, "results", "validate-liwcwords.tsv")
+export_fname = os.path.join(c.DATA_DIR, "results", "validate-liwc_wordscores-stats.tsv")
 
 
 #### load in the original posts file to get attributes lucidity and user_id
 # and drop un-labeled posts.
 # merge the clean data file and all its attributes with the liwc results
-posts, _ = c.load_dreamviews_data()
+posts = c.load_dreamviews_posts()
 posts = posts.set_index("post_id")[["user_id", "lucidity"]]
 posts = posts[ posts["lucidity"].str.contains("lucid") ]
 
-#### load prior full LIWC results (i.e., category results)
-liwccats = pd.read_csv(import_fname_liwc, sep="\t", encoding="utf-8",
-    index_col="category", usecols=["category", "cohen-d"], squeeze=True)
-liwccats = liwccats.loc[LIWC_CATEGORIES]
+# #### load prior full LIWC results (i.e., category results)
+# liwccats = pd.read_csv(import_fname_liwc, sep="\t", encoding="utf-8",
+#     index_col="category", usecols=["category", "cohen-d"], squeeze=True)
+# liwccats = liwccats.loc[LIWC_CATEGORIES]
 
 #### load in dictionary lexicon
 # and flip key/value from token/category to category/word_list
@@ -73,6 +82,7 @@ df = posts.join(scores, how="left")
 assert len(df) == len(posts)
 
 
+
 ###########################
 ########################### run wilcoxon tests
 ###########################
@@ -87,7 +97,7 @@ avgs = df.groupby(["user_id", "lucidity"]
 # We already have only relevant tokens, so get effect
 # sizes for all of them.
 effectsize_results = []
-for tok in tqdm.tqdm(relevant_tokens, desc="effect sizes"):
+for tok in tqdm.tqdm(relevant_tokens, desc="Word-level LIWC stats"):
     ld, nld = avgs[tok][["lucid", "nonlucid"]].T.values
     stats = {}
     stats["cohen-d"] = pg.compute_effsize(ld, nld, paired=True, eftype="cohen")
@@ -124,5 +134,5 @@ for cat in LIWC_CATEGORIES:
 
 out = pd.concat(token_rank_results)
 
-out.to_csv(export_fname, sep="\t", encoding="utf-8",
-    index=True, na_rep="NA", float_format="%.4f")
+# export
+out.to_csv(export_fname, float_format="%.4f", index=True, na_rep="NA", sep="\t", encoding="utf-8")

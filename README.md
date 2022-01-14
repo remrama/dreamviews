@@ -10,15 +10,16 @@ The code filenames start with one of `init`, `collect`, `clean`, `extract`, `des
 
 Raw data from the web scraping is in `DATA_DIR/source`, "middle-ground" output, like the cleaned posts and aggregated users or raw LIWC output are in `DATA_DIR/derivatives`, and any plots or statistics are output to `DATA_DIR/results`.
 
+The LIWC part is only possible with a dictionary file because LIWC is proprietary. So that one is touch to recreate.
 
-### A few preliminary scripts.
+
+### A preliminary script.
 
 ```shell
 # create the relevant subfolders of the data directory (specified in config.py)
 python init-generate_data_dirs.py   # ==> DATA_DIR/source/
                                     # ==> DATA_DIR/derivatives/
                                     # ==> DATA_DIR/results/
-python init-generate_liwc_dict.py   # ==> DATA_DIR/dictionaries/myliwc.dic
 ```
 
 
@@ -61,22 +62,22 @@ python describe-toplabels.py        # ==> DATA_DIR/derivatives/describe-topcateg
 python describe-categorycounts.py   # ==> DATA_DIR/results/describe-categorycounts.png
 
 # number of participants with both lucid and non-lucid posts
-python describe-categorypairs.py    # ==> DATA_DIR/results/describe-categorypairs.tsv
+python describe-categorypairs.py    # ==> DATA_DIR/derivatives/describe-categorypairs.tsv
                                     # ==> DATA_DIR/results/describe-categorypairs.png
 
 ##### Visualize user demographics.
 # reported gender, age, and location
-python describe-demographics.py     # ==> DATA_DIR/results/describe-demographics.png
-                                    # ==> DATA_DIR/results/describe-demographics.tsv
-                                    # ==> DATA_DIR/results/describe-demographics_locations.tsv
-                                    # ==> DATA_DIR/results/describe-demographics_reported.tsv
+python describe-demographics.py     # ==> DATA_DIR/derivatives/describe-demographics_locations.tsv
+                                    # ==> DATA_DIR/derivatives/describe-demographics_reported.tsv
+                                    # ==> DATA_DIR/derivatives/describe-demographics.tsv
+                                    # ==> DATA_DIR/results/describe-demographics.png
 
 
 ##### Visualize the amount of data there is.
 # frequency of posts over time, posts per user, and word counts
 python describe-timecourse.py       # ==> DATA_DIR/results/describe-timecourse.png
 python describe-usercount.py        # ==> DATA_DIR/results/describe-usercount.png
-python describe-wordcount.py        # ==> DATA_DIR/results/describe-wordcount.tsv
+python describe-wordcount.py        # ==> DATA_DIR/derivatives/describe-wordcount.tsv
                                     # ==> DATA_DIR/results/describe-wordcount.png
 ```
 
@@ -90,12 +91,12 @@ Show that the lucid and non-lucid posts are differentiable in predictable ways b
 
 ```shell
 # classifier
-python validate-classifier_run.py   # ==> DATA_DIR/derivatives/validate-classifier.npz
-python validate-classifier_stat.py  # ==> DATA_DIR/derivatives/validate-classifier_cv.tsv
+python validate-classifier.py       # ==> DATA_DIR/derivatives/validate-classifier.npz
+python validate-classifier_stats.py # ==> DATA_DIR/derivatives/validate-classifier_cv.tsv
                                     # ==> DATA_DIR/derivatives/validate-classifier_avg.tsv
 
 # words that differentiate lucid and non-lucid
-python validate-wordshift_run.py    # ==> DATA_DIR/derivatives/validate-wordshift_scores-jsd.tsv
+python validate-wordshift.py        # ==> DATA_DIR/derivatives/validate-wordshift_scores-jsd.tsv
                                     # ==> DATA_DIR/derivatives/validate-wordshift_scores-fear_nm.tsv
                                     # ==> DATA_DIR/results/validate-wordshift-jsd.png
                                     # ==> DATA_DIR/results/validate-wordshift-proportion.png
@@ -103,18 +104,14 @@ python validate-wordshift_run.py    # ==> DATA_DIR/derivatives/validate-wordshif
 python validate-wordshift_plot.py   # ==> DATA_DIR/results/validate-wordshift.png
 
 # run LIWC to get effects at the category and word levels
-python validate-liwc_run.py --words # ==> DATA_DIR/derivatives/posts-liwc.tsv
-                                    # ==> DATA_DIR/derivatives/posts-liwc_words-data.npz
-                                    # ==> DATA_DIR/derivatives/posts-liwc_words-attr.npz
-
-# plot total insight and agency effects LD vs non-LD
-python validate-liwc_stat.py        # ==> DATA_DIR/derivatives/validate-liwc.tsv
-                                    # ==> DATA_DIR/results/validate-liwc.tsv
-                                    # ==> DATA_DIR/results/validate-liwc.png
-
-# plot individual word contributions for insight and agency effects LD vs non-LD
-python validate-liwcwords_perm.py   # ==> DATA_DIR/results/validate-liwcwords.tsv
-python validate-liwcwords_stat.py   # ==> DATA_DIR/results/validate-liwcwords.png
+python validate-liwc.py --words     # ==> DATA_DIR/derivatives/validate-liwc_scores.tsv
+                                    # ==> DATA_DIR/derivatives/validate-liwc_wordscores-data.npz
+                                    # ==> DATA_DIR/derivatives/validate-liwc_wordscores-attr.npz
+python validate-liwc_stats.py       # ==> DATA_DIR/results/validate-liwc_scores-descr.tsv
+                                    # ==> DATA_DIR/results/validate-liwc_scores-stats.tsv
+                                    # ==> DATA_DIR/results/validate-liwc_scores-plot.png
+python validate-liwc_word_stats.py  # ==> DATA_DIR/results/validate-liwc_wordscores-stats.tsv
+python validate-liwc_word_plot.py   # ==> DATA_DIR/results/validate-liwc_wordscores-plot.png
 ```
 
 ```shell

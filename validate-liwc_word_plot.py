@@ -1,4 +1,12 @@
-"""plot liwc effects and their individual word contributions
+"""Visualize word-level LIWC scores between lucid and non-lucid dreams.
+
+IMPORTS
+=======
+    - effect sizes (d) for top words from each category, results/validate-liwc_wordscores-stats.tsv
+    - stats output for traditional LIWC,                 results/validate-liwc_scores-stats.tsv
+EXPORTS
+=======
+    - visualization, results/validate-liwc_wordscores-plot.png
 """
 import os
 import numpy as np
@@ -11,28 +19,31 @@ c.load_matplotlib_settings()
 
 TOP_N = 10 # might be more stored, only plot this many
 
-import_fname = os.path.join(c.DATA_DIR, "results", "validate-liwcwords.tsv")
-export_fname = os.path.join(c.DATA_DIR, "results", "validate-liwcwords.png")
+
+######################## I/O
+
+import_fname = os.path.join(c.DATA_DIR, "results", "validate-liwc_wordscores-stats.tsv")
+export_fname = os.path.join(c.DATA_DIR, "results", "validate-liwc_wordscores-plot.png")
+import_fname_full_liwc = os.path.join(c.DATA_DIR, "results", "validate-liwc_scores-stats.tsv")
 
 df = pd.read_csv(import_fname, sep="\t", encoding="utf-8")
 
-# also add in full category liwc results (for top row)
-import_fname_fullliwc = os.path.join(c.DATA_DIR, "results", "validate-liwc.tsv")
-liwccats = pd.read_csv(import_fname_fullliwc, sep="\t", encoding="utf-8",
-    index_col="category",
-    usecols=["category", "cohen-d", "cohen-d_lo", "cohen-d_hi"])
+# load full category liwc results (to draw on top row)
+liwccats = pd.read_csv(import_fname_full_liwc, sep="\t", encoding="utf-8",
+    index_col="category", usecols=["category", "cohen-d", "cohen-d_lo", "cohen-d_hi"])
 
 
+######################## plot
 
+# identify categories to plot
 category_columns = [ c for c in df if "rank" in c ]
-
 n_cats = len(category_columns)
 
+# define some variables for aesthetics
 BAR_ARGS = dict(height=.8, edgecolor="k", lw=.5, alpha=1)
 ERROR_ARGS = dict(ecolor="k", elinewidth=.5, capsize=0)
 GRID_COLOR = "gainsboro"
-
-GRIDSPEC_KWS = {
+GRIDSPEC_ARGS = {
     "height_ratios" : [2, TOP_N],
     "hspace"        : 0,
     "wspace"        : .3,
@@ -41,23 +52,24 @@ GRIDSPEC_KWS = {
     "bottom"        : .18,
     "left"          : .08,
 }
-
 YTICK_GAP = 10
 yticklocs = np.linspace(0, TOP_N, int(TOP_N/YTICK_GAP+1))
 yticklocs[0] = 1
-
-
 FIG_SIZE = (4.5, 3.5)
-fig, axes = plt.subplots(nrows=2, ncols=n_cats,
-    figsize=FIG_SIZE, sharex=True,
-    gridspec_kw=GRIDSPEC_KWS)
+TXT_BUFF = .05 # space between tip of bar and text
 
+# open figure
+fig, axes = plt.subplots(nrows=2, ncols=n_cats,
+    figsize=FIG_SIZE, sharex=True, gridspec_kw=GRIDSPEC_ARGS)
+
+
+# loop over categories and draw
 for i, col in enumerate(category_columns):
 
-    # grab axes
+    # grab axes, top is for single total effect, bottom for words
     topax, ax = axes[:, i]
 
-    # top ax is from the main liwc results and just one bar
+    ## draw total LIWC effect on the top axis
     category = col.split("_")[0]
     dval = liwccats.loc[category, "cohen-d"]
     d_ci = liwccats.loc[category, ["cohen-d_lo", "cohen-d_hi"]].values
@@ -66,22 +78,24 @@ for i, col in enumerate(category_columns):
     topax.barh(0, dval, xerr=derr,
         color=color, error_kw=ERROR_ARGS, **BAR_ARGS)
 
+    ## draw word-level LIWC effects on bottom
+
     # grab top N tokens for THIS category and sort it
-    subdf = df.loc[ df[col].notna()
+    subdf = df.loc[df[col].notna()
         ].sort_values(col, ascending=True
         )[:TOP_N]
 
+    # generate relevant plot info
     dvals = subdf["cohen-d"].values
     d_cis = subdf[["cohen-d_lo", "cohen-d_hi"]].values
     derrs = np.abs(dvals-d_cis.T)
     labelvals = np.arange(len(dvals)) + 1
     labels = subdf["token"].tolist()
     colors = [ c.COLORS["lucid"] if d>0 else c.COLORS["nonlucid"] for d in dvals ]
+    # draw word-level effects
+    ax.barh(labelvals, dvals, xerr=derrs, color=colors, error_kw=ERROR_ARGS, **BAR_ARGS)
 
-    ax.barh(labelvals, dvals, xerr=derrs,
-        color=colors, error_kw=ERROR_ARGS, **BAR_ARGS)
-
-    TXT_BUFF = .05
+    # draw the text of each word next to its appopriate bar
     for i, txt in enumerate(labels):
         yloc = i + 1
         if dvals[i] > 0: # to the right, align left of txt against high CI
@@ -112,7 +126,6 @@ for i, col in enumerate(category_columns):
                  major_formatter=plt.FuncFormatter(c.no_leading_zeros))
     # if ax.get_subplotspec().is_first_col():
     ax.set_ylabel("word contribution rank", labelpad=-5)
-
     topax.set_ylim(-1, 1)
     topax.yaxis.set(major_locator=plt.NullLocator())
     topax.tick_params(which="both", left=False, bottom=False)
