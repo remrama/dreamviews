@@ -39,16 +39,17 @@ df_user = df[df["lucidity"].str.contains("lucid")
     )[SORT_ORDER]
 df_user.columns = df_user.columns.map(lambda c: "n_"+c)
 
+assert not df_user.gt(c.MAX_POSTCOUNT).any().any(), f"Noone should have more than {c.MAX_POSTCOUNT} posts"
 
 
 ################################# plotting
 
-# define bins, this is weird with the symlog scale, i hated it
+# define bins (change if MAX_POSTCOUNT changes)
 bin_sets = [
     np.linspace(0, 10, 11),
     np.linspace(10, 100, 10)[1:],
     np.linspace(100, 1000, 10)[1:],
-    np.linspace(1000, 10000, 10)[1:],
+    np.array([2000])
 ]
 bins = list(np.concatenate(bin_sets) - .5)
 
@@ -62,29 +63,61 @@ g = sea.JointGrid(data=df_user,
 )
 
 # create in inset axis for the colorbar legend
-cax = g.fig.add_axes([.28, .74, .25, .02])
+cax = g.figure.add_axes([.3, .74, .25, .02])
 
 # draw the joint (main) axis
 g.plot_joint(sea.histplot,
-    cmap=sea.light_palette(c.COLORS["ambiguous"], as_cmap=True),
+    ### passed to histplot
     bins=bins, # ignored with discrete=True or (True, True)
-    vmin=1, vmax=1000,
-    norm=plt.matplotlib.colors.SymLogNorm(1, base=10),
     cbar=True, cbar_ax=cax,
-    cbar_kws={"orientation" : "horizontal",
-              "ticks" : [1, 10, 100, 1000],
-              "format" : plt.ScalarFormatter()}
+    cbar_kws={"orientation" : "horizontal"},
+              # "ticks" : [1, 10, 100, 1000],
+              # "format" : plt.ScalarFormatter()},
+    ### passed to pcolormesh
+    cmap=sea.light_palette(c.COLORS["ambiguous"], as_cmap=True),
 )
 
-# colorbar aesthetics
-cbar = g.ax_joint.get_children()[0].colorbar
+####### Set color to log scale.
+## Ran into some issues with JointGrid
+## where if you can't pass a custom norm to plot_joint
+## it raises a new error in matplotlib that wants you
+## to specify vmin/vmax in the norm object. I thin seaborn
+## sends default vmin/vmax unless you specify, but specifying
+## your own doesn't get around it bc they are still doubled up.
+## You need to tell seaborn to not send vmin/vmax when you
+## pass a norm object through. So to get around this I'm
+## applying norms to the data after the plot is generated.
+
+# get QuadMesh that seaborn drew (should be first item in this list)
+mesh = g.ax_joint.get_children()[0]
+assert isinstance(mesh, plt.matplotlib.collections.QuadMesh)
+# apply log normalization to counts
+# Set min to 1, which should blank out any cells with zero.
+# Set max to 1000, which is sensible, there shouldn't be
+# more users than that in a given cell.
+COLOR_MAX = 1000
+assert mesh.get_array().max() <= COLOR_MAX, f"I didn't expect more than {COLOR_MAX} users in a cell"
+# norm = plt.matplotlib.colors.LogNorm(1, base=10, vmin=1, vmax=COLOR_MAX)
+norm = plt.matplotlib.colors.LogNorm(vmin=1, vmax=COLOR_MAX)
+mesh.set_norm(norm)
+
+####### Set x and y axes to log scale.
+g.ax_joint.set_xscale("symlog") # symlog allows the axis to reach neative
+g.ax_joint.set_yscale("symlog")
+g.ax_joint.set_xbound(lower=bins[0], upper=bins[-1])
+g.ax_joint.set_ybound(lower=bins[0], upper=bins[-1])
+
+####### colorbar aesthetics
+# cbar = g.ax_joint.get_children()[0].colorbar
+cbar = mesh.colorbar
 cbar.set_label("# of users",
-    x=1.1, fontsize=8, labelpad=-14,
-    va="center", ha="left")
+    x=1.1,        # higher value moves label to the right
+    labelpad=-19, # higher value moves label down
+    fontsize=8, va="center", ha="left")
 cax.tick_params(labelsize=8, length=2)
-cbar.locator = plt.LogLocator(base=10)
-cbar.formatter = plt.ScalarFormatter() # redundant???
-cbar.update_ticks()
+# cbar.locator = plt.LogLocator(base=10)
+# cbar.formatter = plt.ScalarFormatter()
+# cbar.update_ticks()
 # cbar.ax.set_title
 # cbar.set_ticks
 
@@ -155,6 +188,7 @@ g.ax_marg_y.spines["right"].set_visible(True)
 
 # mark the relevant (>=1) paired data on all axes
 # (box on the joint and lines on the marginals)
+# (see also g.refline)
 LINE_ARGS = {
     "color" : "black",
     "linewidth" : 1,
