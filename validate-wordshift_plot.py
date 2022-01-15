@@ -70,21 +70,21 @@ BAR_ARGS = dict(linewidth=.5, height=.8, edgecolor="black")
 # limits on the x-axis (balanced, so left side will be same but negative)
 # Need to make them kinda big to fit the text on the top bar.
 # It's in data units so might need to be played with, and different for each panel.
-XBOUNDS = dict(jsd=.02, fear_nm=.15)
+XBOUNDS = dict(jsd=.02, fear=.15)
 
-CMAP_NAMES = dict(jsd="viridis", fear_nm="coolwarm")
+CMAP_NAMES = dict(jsd="viridis", fear="coolwarm")
 
 XLABELS = {
-    "jsd"     : r"$\delta$ relative proportion" + "\n" + r"non-lucid$\leftarrow$$\rightarrow$lucid       ",
-    "fear_nm" : r"$\delta$ relative proportion" + "\n" + r"non-nightmare$\leftarrow$$\rightarrow$nightmare       ",
+    "jsd"  : r"$\delta$ relative proportion" + "\n" + r"non-lucid$\leftarrow$$\rightarrow$lucid       ",
+    "fear" : r"$\delta$ relative proportion" + "\n" + r"non-nightmare$\leftarrow$$\rightarrow$nightmare       ",
 }
 YLABELS = {
-    "jsd"     : "JSD word shift contribution rank",
-    "fear_nm" : "NRC fear word shift contribution rank",
+    "jsd"  : "JSD word shift contribution rank",
+    "fear" : "NRC fear word shift contribution rank",
 }
 CLABELS = {
-    "jsd"     : "relative word surprisal",
-    "fear_nm" : "relative word fear",
+    "jsd"  : "relative word surprisal",
+    "fear" : "relative word fear",
 } #r"$\leftarrow$ corpus avg $\rightarrow$"
 
 ### !!!! IMPORTANT that these match up with what was passed to stop_lens in the wordshift script

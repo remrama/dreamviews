@@ -1,11 +1,11 @@
-"""Visualize the number of dream reports per user.
+"""Visualize the number of dream reports per user, across whole corpus at once.
 
 IMPORTS
 =======
     - posts, derivatives/dreamviews-posts.tsv
 EXPORTS
 =======
-    - visualization, results/describe-wordcount.png
+    - visualization of post-per-user frequency, results/describe-usercount.png
 """
 import os
 import numpy as np

@@ -68,7 +68,7 @@ descriptives.to_csv(export_fname_descr, sep="\t", encoding="utf-8",
 
 # loop over each LIWC category, running test and getting effect size at each
 wilcoxon_results = []
-for cat in tqdm.tqdm(LIWC_CATS, desc="Stats for total LIWC scores"):
+for cat in tqdm.tqdm(LIWC_CATS, desc="stats on total LIWC scores"):
     ld, nld = avgs[cat][["lucid", "nonlucid"]].T.values
     stats_ = pg.wilcoxon(ld, nld, alternative="two-sided")
     stats_.index = [cat]

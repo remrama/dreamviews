@@ -75,7 +75,7 @@ y = df["lucidity"].map({"nonlucid":NONLUCID_DIGIT, "lucid":LUCID_DIGIT}).values
 
 # run cross-validation
 true_labels_list, pred_labels_list = [], []
-for train_index, test_index in tqdm.tqdm(cv.split(X, y), total=N_SPLITS, desc="Lucidity clf cross-validation"):
+for train_index, test_index in tqdm.tqdm(cv.split(X, y), total=N_SPLITS, desc="lucidity clf cross-validation"):
     X_train, X_test = X[train_index], X[test_index]
     y_train, y_test = y[train_index], y[test_index]
     clf.fit(X_train, y_train)

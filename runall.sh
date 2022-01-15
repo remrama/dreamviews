@@ -7,6 +7,9 @@
 #### up the same conda environment I used.
 ####
 
+# set script to exit if any command fails
+set -e
+
 # handle command line argument
 if [[ $# -gt 1 ]]; then             # exit if more than one argument provided
   echo "!! noliwc is the only allowed argument !!"; exit;
@@ -17,9 +20,10 @@ elif [[ $# -eq 1 ]]; then
 fi
 
 # setup
-python init-data_dirs.py
+python setup-data_dirs.py
 
 # scrape and clean
+echo "Scraping and cleaning all data will take hours..."
 python scrape-posts.py
 python clean-posts.py
 python scrape-users.py
@@ -27,6 +31,7 @@ python clean-users.py
 python anonymize-posts.py
 
 # describe
+echo "Description analyses take just a minute altogether..."
 python describe-timecourse.py
 python describe-usercount.py
 python describe-toplabels.py
@@ -36,6 +41,7 @@ python describe-demographics.py
 python describe-wordcount.py
 
 # validate
+echo "Validation analyses are quick unless LIWCing..."
 python validate-classifier.py
 python validate-classifier_stats.py
 python validate-wordshift.py
@@ -48,7 +54,15 @@ if [[ -z "$1" ]]; then # no argument supplied (ie, run liwc)
 fi
 
 # cleanup
-for bn in describe-wordcount describe-topcategories describe-toptags validate-classifier_avg
+declare -a files2convert=(
+  "describe-topcategories"
+  "describe-toptags"
+  "describe-wordcount"
+  "validate-classifier_avg"
+  "validate-wordshift_proportion-ld1grams"
+  "validate-wordshift_proportion-ld2grams"
+)
+for bn in "${arr[@]}"
 do
-    python tsv2latex.py --basename ${bn}
+  python tsv2latex.py --basename "${bn}"
 done

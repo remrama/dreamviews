@@ -1,12 +1,13 @@
-"""Count the word (and lemma) frequencies across all posts.
+"""Count the word (and lemma) frequencies across all posts
+and broken up by lucidity.
 
 IMPORTS
 =======
     - posts, derivatives/dreamviews-posts.tsv
 EXPORTS
 =======
-    - table of word counts, results/describe-wordcount.tsv
-    - visualization,        results/describe-wordcount.png
+    - table of all word and lemma counts,              results/describe-wordcount.tsv
+    - visualization of total and lucidity word counts, results/describe-wordcount.png
 """
 import os
 import numpy as np
@@ -23,24 +24,54 @@ export_fname_table = os.path.join(c.DATA_DIR, "results", "describe-wordcount.tsv
 export_fname_plot  = os.path.join(c.DATA_DIR, "results", "describe-wordcount.png")
 df = c.load_dreamviews_posts()
 
-
-################################ some data manipulation
-
 # token counts column already exists, but need to add lemma one
 df["lemmacount"] = df["post_lemmas"].str.split().str.len()
 
-# a table counting how many words per dream type
-df[["wordcount","lemmacount"]].describe().round(1)
-lucidity_wc = df.groupby("lucidity"
-    )[["wordcount","lemmacount"]
-    ].agg(["mean", "std", "median", "min", "max"]
-    ).rename_axis(["tokentype", "stat"], axis=1)
 
-lucidity_wc = lucidity_wc.T.pivot_table(columns="tokentype", index="stat"
-    )[["nonlucid", "lucid"]
-    ].swaplevel(axis=1).sort_index(axis=1)
 
-lucidity_wc.to_csv(export_fname_table, float_format="%.1f", index=True, sep="\t", encoding="utf-8")
+################################ generate tables for export (not used for plotting)
+
+# first make life easier by melting the word and lemma counts
+token_melt = df.melt(value_vars=["wordcount", "lemmacount"],
+    var_name="token_type", value_name="n",
+    id_vars=["post_id", "user_id", "lucidity"])
+token_melt["token_type"] = token_melt["token_type"].str.rstrip("count")
+
+# get a table of descriptives across the whole corpus
+# that averages within users to account for that bias
+total_descr = token_melt.groupby(["user_id", "token_type"]).mean(
+    ).groupby("token_type").describe(
+    ).droplevel(level=0, axis=1).rename_axis("metric", axis=1)
+# # without averaging across users
+# total_descr = token_melt.groupby("token_type").n.describe()
+
+# same thing but get for lucid and non-lucid labeled posts
+lucid_descr = token_melt.groupby(["user_id", "lucidity", "token_type"]).mean(
+    ).groupby(["lucidity", "token_type"]).describe(
+    ).droplevel(level=0, axis=1).rename_axis("metric", axis=1)
+
+## merge them
+
+# modify index on total_descr by giving it a lucidity value to merge
+total_descr = pd.concat({"combined": total_descr}, names=["lucidity"])
+# total_descr = pd.concat([total_descr], keys=["total"], names=["lucidity"])
+
+descriptives = pd.concat([total_descr, lucid_descr], axis=0)
+
+# export
+descriptives.to_csv(export_fname_table, float_format="%.1f", index=True, sep="\t", encoding="utf-8")
+
+# # a table counting how many words per dream type
+# lucidity_wc = df.groupby("lucidity"
+#     )[["wordcount","lemmacount"]
+#     ].agg(["mean", "std", "median", "min", "max"]
+#     ).rename_axis(["tokentype", "stat"], axis=1)
+
+# lucidity_wc = lucidity_wc.T.pivot_table(columns="tokentype", index="stat"
+#     )[["nonlucid", "lucid"]
+#     ].swaplevel(axis=1).sort_index(axis=1)
+
+# lucidity_wc.to_csv(export_fname_table, float_format="%.1f", index=True, sep="\t", encoding="utf-8")
 
 
 # counts = df.groupby(["user_id","lucidity"]
@@ -61,6 +92,11 @@ lucidity_wc.to_csv(export_fname_table, float_format="%.1f", index=True, sep="\t"
 #     for cond in LUCIDITY_ORDER ]
 
 # define some plotting variables
+N_BINS = 20
+bin_min = 0
+bin_max = c.MAX_WORDCOUNT
+bins = np.linspace(0, bin_max, N_BINS+1)
+minor_tick_loc = np.diff(bins).mean()
 LINE_ARGS = {
     "linewidth" : .5,
     "alpha"     : 1,
@@ -75,12 +111,6 @@ BAR_ARGS = {
     "clip_on" : False,
     "bins" : bins,
 }
-# bins/ticks, generate bins
-N_BINS = 20
-bin_min = 0
-bin_max = c.MAX_WORDCOUNT
-bins = np.linspace(0, bin_max, N_BINS+1)
-minor_tick_loc = np.diff(bins).mean()
 
 
 # open figure

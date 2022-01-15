@@ -19,8 +19,8 @@ EXPORTS
     - raw NRC-fear shift scores for nightmares,   results/validate-wordshift_fear-scores.tsv
     - default NRC-fear shift plot for nightmares, results/validate-wordshift_fear-plot.tsv
     - default proportion shift plot for lucidity, results/validate-wordshift_proportion-plot.tsv
-    - table of top 1-gram proportion LD diffs,    results/validate-wordshift_proportion-top1grams.tsv
-    - table of top 2-gram proportion LD diffs,    results/validate-wordshift_proportion-top2grams.tsv
+    - table of top 1-grams higher in LDs,         results/validate-wordshift_proportion-top1grams.tsv
+    - table of top 2-grams higher in LDs,         results/validate-wordshift_proportion-top2grams.tsv
 """
 import os
 import tqdm
@@ -51,13 +51,13 @@ export_fname_jsd_plot   = os.path.join(c.DATA_DIR, "results", f"validate-wordshi
 export_fname_fear_table = os.path.join(c.DATA_DIR, "results", f"validate-wordshift_fear-scores.tsv")
 export_fname_fear_plot  = os.path.join(c.DATA_DIR, "results", f"validate-wordshift_fear-plot.png")
 export_fname_prop_plot  = os.path.join(c.DATA_DIR, "results", f"validate-wordshift_proportion-plot.png")
-export_fname_top1grams  = os.path.join(c.DATA_DIR, "results", f"validate-wordshift_proportion-top1grams.tsv")
-export_fname_top2grams  = os.path.join(c.DATA_DIR, "results", f"validate-wordshift_proportion-top2grams.tsv")
+export_fname_top1grams  = os.path.join(c.DATA_DIR, "results", f"validate-wordshift_proportion-ld1grams.tsv")
+export_fname_top2grams  = os.path.join(c.DATA_DIR, "results", f"validate-wordshift_proportion-ld2grams.tsv")
 
 df = c.load_dreamviews_posts()
 
 TXT_COL = "post_lemmas"
-TOP_N = 30 # just for the tables of top 1- and 2-grams raw proportion differences
+TOP_N = 100 # just for the tables of top 1- and 2-grams raw proportion differences
 
 
 ################################### Connect common bigrams.
@@ -78,7 +78,7 @@ if not NO_BIGRAMS: # sorry for the double negative
     # phrase_model = Phrases(phrase_model[sentences], delimiter=delim, min_count=3, threshold=threshold, scoring=scoring)
     phrase_model = Phraser(phrase_model) # memory benefits?
     unigram2ngram = lambda x: phrase_model[x]
-    tqdm.tqdm.pandas()
+    tqdm.tqdm.pandas(desc="mixing bigrams into corpus")
     df[TXT_COL] = df[TXT_COL].str.lower().str.split().progress_apply(unigram2ngram).str.join(" ")
 # def find_ngrams(input_list, n):
 #     return zip(*[input_list[i:] for i in range(n)])
@@ -286,8 +286,9 @@ prop_df = shift2df(shift, detail_level=1)
 #####      the JSD output, so this could happen in a few places.
 grams1 = prop_df.loc[~prop_df.index.str.contains("_")]
 grams2 = prop_df.loc[ prop_df.index.str.contains("_")]
-top_1grams = grams1["type2p_diff"].sort_values(ascending=False, key=abs)[:TOP_N]
-top_2grams = grams2["type2p_diff"].sort_values(ascending=False, key=abs)[:TOP_N]
+## (add key=abs to sort_values to get highest absolute differences, not just higher in LD)
+top_1grams = grams1["type2p_diff"].sort_values(ascending=False)[:TOP_N]
+top_2grams = grams2["type2p_diff"].sort_values(ascending=False)[:TOP_N]
 
 # export
 top_1grams.to_csv(export_fname_top1grams, index=True, sep="\t", encoding="utf-8")

@@ -97,7 +97,7 @@ avgs = df.groupby(["user_id", "lucidity"]
 # We already have only relevant tokens, so get effect
 # sizes for all of them.
 effectsize_results = []
-for tok in tqdm.tqdm(relevant_tokens, desc="Word-level LIWC stats"):
+for tok in tqdm.tqdm(relevant_tokens, desc="stats on word-level LIWC scores"):
     ld, nld = avgs[tok][["lucid", "nonlucid"]].T.values
     stats = {}
     stats["cohen-d"] = pg.compute_effsize(ld, nld, paired=True, eftype="cohen")

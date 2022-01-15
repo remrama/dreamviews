@@ -1,0 +1,48 @@
+######
+###### All scripts were run from a conda environment made from this file.
+######
+###### OS  -----------  Windows 10, version 21H1, OS build 19043.1466
+###### miniconda  ----  conda version 4.10.3
+######
+###### $ conda env create --file environment.yml
+######
+###### See environment-versions.yml
+###### and environment-builds.yml
+###### for varying levels of specified detail.
+######
+
+name: dv_ds
+
+dependencies:
+
+  - ipython                         # development
+  - conda-forge::tqdm               # progress bars
+  
+  - numpy                           # data analysis
+  - pandas                          # data analysis
+  - scipy                           # data analysis
+  - conda-forge::pingouin           # data analysis - statistics
+  - scikit-learn                    # data analysis - machine learning
+
+  - matplotlib                      # data visualization
+  - seaborn                         # data visualization
+  - conda-forge::geopandas          # data visualization - choropleth
+
+  - beautifulsoup4                  # web scraping
+
+  - conda-forge::unidecode          # text cleaning - ascii conversion
+  - conda-forge::pyahocorasick      # text cleaning - req for "contractions"
+
+  - nltk                            # natural language processing
+  - gensim                          # natural language processing
+  - conda-forge::spacy              # natural language processing
+  - conda-forge::python-levenshtein # natural language processing - silence gensim warning
+
+  - pip
+  - pip:
+    - pycountry                     # demographics - get ISO country codes
+    - matplotlib-venn               # data visualization - venn diagram
+    - contractions                  # text cleaning - expand contractions
+    - langdetect                    # text cleaning - detect language
+    - shifterator                   # text analysis - word shifts
+    - liwc                          # text analysis - LIWC

@@ -60,7 +60,7 @@ GET_WORD_CONTRIBUTIONS = args.words
 
 
 # allow for progress bar using pandas
-tqdm.tqdm.pandas(desc="Word-level LIWCing" if GET_WORD_CONTRIBUTIONS else "LIWCing")
+tqdm.tqdm.pandas(desc="word-level LIWCing" if GET_WORD_CONTRIBUTIONS else "LIWCing")
 
 
 ############################ I/O

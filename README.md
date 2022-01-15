@@ -14,8 +14,8 @@ You can `runall.sh`, but first make sure you adjust the `DATA_DIR` in `config.py
 ### Setup
 
 ```shell
-# create the relevant subfolders of the data directory (specified in config.py)
-python init-data_dirs.py                    # ==> DATA_DIR/source/
+# Create the relevant subfolders of the data directory (specified in config.py).
+python setup-data_dirs.py                   # ==> DATA_DIR/source/
                                             # ==> DATA_DIR/derivatives/
                                             # ==> DATA_DIR/results/
                                             # ==> DATA_DIR/results/hires/
@@ -87,9 +87,9 @@ python validate-wordshift.py                # ==> DATA_DIR/results/validate-word
                                             # ==> DATA_DIR/results/validate-wordshift_fear-scores.tsv
                                             # ==> DATA_DIR/results/validate-wordshift_fear-plot.png
                                             # ==> DATA_DIR/results/validate-wordshift_proportion-plot.png
-                                            # ==> DATA_DIR/results/validate-wordshift_proportion-top1grams.tsv
-                                            # ==> DATA_DIR/results/validate-wordshift_proportion-top2grams.tsv
-python validate-wordshift_plot.py           # ==> DATA_DIR/results/validate-wordshift.png
+                                            # ==> DATA_DIR/results/validate-wordshift_proportion-ld1grams.tsv
+                                            # ==> DATA_DIR/results/validate-wordshift_proportion-ld2grams.tsv
+python validate-wordshift_plot.py           # ==> DATA_DIR/results/validate-wordshifts.png
 
 # Compare lucid and non-lucid reports using LIWC categories Insight and Agency.
 python validate-liwc.py --words             # ==> DATA_DIR/derivatives/validate-liwc_scores.tsv
@@ -107,8 +107,16 @@ python validate-liwc_word_plot.py           # ==> DATA_DIR/results/validate-liwc
 
 ```shell
 # Generate some latex tables from the tsv output, for manuscript.
-for bn in describe-wordcount describe-topcategories describe-toptags validate-classifier_avg
+declare -a files2convert=(
+    "describe-topcategories"
+    "describe-toptags"
+    "describe-wordcount"
+    "validate-classifier_avg"
+    "validate-wordshift_proportion-ld1grams"
+    "validate-wordshift_proportion-ld2grams"
+)
+for bn in "${arr[@]}"
 do
-    python tsv2latex.py --basename ${bn}    # ==> DATA_DIR/results/<bn>.tex
+    python tsv2latex.py --basename "${bn}"  # ==> DATA_DIR/results/<bn>.tex
 done
 ```
