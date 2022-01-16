@@ -102,11 +102,6 @@ major_tick_loc_right = major_tick_loc_left * RIGHT_AX_MULT_FACTOR
 minor_tick_loc_left = major_tick_loc_left // MINOR_TICK_DIV_FACTOR
 minor_tick_loc_right = major_tick_loc_right // MINOR_TICK_DIV_FACTOR
 
-GRIDSPEC_KWS = {
-    "height_ratios" : [USER_YMAX_MONTHLY, POST_YMAX_MONTHLY],
-    "hspace" : .2,
-}
-
 XMIN = pd.to_datetime("2010-01-01")
 XMAX = pd.to_datetime("2021-01-01")
 
@@ -145,6 +140,11 @@ LEGEND_ARGS = {
     "handletextpad" : .2, # space between legend markers and labels
 }
 
+GRIDSPEC_KWS = {
+    "height_ratios" : [USER_YMAX_MONTHLY, POST_YMAX_MONTHLY],
+    # "hspace" : .05,
+}
+
 if WHITE:
     post_plot_args = {"color": "white"}
     user_plot_args = {"color": "white"}
@@ -164,7 +164,7 @@ else:
 
 # open figure and create twin axes
 _, axes = plt.subplots(2, 1,
-    figsize=(6.5, 3.5),
+    figsize=(6.5, 2.5),
     sharex=True, sharey=False,
     constrained_layout=True,
     gridspec_kw=GRIDSPEC_KWS)
@@ -186,12 +186,13 @@ if WHITE:
 
 # legends
 if not WHITE:
+
     ###### bottom legend
     ax1_handles = [ plt.matplotlib.patches.Patch(edgecolor="none",
             facecolor=c.COLORS[cond], label=LEGEND_LABELS[cond])
         for cond in LUCIDITY_ORDER ]
     ax1_legend = ax1b.legend(handles=ax1_handles,
-        bbox_to_anchor=(.6, .65), loc="lower left",
+        bbox_to_anchor=(.6, .55), loc="lower left",
         **LEGEND_ARGS)
     # ax1_legend.get_frame().set_linewidth(0)
 
@@ -205,14 +206,13 @@ if not WHITE:
     # ax2_legend.get_frame().set_linewidth(0)
 
 ###### aesthetics on bottom axis
-ax1a.set_xlabel("date (year)")
-ax1a.set_ylabel("# of posts (monthly)")
+ax1a.set_xlabel("Year")
+ax1a.set_ylabel(r"$n$ posts, monthly")
 ax1a.set_ybound(upper=POST_YMAX_MONTHLY)
 ax1b.set_ybound(upper=post_ymax_cumulative)
 
 ###### aesthetics on top axis
-ax2a.set_xlabel("date (year)")
-ax2a.set_ylabel("# of users\n(monthly)")
+ax2a.set_ylabel(r"$n$" + " users,\nmonthly")
 ax2a.set_ybound(upper=USER_YMAX_MONTHLY)
 ax2b.set_ybound(upper=user_ymax_cumulative)
 ax2a.xaxis.set(major_locator=mdates.YearLocator(),
@@ -250,8 +250,8 @@ n_total_users = df["user_id"].nunique()
 # n_users_per_label = df.groupby("lucidity").user_id.nunique("")
 counts_txt = fr"$n_{{total}}={n_total_posts}$"
 users_txt = fr"$n_{{total}}={n_total_users}$"
-ax1a.text(.3, .9, counts_txt, transform=ax1a.transAxes, ha="left", va="top", fontsize=10)
-ax2a.text(.3, .9, users_txt, transform=ax2a.transAxes, ha="left", va="top", fontsize=10)
+ax1a.text(.3, .9, counts_txt, transform=ax1a.transAxes, ha="left", va="top")
+ax2a.text(.3, .9, users_txt, transform=ax2a.transAxes, ha="left", va="top")
 
 
 # export

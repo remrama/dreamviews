@@ -46,7 +46,7 @@ elif IMPORT_BASENAME == "describe-wordcount":
         ).replace("nonlucid", "non-lucid"
         ).set_index(["token_type", "lucidity"]
         ).rename_axis("metric", axis=1
-        ).T.loc[["count", "mean", "std", "min", "median", "max"],
+        ).T.loc[["mean", "std", "min", "median", "max"],
                 [("word","non-lucid"), ("word","lucid"), ("lemma","non-lucid"), ("lemma","lucid")]
         ]
     df.columns.names = [None, None]

@@ -211,5 +211,5 @@ for shift_id, ax in zip(["jsd", "fear"], axes):
 
 ########## export
 plt.savefig(export_fname)
-# c.save_hires_figs(export_fname)
+c.save_hires_figs(export_fname)
 plt.close()

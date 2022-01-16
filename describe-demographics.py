@@ -110,7 +110,7 @@ BAR_KWS = {
 ###### open figure for both
 # fig, (ax, ax2) = plt.subplots(ncols=2, figsize=(6,3),
 #     gridspec_kw=dict(width_ratios=[1,.03], wspace=0, left=0, bottom=.1, right=.9, top=1))
-FIGSIZE = (7.5, 2.5)
+FIGSIZE = (6.9, 2.5)
 # GRIDSPEC_KW = dct(left=.1, right=.99, bottom=.1, top=.99,
 #     wspace=.1, width_ratios=[1, 4])
 # fig, axes = plt.subplots(ncols=2, figsize=FIGSIZE, gridspec_kw=GRIDSPEC_KW)
@@ -137,8 +137,8 @@ sea.histplot(data=df, x="gender", hue="age",
 #     if isinstance(ch, plt.matplotlib.patches.Rectangle):
 #         ch.set_width(.8)
 
-ax1.set_ylabel("# of users", fontsize=10)
-ax1.set_xlabel("reported gender", fontsize=10)#, labelpad=0)
+ax1.set_ylabel(r"$n$ users")
+ax1.set_xlabel("reported gender")#, labelpad=0)
 ax1.tick_params(axis="x", which="major", labelrotation=25, pad=0)
 ax1.set_xlim(-1, 4)
 ax1.set_ylim(0, 2500)
@@ -188,7 +188,7 @@ myworld.plot(
     ax=ax2, cax=ax3, column="n_users",
     edgecolor="black", linewidth=.3,
     cmap="viridis", norm=norm,
-    legend=True, legend_kwds=dict(label="# of users", orientation="vertical"),
+    legend=True, legend_kwds=dict(label=r"$n$ users", orientation="vertical"),
     missing_kwds=dict(facecolor="gainsboro", linewidth=.1),
 )
 ax2.axis("off")

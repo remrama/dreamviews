@@ -43,20 +43,21 @@ n_cats = len(category_columns)
 BAR_ARGS = dict(height=.8, edgecolor="k", lw=.5, alpha=1)
 ERROR_ARGS = dict(ecolor="k", elinewidth=.5, capsize=0)
 GRID_COLOR = "gainsboro"
+YTICK_GAP = 10
+yticklocs = np.linspace(0, TOP_N, int(TOP_N/YTICK_GAP+1))
+yticklocs[0] = 1
+XLIM = 1.4 # xaxis is centered at 0, this will be balanced on either side
+TXT_BUFF = .05 # space between tip of bar and text
+FIG_SIZE = (3.2, 2.5)
 GRIDSPEC_ARGS = {
     "height_ratios" : [2, TOP_N],
     "hspace"        : 0,
-    "wspace"        : .3,
+    "wspace"        : .05,
     "top"           : .98,
     "right"         : .98,
     "bottom"        : .18,
     "left"          : .08,
 }
-YTICK_GAP = 10
-yticklocs = np.linspace(0, TOP_N, int(TOP_N/YTICK_GAP+1))
-yticklocs[0] = 1
-FIG_SIZE = (4.5, 3.5)
-TXT_BUFF = .05 # space between tip of bar and text
 
 # open figure
 fig, axes = plt.subplots(nrows=2, ncols=n_cats,
@@ -105,8 +106,7 @@ for i, col in enumerate(category_columns):
             xloc = d_cis[i,0] - TXT_BUFF
             ha_align = "right"
         ax.text(xloc, yloc, txt.replace("*","_"),
-            fontstyle="italic", fontsize=8,
-            ha=ha_align, va="center")
+            fontstyle="italic", ha=ha_align, va="center")
 
     ##### a e s t h e t i c s
     for ax_ in [ax, topax]:
@@ -117,15 +117,17 @@ for i, col in enumerate(category_columns):
     ax.xaxis.grid(True, which="major", linewidth=1, clip_on=False, color=GRID_COLOR)
     ax.xaxis.grid(True, which="minor", linewidth=.3, clip_on=False, color=GRID_COLOR)
     # xmax = max(map(abs, ax.get_xlim()))
-    ax.set_xlim(-1.2, 1.2)
-    ax.set_xlabel("Effect size (Cohen's $\it{d}$) " +
-        "\nnon-lucid$\leftarrow$   $\\rightarrow$lucid         ")
-    ax.yaxis.set(major_locator=plt.FixedLocator(yticklocs))
+    ax.set_xlim(-XLIM, XLIM)
+    ax.set_xlabel("Cohen's $\it{d}$ effect size"
+        + "\nnon-lucid$\leftarrow$   $\\rightarrow$lucid        ")
     ax.xaxis.set(major_locator=plt.MultipleLocator(.5),
                  minor_locator=plt.MultipleLocator(.1),
                  major_formatter=plt.FuncFormatter(c.no_leading_zeros))
-    # if ax.get_subplotspec().is_first_col():
-    ax.set_ylabel("word contribution rank", labelpad=-5)
+    if ax.get_subplotspec().is_first_col():
+        ax.set_ylabel("word contribution rank", labelpad=-6)
+        ax.yaxis.set(major_locator=plt.FixedLocator(yticklocs))
+    else:
+        ax.yaxis.set(major_locator=plt.NullLocator())
     topax.set_ylim(-1, 1)
     topax.yaxis.set(major_locator=plt.NullLocator())
     topax.tick_params(which="both", left=False, bottom=False)
@@ -137,12 +139,11 @@ for i, col in enumerate(category_columns):
     topax.text(xloc_txt, .95,
         f"{category} total",
         transform=topax.transAxes,
-        fontsize=8, fontweight="bold",
+        fontweight="bold",
         ha=ha_align, va="top")
     ax.text(xloc_txt, .99,
-        f"Individual word\ncontributions",
+        f"Individual\nword effects",
         transform=ax.transAxes,
-        fontsize=8,
         ha=ha_align, va="top")
 
 

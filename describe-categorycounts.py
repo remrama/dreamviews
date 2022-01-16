@@ -39,7 +39,7 @@ df["unspecified"] = df["lucidity"].eq("unspecified")
 ######################## define some stuff
 
 VENN_ORDER_1 = ["nonlucid", "lucid", "nightmare"]
-VENN_ORDER_2 = ["unspecified", "nightmare"]
+# VENN_ORDER_2 = ["unspecified", "nightmare"]
 
 VENN_ARGS = {
     "alpha" : .4,
@@ -47,6 +47,8 @@ VENN_ARGS = {
     "normalize_to" : 1,
 }
 
+FIGSIZE = (3, 2.7)
+GRIDSPEC_ARGS = dict(bottom=0, top=1, left=0, right=1)
 
 
 ######################## generate counts and venn info
@@ -54,12 +56,11 @@ VENN_ARGS = {
 ## requires generating 7 (or 3) venn values in a specific order
 
 #### open up the main figure and create both axes to be drawn on
-fig, ax1 = plt.subplots(figsize=(3.5, 3),
-    gridspec_kw=dict(top=1, bottom=0, left=.12, right=1))
+
+fig, ax1 = plt.subplots(figsize=FIGSIZE, gridspec_kw=GRIDSPEC_ARGS)
 # (using ax_top and bottom instead of 1/2 or a/b bc of possible confusion with Venn terms)
-ax1.set_title("Individual dream report category overlap")
-ax2 = ax1.inset_axes([-.11, -.04, .46, .3])
-ax2.axis("off")
+# ax2 = ax1.inset_axes([-.11, -.04, .46, .3])
+# ax2.axis("off")
 
 
 def draw_venn_plot(ax, columns):
@@ -151,7 +152,7 @@ def draw_venn_plot(ax, columns):
 
 
 draw_venn_plot(ax=ax1, columns=VENN_ORDER_1)
-draw_venn_plot(ax=ax2, columns=VENN_ORDER_2)
+# draw_venn_plot(ax=ax2, columns=VENN_ORDER_2)
 
 
 plt.savefig(export_fname)

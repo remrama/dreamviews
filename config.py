@@ -53,6 +53,14 @@ def load_matplotlib_settings():
     rcParams["mathtext.cal"] = "Arial"
     rcParams["mathtext.it"] = "Arial:italic"
     rcParams["mathtext.bf"] = "Arial:bold"
+    rcParams["font.size"] = 8
+    rcParams["axes.labelsize"] = 8
+    rcParams["axes.labelsize"] = 8
+    rcParams["xtick.labelsize"] = 8
+    rcParams["ytick.labelsize"] = 8
+    rcParams["legend.fontsize"] = 8
+    rcParams["legend.title_fontsize"] = 8
+
 
 
 def no_leading_zeros(x, pos):

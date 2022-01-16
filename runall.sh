@@ -58,7 +58,6 @@ declare -a files2convert=(
   "describe-topcategories"
   "describe-toptags"
   "describe-wordcount"
-  "validate-classifier_avg"
   "validate-wordshift_proportion-ld1grams"
   "validate-wordshift_proportion-ld2grams"
 )

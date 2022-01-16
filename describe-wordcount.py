@@ -97,6 +97,7 @@ bin_min = 0
 bin_max = c.MAX_WORDCOUNT
 bins = np.linspace(0, bin_max, N_BINS+1)
 minor_tick_loc = np.diff(bins).mean()
+MAJOR_XTICK_LOC = 200
 LINE_ARGS = {
     "linewidth" : .5,
     "alpha"     : 1,
@@ -114,7 +115,7 @@ BAR_ARGS = {
 
 
 # open figure
-fig, axes = plt.subplots(nrows=3, figsize=(3, 3),
+fig, axes = plt.subplots(nrows=3, figsize=(2.5, 3),
     sharex=True, sharey=False,
     constrained_layout=True)
 
@@ -123,6 +124,7 @@ for i, ax in enumerate(axes):
 
     if i == 2:
         ymax = .003
+        ylabel = "density"
         for lucidity, series in df.groupby(["user_id", "lucidity"]
                                  ).wordcount.mean(
                                  ).groupby("lucidity"):
@@ -133,7 +135,17 @@ for i, ax in enumerate(axes):
                 zorder = 2 if lucidity == "lucid" else 1
                 ax.hist(distvals, density=True, histtype="step", zorder=zorder,
                     edgecolor=linecolor, linewidth=linewidth, **BAR_ARGS)
+        # legend
+        handles = [ plt.matplotlib.patches.Patch(edgecolor="none",
+                facecolor=c.COLORS[x], label=x.replace("nl", "n-l"))
+            for x in ["nonlucid", "lucid"] ]
+        legend = ax.legend(handles=handles,
+            bbox_to_anchor=(1, 1), loc="upper right",
+            frameon=False, borderaxespad=0,
+            labelspacing=.2, handletextpad=.2)
+
     else:
+        ylabel = r"$n$ posts"
         linecolor = "black"
         linewidth = .5
         # alpha = 1
@@ -146,7 +158,8 @@ for i, ax in enumerate(axes):
         distvals = ser.values
         ax.hist(distvals, edgecolor=linecolor, linewidth=linewidth, **BAR_ARGS)
 
-    ax.set_ylabel("# posts", fontsize=10)
+
+    ax.set_ylabel(ylabel)
     ax.set_ybound(upper=ymax)
 
     ax.spines["top"].set_visible(False)
@@ -154,7 +167,7 @@ for i, ax in enumerate(axes):
     ax.set_xlim(0, c.MAX_WORDCOUNT)
     ax.tick_params(axis="both", which="both", labelsize=10)
     ax.tick_params(axis="y", which="both", direction="in")
-    ax.xaxis.set(major_locator=plt.MultipleLocator(200),
+    ax.xaxis.set(major_locator=plt.MultipleLocator(MAJOR_XTICK_LOC),
                  minor_locator=plt.MultipleLocator(minor_tick_loc))
     if i == 2:
         ax.yaxis.set(major_locator=plt.MultipleLocator(ymax),
@@ -167,7 +180,7 @@ for i, ax in enumerate(axes):
     n, mean, sd, median = ser.describe().loc[["count", "mean", "std", "50%"]]
     txt_list = [
         fr"$n={n:.0f}$",
-        fr"$\bar{{x}}={mean:.1f}$",
+        fr"$\bar{{x}}={mean:.0f}$",
         fr"$\sigma_{{\bar{{x}}}}={sd:.1f}$",
         fr"$\tilde{{x}}={median:.0f}$",
     ]
@@ -176,21 +189,21 @@ for i, ax in enumerate(axes):
     if i != 2:
         for j, txt in enumerate(txt_list):
             ytop = 1-.2*j
-            ax.text(1, ytop, txt, transform=ax.transAxes, ha="right", va="top", fontsize=10)
+            ax.text(1, ytop, txt, transform=ax.transAxes, ha="right", va="top")
 
     # txt flags
     if i == 0:
         ax.axvline(c.MIN_WORDCOUNT, **LINE_ARGS)
         ax.text(c.MIN_WORDCOUNT+10, 1, "min word cutoff",
             transform=ax.get_xaxis_transform(),
-            ha="left", va="top", fontsize=10)
+            ha="left", va="top")
         # ax.axvline(c.MAX_WORDCOUNT, **LINE_ARGS)
         # ax.text(c.MAX_WORDCOUNT-10, 1, "max word cutoff",
         #     transform=ax.get_xaxis_transform(),
         #     ha="right", va="top", fontsize=10)
 
 
-ax.set_xlabel("# words", fontsize=10)
+ax.set_xlabel(r"$n$ words")
 
 
 # export

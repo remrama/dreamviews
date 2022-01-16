@@ -98,9 +98,10 @@ stats.to_csv(export_fname_stats, float_format="%.5f", index=True, na_rep="NA", s
 # define some values for aesthetics
 BAR_ARGS = dict(width=1, linewidth=1, edgecolor="k", alpha=1)
 ERROR_ARGS = dict(ecolor="black", elinewidth=1, capsize=1, capthick=1)
+SIG_LINEWIDTH = 1
 YMIN = 1.9
 YMAX = 3.4
-FIGSIZE = (2, 3)
+FIGSIZE = (2, 2)
 GRIDSPEC_ARGS = dict(height_ratios=[15, 1], hspace=.04,
     top=.98, right=.95, bottom=.1, left=.16)
 
@@ -123,9 +124,9 @@ for ax in axes:
 # play with axis stuff - labels, ticks, and limits
 ax1, ax2 = axes # axis 2 is for the low/blanked axes, to make hatches
 ax2.set_xticks(xticks)
-ax2.set_xticklabels(LIWC_CATS, fontsize=10)
+ax2.set_xticklabels(LIWC_CATS)
 ax2.set_xlim(min(xvals)-1, max(xvals)+1)
-ax1.set_ylabel(r"total word category %", fontsize=10)
+ax1.set_ylabel(r"total word category %")
 ax1.set_ylim(YMIN, YMAX)
 ax2.set_ylim(0, .01) # arbitrarily low, just wanna avoid any ticks
 ax1.spines["bottom"].set_visible(False)
@@ -155,17 +156,17 @@ for cat, xloc in zip(LIWC_CATS, xticks):
     sigchars = "*" * sum([ pval<cutoff for cutoff in (.05, .01, .001) ])
     yloc = descriptives.loc[cat, ["mean", "sem"]].sort_values("mean").sum(axis=1)[-1]
     yloc += .1
-    ax1.text(xloc, yloc, sigchars, fontsize=14,
+    ax1.text(xloc, yloc, sigchars, fontsize=10,
         weight="bold", ha="center", va="center")
     ax1.hlines(y=yloc, xmin=xloc-BAR_ARGS["width"]/2,
-        xmax=xloc+BAR_ARGS["width"]/2, lw=2, color="k", capstyle="round")
+        xmax=xloc+BAR_ARGS["width"]/2, lw=SIG_LINEWIDTH, color="k", capstyle="round")
 
 # legend
 legend_handles = [ plt.matplotlib.patches.Patch(
         facecolor=c.COLORS[l], edgecolor="none", label=l)
     for l in LUCID_ORDER ]
 legend = ax1.legend(handles=legend_handles,
-    frameon=False, borderaxespad=0, fontsize=10,
+    frameon=False, borderaxespad=0,
     loc="upper left", bbox_to_anchor=(.05, .98),
     labelspacing=.2, handletextpad=.2)
 

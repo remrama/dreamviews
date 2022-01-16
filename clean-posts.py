@@ -106,7 +106,10 @@ def convert2ascii(txt, retain_whitespace_count=False):
     return ascii_txt
 
 
-def lemmatize(doc, pos_remove_list=["PROPN", "SMY"]):
+# initialize a separate random object so the seed is different from other one
+rd4lemma = random.Random()
+rd4lemma.seed(6)
+def lemmatize(doc, shuffle=False, pos_remove_list=["PROPN", "SMY"]):
     """takes a spaCy doc.
     Not stressing too hard on this because it's likely
     that one will want to tokenize/lemmatize their own way.
@@ -123,6 +126,8 @@ def lemmatize(doc, pos_remove_list=["PROPN", "SMY"]):
             ) and (not token.is_oov
             ) and (not token.pos_ in pos_remove_list):
             token_list.append( token.lemma_.lower() ) # *almost* always lowercase by default
+    if shuffle:
+        token_list = random.sample(token_list, len(token_list))
     return " ".join(token_list) if token_list else None
 
 
@@ -533,7 +538,7 @@ for html_byt in tqdm.tqdm(html_files, desc="parsing html and processing text"):
 
 
         # lemmatize while we're here and spaCy is running
-        lemmatized_text = lemmatize(doc)
+        lemmatized_text = lemmatize(doc, shuffle=True)
 
         ###################################################
         #################   CLEAN TITLE   #################
@@ -566,7 +571,7 @@ for html_byt in tqdm.tqdm(html_files, desc="parsing html and processing text"):
             "lucidity"    : post_lucidity,
             "nightmare"   : post_was_nightmare,
             "wordcount"   : n_words,
-            "post_text"   : post_txt,
+            "post_clean"  : post_txt,
             "post_lemmas" : lemmatized_text,
         }
 

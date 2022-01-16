@@ -57,13 +57,13 @@ bins = list(np.concatenate(bin_sets) - .5)
 g = sea.JointGrid(data=df_user,
     x="n_nonlucid", y="n_lucid",
     marginal_ticks=True,
-    height=3.5,
-    ratio=4, # ratio of joint-to-marginal axis heights
+    height=3.2,
+    ratio=6, # ratio of joint-to-marginal axis heights
     space=.4, # space between joint and marginal axes
 )
 
 # create in inset axis for the colorbar legend
-cax = g.figure.add_axes([.3, .74, .25, .02])
+cax = g.figure.add_axes([.32, .79, .25, .02])
 
 # draw the joint (main) axis
 g.plot_joint(sea.histplot,
@@ -110,9 +110,9 @@ g.ax_joint.set_ybound(lower=bins[0], upper=bins[-1])
 ####### colorbar aesthetics
 # cbar = g.ax_joint.get_children()[0].colorbar
 cbar = mesh.colorbar
-cbar.set_label("# of users",
+cbar.set_label(r"$n$ users",
     x=1.1,        # higher value moves label to the right
-    labelpad=-19, # higher value moves label down
+    labelpad=-18, # higher value moves label down
     fontsize=8, va="center", ha="left")
 cax.tick_params(labelsize=8, length=2)
 # cbar.locator = plt.LogLocator(base=10)
@@ -123,8 +123,8 @@ cax.tick_params(labelsize=8, length=2)
 
 # joint axis aesthetics
 g.ax_joint.set(
-    xlabel="# of non-lucid reports",
-    ylabel="# of lucid reports",
+    xlabel=r"$n$ non-lucid posts",
+    ylabel=r"$n$ lucid posts",
     xscale="symlog",
     yscale="symlog", # linthreshy=1???
     xlim=(-.5, 1000),
@@ -170,7 +170,7 @@ GRID_ARGS = {
     "color"     : "gainsboro",
     "alpha"     : 1,
 }
-g.ax_marg_x.set(ylim=(0, MARGINAL_YMAX), ylabel="# of users")
+g.ax_marg_x.set(ylim=(0, MARGINAL_YMAX), ylabel=r"$n$ users")
 g.ax_marg_y.set(xlim=(0, MARGINAL_YMAX), xlabel="", xticklabels=[])
 g.ax_marg_x.yaxis.set(major_locator=plt.MultipleLocator(MAJOR_TICK_LOC),
                       minor_locator=plt.MultipleLocator(MINOR_TICK_LOC))
@@ -196,13 +196,13 @@ LINE_ARGS = {
 }
 g.ax_joint.hlines(.5, xmin=.5, xmax=1000, **LINE_ARGS)
 g.ax_joint.vlines(.5, ymin=.5, ymax=1000, **LINE_ARGS)
-g.ax_marg_x.axvline(.5, **LINE_ARGS)
-g.ax_marg_y.axhline(.5, **LINE_ARGS)
+g.ax_marg_x.axvline(.5, zorder=0, **LINE_ARGS)
+g.ax_marg_y.axhline(.5, zorder=0, **LINE_ARGS)
 
 # add some text also emphasizing the >= 1 part
 n_paired = df_user.all(axis=1).sum()
 txt = (r"$n_{users}=$" + rf"${n_paired}$"
-    + "\n" + r"$with\ \geq1\ of\ each\ dream\ type$")
+    + "\n with "+r"$\geq1$"+" lucid and "+r"$\geq1$"+" non-lucid")
 g.ax_joint.text(800, .6, txt,
     fontsize=8, ha="right", va="bottom")
 
