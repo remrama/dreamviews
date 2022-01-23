@@ -1,11 +1,5 @@
 """Describe demographics (age, gender, location) and how frequently they were provided.
 
-This is a bit much putting the choropleth/location
-stuff in the same script as the age/gender stuff.
-Should be separate but I like having them on one
-plot and generating it all at once. Still could
-at least break the counts/tables out separately.
-
 IMPORTS
 =======
     - user info, derivatives/dreamviews-posts.tsv
@@ -14,7 +8,8 @@ EXPORTS
     - table of how many people provided info, results/describe-demographics_provided.tsv
     - table of reported ages and genders,     results/describe-demographics_agegender.tsv
     - table of reported ages and genders,     results/describe-demographics_location.tsv
-    - visualization of it all,                results/describe-demographics.png
+    - visualization of reported age/gender,   results/describe-demographics_agegender.png
+    - visualization of reported location,     results/describe-demographics_location.png
 """
 import os
 import numpy as np
@@ -28,10 +23,11 @@ import matplotlib.pyplot as plt
 c.load_matplotlib_settings()
 
 
-export_fname_plot = os.path.join(c.DATA_DIR, "results", "describe-demographics.png")
 export_fname_agegender = os.path.join(c.DATA_DIR, "results", "describe-demographics_agegender.tsv")
 export_fname_locations = os.path.join(c.DATA_DIR, "results", "describe-demographics_location.tsv")
 export_fname_provided = os.path.join(c.DATA_DIR, "results", "describe-demographics_provided.tsv")
+export_fname_agegender_plot = os.path.join(c.DATA_DIR, "results", "describe-demographics_agegender.png")
+export_fname_locations_plot = os.path.join(c.DATA_DIR, "results", "describe-demographics_location.png")
 
 
 df = c.load_dreamviews_users()
@@ -92,7 +88,7 @@ country_counts.to_csv(export_fname_locations, index=True, sep="\t", encoding="ut
 
 
 
-######################### visualization
+######################### plot age and gender
 
 # generate a custom color palette with one colormap
 # for the binned ages and a blank/white for no info
@@ -107,29 +103,30 @@ BAR_KWS = {
     "alpha" : 1,
 }
 
-###### open figure for both
-# fig, (ax, ax2) = plt.subplots(ncols=2, figsize=(6,3),
-#     gridspec_kw=dict(width_ratios=[1,.03], wspace=0, left=0, bottom=.1, right=.9, top=1))
-FIGSIZE = (6.9, 2.5)
-# GRIDSPEC_KW = dct(left=.1, right=.99, bottom=.1, top=.99,
-#     wspace=.1, width_ratios=[1, 4])
-# fig, axes = plt.subplots(ncols=2, figsize=FIGSIZE, gridspec_kw=GRIDSPEC_KW)
-fig = plt.figure(figsize=FIGSIZE, constrained_layout=False)
-gs1 = fig.add_gridspec(1, 1, bottom=.25, top=.95, left=.09, right=.3)
-gs2 = fig.add_gridspec(1, 1, bottom=0, top=1, left=.33, right=.92)
-gs3 = fig.add_gridspec(1, 1, bottom=.1, top=.92, left=.91, right=.92)
-ax1 = fig.add_subplot(gs1[0])
-ax2 = fig.add_subplot(gs2[0])
-ax3 = fig.add_subplot(gs3[0])
+# ###### open figure for both
+# # fig, (ax, ax2) = plt.subplots(ncols=2, figsize=(6,3),
+# #     gridspec_kw=dict(width_ratios=[1,.03], wspace=0, left=0, bottom=.1, right=.9, top=1))
+# FIGSIZE = (6.9, 2.5)
+# # GRIDSPEC_KW = dct(left=.1, right=.99, bottom=.1, top=.99,
+# #     wspace=.1, width_ratios=[1, 4])
+# # fig, axes = plt.subplots(ncols=2, figsize=FIGSIZE, gridspec_kw=GRIDSPEC_KW)
+# fig = plt.figure(figsize=FIGSIZE, constrained_layout=False)
+# gs1 = fig.add_gridspec(1, 1, bottom=.25, top=.95, left=.09, right=.3)
+# gs2 = fig.add_gridspec(1, 1, bottom=0, top=1, left=.33, right=.92)
+# gs3 = fig.add_gridspec(1, 1, bottom=.1, top=.92, left=.91, right=.92)
+# ax1 = fig.add_subplot(gs1[0])
+# ax2 = fig.add_subplot(gs2[0])
+# ax3 = fig.add_subplot(gs3[0])
+# fig.text(0, 1, "A", fontsize=12, fontweight="bold", ha="left", va="top")
+# fig.text(.33, 1, "B", fontsize=12, fontweight="bold", ha="left", va="top")
 
-fig.text(0, 1, "A", fontsize=12, fontweight="bold", ha="left", va="top")
-fig.text(.33, 1, "B", fontsize=12, fontweight="bold", ha="left", va="top")
+fig, ax = plt.subplots(figsize=(2, 2), constrained_layout=True)
 
 sea.histplot(data=df, x="gender", hue="age",
     multiple="stack", stat="count", element="bars",
     palette=age_palette,
     hue_order=CUT_LABELS_WITH_NA[::-1],
-    ax=ax1, legend=True,
+    ax=ax, legend=True,
     **BAR_KWS)
 
 # # can't change the width on histplot
@@ -137,23 +134,23 @@ sea.histplot(data=df, x="gender", hue="age",
 #     if isinstance(ch, plt.matplotlib.patches.Rectangle):
 #         ch.set_width(.8)
 
-ax1.set_ylabel(r"$n$ users")
-ax1.set_xlabel("reported gender")#, labelpad=0)
-ax1.tick_params(axis="x", which="major", labelrotation=25, pad=0)
-ax1.set_xlim(-1, 4)
-ax1.set_ylim(0, 2500)
-ax1.yaxis.set(
+ax.set_ylabel(r"$n$ users")
+ax.set_xlabel("reported gender")#, labelpad=0)
+ax.tick_params(axis="x", which="major", labelrotation=25, pad=0)
+ax.set_xlim(-1, 4)
+ax.set_ylim(0, 2500)
+ax.yaxis.set(
     major_locator=plt.MultipleLocator(500),
     minor_locator=plt.MultipleLocator(100))
-ax1.tick_params(axis="y", which="both",
+ax.tick_params(axis="y", which="both",
     direction="in", right=True)
-ax1.set_axisbelow(True)
-ax1.yaxis.grid(which="major", color="gray", lw=.5)
+ax.set_axisbelow(True)
+ax.yaxis.grid(which="major", color="gray", lw=.5)
 
-legend = ax1.get_legend()
+legend = ax.get_legend()
 handles = legend.legendHandles
 legend.remove()
-legend = ax1.legend(title="reported age",
+legend = ax.legend(title="reported age",
     handles=handles, labels=CUT_LABELS_WITH_NA[::-1],
     loc="upper left", bbox_to_anchor=(.3, .97),
     borderaxespad=0, frameon=False,
@@ -162,8 +159,34 @@ legend = ax1.legend(title="reported age",
 )
 # legend._legend_box.sep = 1 # brings title up farther on top of handles/labels
 
+# export
+plt.savefig(export_fname_agegender_plot)
+c.save_hires_figs(export_fname_agegender_plot)
+plt.close()
 
-########### choropleth
+
+
+################################# plot locations (choropleth)
+
+# fig, ax = plt.subplots(figsize=(3.2,1.5), constrained_layout=False,
+#     gridspec_kw=dict(left=0, bottom=0, top=1, right=1))
+# # divider = make_axes_locatable(ax)
+# # cax = divider.append_axes("right", size="2%", pad=0)
+# cax = inset_axes(ax,
+#                     width="2%",  
+#                     height="100%",
+#                     loc="right",
+#                     borderpad=1
+#                    )
+
+# fig, (ax, cax) = plt.subplots(ncols=2, figsize=FIGSIZE,
+#     gridspec_kw=dict(width_ratios=[1,.03], wspace=0, left=0, bottom=.1, right=.9, top=1))
+FIGSIZE = (3.2, 1.4)
+fig = plt.figure(figsize=FIGSIZE, constrained_layout=False)
+gs1 = fig.add_gridspec(1, 1, bottom=0, top=1, left=0, right=.85)
+gs2 = fig.add_gridspec(1, 1, bottom=.1, top=.92, left=.83, right=.85)
+ax = fig.add_subplot(gs1[0])
+cax = fig.add_subplot(gs2[0])
 
 # load the world geopandas data to get country geometries
 world = geopandas.read_file(geopandas.datasets.get_path("naturalearth_lowres"))
@@ -185,19 +208,19 @@ myworld = world.merge(country_counts, left_on="iso_a3", right_index=True, how="l
 # norm = plt.matplotlib.colors.SymLogNorm(linthresh=20, vmin=1, vmax=2000, base=10)
 norm = plt.matplotlib.colors.LogNorm(vmin=1, vmax=2000)
 myworld.plot(
-    ax=ax2, cax=ax3, column="n_users",
+    ax=ax, cax=cax, column="n_users",
     edgecolor="black", linewidth=.3,
     cmap="viridis", norm=norm,
     legend=True, legend_kwds=dict(label=r"$n$ users", orientation="vertical"),
     missing_kwds=dict(facecolor="gainsboro", linewidth=.1),
 )
-ax2.axis("off")
+ax.axis("off")
 
 # ax2.text(.05, .2, unstated_txt, transform=ax2.transAxes,
 #     ha="left", va="top", fontsize=8)
 
 
 # export
-plt.savefig(export_fname_plot)
-c.save_hires_figs(export_fname_plot)
+plt.savefig(export_fname_locations_plot)
+c.save_hires_figs(export_fname_locations_plot)
 plt.close()

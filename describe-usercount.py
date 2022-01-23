@@ -28,9 +28,10 @@ counts = df["user_id"].value_counts(
 
 ################################ plot
 
-FIGSIZE = (2, 2)
-N_BINS = 25
+FIGSIZE = (3, 1.8)
+N_BINS = 50
 HIST_ARGS = dict(lw=.5, color="gainsboro")
+MAJOR_XTICK_LOC = 200
 
 # generate bins
 bins = np.linspace(0, c.MAX_POSTCOUNT, N_BINS+1)
@@ -41,7 +42,7 @@ ax.hist(counts.values, bins=bins, log=True,
     color="gainsboro", linewidth=.5, edgecolor="black")
 
 # aesthetics
-ax.set_xlabel(r"$n$ posts per user")
+ax.set_xlabel(r"$n$ posts per user", labelpad=0)
 ax.set_ylabel(r"$n$ users")
 ax.set_ybound(upper=10000)
 ax.spines["top"].set_visible(False)
@@ -61,7 +62,7 @@ ax.spines["right"].set_visible(False)
 
 minor_tick_loc = np.diff(bins).mean()
 ax.set_xlim(0, c.MAX_POSTCOUNT)
-ax.xaxis.set(major_locator=plt.MultipleLocator(200),
+ax.xaxis.set(major_locator=plt.MultipleLocator(MAJOR_XTICK_LOC),
              minor_locator=plt.MultipleLocator(minor_tick_loc))
 # ax.tick_params(axis="both", which="both", labelsize=10)
 # ax.tick_params(axis="y", which="both", direction="in")

@@ -37,9 +37,6 @@ python clean-posts.py                       # ==> DATA_DIR/derivatives/dreamview
 # Collect the relevant user profiles and clean them.
 python scrape-users.py                      # ==> DATA_DIR/source/dreamviews-users.zip
 python clean-users.py                       # ==> DATA_DIR/derivatives/dreamviews-users.tsv
-
-# Generate a *super*-anonymized dataset.
-python anonymize-posts.py                   # ==> DATA_DIR/derivatives/dreamviews-posts_superanon.tsv
 ```
 
 
@@ -65,11 +62,14 @@ python describe-categorypairs.py            # ==> DATA_DIR/results/describe-cate
 python describe-demographics.py             # ==> DATA_DIR/results/describe-demographics_provided.tsv
                                             # ==> DATA_DIR/results/describe-demographics_agegender.tsv
                                             # ==> DATA_DIR/results/describe-demographics_location.tsv
-                                            # ==> DATA_DIR/results/describe-demographics.png
+                                            # ==> DATA_DIR/results/describe-demographics_agegender.png
+                                            # ==> DATA_DIR/results/describe-demographics_location.png
 
 # Count how many words are in each post.
 python describe-wordcount.py                # ==> DATA_DIR/results/describe-wordcount.tsv
-                                            # ==> DATA_DIR/results/describe-wordcount.png
+                                            # ==> DATA_DIR/results/describe-wordcount_perpost.png
+                                            # ==> DATA_DIR/results/describe-wordcount_peruser.png
+                                            # ==> DATA_DIR/results/describe-wordcount_lucidity.png
 ```
 
 
@@ -89,7 +89,8 @@ python validate-wordshift.py                # ==> DATA_DIR/results/validate-word
                                             # ==> DATA_DIR/results/validate-wordshift_proportion-plot.png
                                             # ==> DATA_DIR/results/validate-wordshift_proportion-ld1grams.tsv
                                             # ==> DATA_DIR/results/validate-wordshift_proportion-ld2grams.tsv
-python validate-wordshift_plot.py           # ==> DATA_DIR/results/validate-wordshifts.png
+python validate-wordshift_plot.py -s jsd    # ==> DATA_DIR/results/validate-wordshift_jsd-myplot.png
+python validate-wordshift_plot.py -s fear   # ==> DATA_DIR/results/validate-wordshift_fear-myplot.png
 
 # Compare lucid and non-lucid reports using LIWC categories Insight and Agency.
 python validate-liwc.py --words             # ==> DATA_DIR/derivatives/validate-liwc_scores.tsv
@@ -99,7 +100,8 @@ python validate-liwc_stats.py               # ==> DATA_DIR/results/validate-liwc
                                             # ==> DATA_DIR/results/validate-liwc_scores-stats.tsv
                                             # ==> DATA_DIR/results/validate-liwc_scores-plot.png
 python validate-liwc_word_stats.py          # ==> DATA_DIR/results/validate-liwc_wordscores-stats.tsv
-python validate-liwc_word_plot.py           # ==> DATA_DIR/results/validate-liwc_wordscores-plot.png
+python validate-liwc_word_plot.py -c agency # ==> DATA_DIR/results/validate-liwc_wordscores_agency-plot.png
+python validate-liwc_word_plot.py -c insight # ==> DATA_DIR/results/validate-liwc_wordscores_insight-plot.png
 ```
 
 

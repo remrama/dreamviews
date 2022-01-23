@@ -6,8 +6,10 @@ IMPORTS
     - posts, derivatives/dreamviews-posts.tsv
 EXPORTS
 =======
-    - table of all word and lemma counts,              results/describe-wordcount.tsv
-    - visualization of total and lucidity word counts, results/describe-wordcount.png
+    - table of all word and lemma counts,               results/describe-wordcount.tsv
+    - visualization of total word counts per post,      results/describe-wordcount_perpost.png
+    - visualization of total word counts per user,      results/describe-wordcount_peruser.png
+    - visualization of lucid and non-lucid word counts, results/describe-wordcount_lucidity.png
 """
 import os
 import numpy as np
@@ -21,7 +23,6 @@ c.load_matplotlib_settings()
 
 ################################ I/O
 export_fname_table = os.path.join(c.DATA_DIR, "results", "describe-wordcount.tsv")
-export_fname_plot  = os.path.join(c.DATA_DIR, "results", "describe-wordcount.png")
 df = c.load_dreamviews_posts()
 
 # token counts column already exists, but need to add lemma one
@@ -114,13 +115,24 @@ BAR_ARGS = {
 }
 
 
+# crappy quick fix
+export_fnames = [
+    os.path.join(c.DATA_DIR, "results", "describe-wordcount_perpost.png"),
+    os.path.join(c.DATA_DIR, "results", "describe-wordcount_peruser.png"),
+    os.path.join(c.DATA_DIR, "results", "describe-wordcount_lucidity.png"),
+]
+
+
+
 # open figure
-fig, axes = plt.subplots(nrows=3, figsize=(2.5, 3),
-    sharex=True, sharey=False,
-    constrained_layout=True)
+# fig, axes = plt.subplots(nrows=3, figsize=(2.5, 3),
+#     sharex=True, sharey=False,
+#     constrained_layout=True)
 
 # loop over axes and word vs lemma counts
-for i, ax in enumerate(axes):
+for i, fname in enumerate(export_fnames):
+
+    fig, ax = plt.subplots(figsize=(2, 1), constrained_layout=True)
 
     if i == 2:
         ymax = .003
@@ -140,9 +152,9 @@ for i, ax in enumerate(axes):
                 facecolor=c.COLORS[x], label=x.replace("nl", "n-l"))
             for x in ["nonlucid", "lucid"] ]
         legend = ax.legend(handles=handles,
-            bbox_to_anchor=(1, 1), loc="upper right",
+            bbox_to_anchor=(1.05, .85), loc="upper right",
             frameon=False, borderaxespad=0,
-            labelspacing=.2, handletextpad=.2)
+            labelspacing=.1, handletextpad=.2)
 
     else:
         ylabel = r"$n$ posts"
@@ -159,13 +171,14 @@ for i, ax in enumerate(axes):
         ax.hist(distvals, edgecolor=linecolor, linewidth=linewidth, **BAR_ARGS)
 
 
-    ax.set_ylabel(ylabel)
+    ax.set_ylabel(ylabel, labelpad=1)
     ax.set_ybound(upper=ymax)
+    ax.set_xlabel(r"$n$ words", labelpad=1)
 
     ax.spines["top"].set_visible(False)
     ax.spines["right"].set_visible(False)
     ax.set_xlim(0, c.MAX_WORDCOUNT)
-    ax.tick_params(axis="both", which="both", labelsize=10)
+    ax.tick_params(axis="both", which="both")
     ax.tick_params(axis="y", which="both", direction="in")
     ax.xaxis.set(major_locator=plt.MultipleLocator(MAJOR_XTICK_LOC),
                  minor_locator=plt.MultipleLocator(minor_tick_loc))
@@ -192,21 +205,20 @@ for i, ax in enumerate(axes):
             ax.text(1, ytop, txt, transform=ax.transAxes, ha="right", va="top")
 
     # txt flags
-    if i == 0:
-        ax.axvline(c.MIN_WORDCOUNT, **LINE_ARGS)
-        ax.text(c.MIN_WORDCOUNT+10, 1, "min word cutoff",
-            transform=ax.get_xaxis_transform(),
-            ha="left", va="top")
-        # ax.axvline(c.MAX_WORDCOUNT, **LINE_ARGS)
-        # ax.text(c.MAX_WORDCOUNT-10, 1, "max word cutoff",
-        #     transform=ax.get_xaxis_transform(),
-        #     ha="right", va="top", fontsize=10)
+    # if i == 0:
+    ax.axvline(c.MIN_WORDCOUNT, **LINE_ARGS)
+    ax.text(c.MIN_WORDCOUNT+10, 1, "min word cutoff",
+        transform=ax.get_xaxis_transform(),
+        ha="left", va="top")
+    # ax.axvline(c.MAX_WORDCOUNT, **LINE_ARGS)
+    # ax.text(c.MAX_WORDCOUNT-10, 1, "max word cutoff",
+    #     transform=ax.get_xaxis_transform(),
+    #     ha="right", va="top", fontsize=10)
 
 
-ax.set_xlabel(r"$n$ words")
 
 
-# export
-plt.savefig(export_fname_plot)
-c.save_hires_figs(export_fname_plot)
-plt.close()
+    # export
+    plt.savefig(fname)
+    c.save_hires_figs(fname)
+    plt.close()

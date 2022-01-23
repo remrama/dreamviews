@@ -47,7 +47,7 @@ VENN_ARGS = {
     "normalize_to" : 1,
 }
 
-FIGSIZE = (3, 2.7)
+FIGSIZE = (2.4, 2.3)
 GRIDSPEC_ARGS = dict(bottom=0, top=1, left=0, right=1)
 
 
@@ -133,21 +133,23 @@ def draw_venn_plot(ax, columns):
             patch.set_ec((0,0,0,1))
             patch.set_fc(facecolor_rgba)
 
-    # change the font of text within circles/patches
-    for setid in ["100", "010", "001", "10", "01"]:
-        if n_venns == 2 and len(setid) == 3: continue
-        ven.get_label_by_id(setid).set_fontsize(10)
+    # # change the font of text within circles/patches
+    # for setid in ["100", "010", "001", "10", "01"]:
+    #     if n_venns == 2 and len(setid) == 3:
+    #         continue
+    #     # ven.get_label_by_id(setid).set_fontsize(10)
 
     # change the font of the outer labels (e.g., non-lucid)
     for setid in ["A", "B", "C"]:
-        if n_venns == 2 and setid == "C": continue
-        ven.get_label_by_id(setid).set_fontsize(10)
+        if n_venns == 2 and setid == "C":
+            continue
+        # ven.get_label_by_id(setid).set_fontsize(10)
         ven.get_label_by_id(setid).set_style("italic")
 
-    # change the txt within each circle
+    # change all inner txt
     for vlabel, txt in zip(ven.subset_labels, venn_labels):
         vlabel.set_text(txt)
-        vlabel.set_fontsize(8)
+        # vlabel.set_fontsize(8)
 
 
 

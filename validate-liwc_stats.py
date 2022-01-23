@@ -101,9 +101,9 @@ ERROR_ARGS = dict(ecolor="black", elinewidth=1, capsize=1, capthick=1)
 SIG_LINEWIDTH = 1
 YMIN = 1.9
 YMAX = 3.4
-FIGSIZE = (2, 2)
+FIGSIZE = (1.7, 2)
 GRIDSPEC_ARGS = dict(height_ratios=[15, 1], hspace=.04,
-    top=.98, right=.95, bottom=.1, left=.16)
+    top=.99, right=.94, bottom=.1, left=.16)
 
 # generate data for plotting
 row_indx = pd.MultiIndex.from_product([LIWC_CATS, LUCID_ORDER])
@@ -156,7 +156,7 @@ for cat, xloc in zip(LIWC_CATS, xticks):
     sigchars = "*" * sum([ pval<cutoff for cutoff in (.05, .01, .001) ])
     yloc = descriptives.loc[cat, ["mean", "sem"]].sort_values("mean").sum(axis=1)[-1]
     yloc += .1
-    ax1.text(xloc, yloc, sigchars, fontsize=10,
+    ax1.text(xloc, yloc+.01, sigchars, fontsize=10,
         weight="bold", ha="center", va="center")
     ax1.hlines(y=yloc, xmin=xloc-BAR_ARGS["width"]/2,
         xmax=xloc+BAR_ARGS["width"]/2, lw=SIG_LINEWIDTH, color="k", capstyle="round")
@@ -168,7 +168,7 @@ legend_handles = [ plt.matplotlib.patches.Patch(
 legend = ax1.legend(handles=legend_handles,
     frameon=False, borderaxespad=0,
     loc="upper left", bbox_to_anchor=(.05, .98),
-    labelspacing=.2, handletextpad=.2)
+    labelspacing=.1, handletextpad=.2)
 
 # export
 plt.savefig(export_fname_plot)

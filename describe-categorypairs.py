@@ -114,7 +114,7 @@ cbar.set_label(r"$n$ users",
     x=1.1,        # higher value moves label to the right
     labelpad=-18, # higher value moves label down
     fontsize=8, va="center", ha="left")
-cax.tick_params(labelsize=8, length=2)
+cax.tick_params(length=2)
 # cbar.locator = plt.LogLocator(base=10)
 # cbar.formatter = plt.ScalarFormatter()
 # cbar.update_ticks()

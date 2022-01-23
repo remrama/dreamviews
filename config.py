@@ -46,14 +46,15 @@ def load_matplotlib_settings():
     from matplotlib.pyplot import rcParams
     rcParams["savefig.dpi"] = 600
     rcParams["interactive"] = True
-    rcParams["font.family"] = "sans-serif"
-    rcParams["font.sans-serif"] = "Arial"
+    rcParams["font.family"] = "Times New Roman"
+    # rcParams["font.sans-serif"] = "Arial"
     rcParams["mathtext.fontset"] = "custom"
-    rcParams["mathtext.rm"] = "Arial"
-    rcParams["mathtext.cal"] = "Arial"
-    rcParams["mathtext.it"] = "Arial:italic"
-    rcParams["mathtext.bf"] = "Arial:bold"
+    rcParams["mathtext.rm"] = "Times New Roman"
+    rcParams["mathtext.cal"] = "Times New Roman"
+    rcParams["mathtext.it"] = "Times New Roman:italic"
+    rcParams["mathtext.bf"] = "Times New Roman:bold"
     rcParams["font.size"] = 8
+    rcParams["axes.titlesize"] = 8
     rcParams["axes.labelsize"] = 8
     rcParams["axes.labelsize"] = 8
     rcParams["xtick.labelsize"] = 8
