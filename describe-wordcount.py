@@ -211,9 +211,9 @@ for i, fname in enumerate(export_fnames):
         transform=ax.get_xaxis_transform(),
         ha="left", va="top")
     # ax.axvline(c.MAX_WORDCOUNT, **LINE_ARGS)
-    # ax.text(c.MAX_WORDCOUNT-10, 1, "max word cutoff",
+    # ax.text(c.MAX_WORDCOUNT-10, 1, "max cutoff",
     #     transform=ax.get_xaxis_transform(),
-    #     ha="right", va="top", fontsize=10)
+    #     ha="right", va="top")
 
 
 

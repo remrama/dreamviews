@@ -57,9 +57,9 @@ bins = list(np.concatenate(bin_sets) - .5)
 g = sea.JointGrid(data=df_user,
     x="n_nonlucid", y="n_lucid",
     marginal_ticks=True,
-    height=3.2,
+    height=2.8,
     ratio=6, # ratio of joint-to-marginal axis heights
-    space=.4, # space between joint and marginal axes
+    space=.5, # space between joint and marginal axes
 )
 
 # create in inset axis for the colorbar legend
@@ -112,7 +112,7 @@ g.ax_joint.set_ybound(lower=bins[0], upper=bins[-1])
 cbar = mesh.colorbar
 cbar.set_label(r"$n$ users",
     x=1.1,        # higher value moves label to the right
-    labelpad=-18, # higher value moves label down
+    labelpad=-17, # higher value moves label down
     fontsize=8, va="center", ha="left")
 cax.tick_params(length=2)
 # cbar.locator = plt.LogLocator(base=10)

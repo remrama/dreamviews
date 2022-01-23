@@ -33,6 +33,8 @@ e.g.,
 """
 import os
 import csv
+import json
+import copy
 import numpy as np
 import pandas as pd
 
@@ -59,8 +61,8 @@ def format_float_sci(x, **kwargs):
     s = np.format_float_scientific(x, **kwargs)
     if "precision" in kwargs:
         s = s.replace(".", "")
-    # if "e-" in s:
-    #     s = pysci_to_latexsci(s)
+    if "e-" in s:
+        s = pysci_to_latexsci(s)
     return s
 
 def round_int_half_up(x):
@@ -87,6 +89,10 @@ def format_float(x, trim_leading=True, **kwargs):
 
 
 STUFF2GRAB = [ # basename, index_column, index_value, column
+
+    ## Total counts (not a dataframe)
+    ("describe-total_counts.json", "n_total_posts", None, None),
+    ("describe-total_counts.json", "n_total_users", None, None),
 
     ## LIWC category stats
     ("validate-liwc_scores-stats.tsv", "category", "insight", "p-val"),
@@ -135,37 +141,45 @@ with open(export_fname, "w", newline="", encoding="utf-8") as csvfile:
     for basename, index_col, index_label, col_name in STUFF2GRAB:
         # print(basename, index_col, index_label, col_name)
 
-        shortname = basename.split("-", 1)[1].split(".")[0].split("_", 1)[0]
-        col_name_alpha = "".join([ x for x in col_name if x.isalpha() ])
-        key = f"{shortname}-{index_label}-{col_name_alpha}"
-
         import_fname = os.path.join(c.DATA_DIR, "results", basename)
 
-        df = pd.read_csv(import_fname, index_col=index_col, sep="\t")
+        if basename.endswith(".json"):
+            with open(import_fname, "r", encoding="utf-8") as infile:
+                var = json.load(infile)[index_col]
+            key = copy.deepcopy(index_col)
+        else:
+            shortname = basename.split("-", 1)[1].split(".")[0].split("_", 1)[0]
+            shortname = shortname.replace("demographics", "demo"
+                                ).replace("classifier", "clf")
+            col_name_alpha = "".join([ x for x in col_name if x.isalpha() ])
+            key = f"{shortname}-{index_label}-{col_name_alpha}"
 
-        var = df.loc[index_label, col_name]
 
-        if col_name == "p-val": # round appropriately
+            df = pd.read_csv(import_fname, index_col=index_col, sep="\t")
 
-            if var <= .0001:
-                var = format_float_sci(var, precision=0, exp_digits=1)
-            elif var <= .001: # round to 4 decimal points and trim leading zero
-                var = format_float(var, precision=4, trim_leading=True)
-            elif var <= .05: # same as above but for 3 decimals
-                var = format_float(var, precision=3, trim_leading=True)
-            else:
+            var = df.loc[index_label, col_name]
+
+            if col_name == "p-val": # round appropriately
+
+                if var <= .0001:
+                    var = format_float_sci(var, precision=0, exp_digits=1)
+                elif var <= .001: # round to 4 decimal points and trim leading zero
+                    var = format_float(var, precision=4, trim_leading=True)
+                elif var <= .05: # same as above but for 3 decimals
+                    var = format_float(var, precision=3, trim_leading=True)
+                else:
+                    var = format_float(var, precision=2, trim_leading=True)
+
+            elif col_name == "W-val":
+                var = round_int_half_up(var)
+
+            elif col_name == "CLES":
                 var = format_float(var, precision=2, trim_leading=True)
 
-        elif col_name == "W-val":
-            var = round_int_half_up(var)
-
-        elif col_name == "CLES":
-            var = format_float(var, precision=2, trim_leading=True)
-
-        elif index_col == "scorer":
-            # round before multiplying to avoid half-up stuff
-            var = round(var, 2) * 100
-            var = int(var) 
+            elif index_col == "scorer":
+                # round before multiplying to avoid half-up stuff
+                var = round(var, 2) * 100
+                var = int(var) 
 
         row = [key, var]
         rowwriter.writerow(row)

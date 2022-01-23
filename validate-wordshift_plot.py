@@ -76,7 +76,7 @@ df = pd.read_csv(import_fname, index_col="ngram", sep="\t", encoding="utf-8")
 
 # Open a figure with 2 panels (one for lucid JDS and other for nightmare fear)
 # GRIDSPEC_ARGS = dict(left=.08, right=.98, bottom=.15, top=.98)
-figsize = (2, TOP_N/6)
+figsize = (2.2, TOP_N/7)
 fig, ax = plt.subplots(figsize=figsize, constrained_layout=True)
     # gridspec_kw=GRIDSPEC_ARGS)
 
@@ -95,8 +95,8 @@ XBOUNDS = dict(jsd=.02, fear=.15)
 CMAP_NAMES = dict(jsd="viridis", fear="coolwarm")
 
 XLABELS = {
-    "jsd"  : r"$\Delta$ relative proportion" + "\n" + r"non-lucid$\leftarrow$$\rightarrow$lucid       ",
-    "fear" : r"$\Delta$ relative proportion" + "\n" + r"non-nightmare$\leftarrow$$\rightarrow$nightmare       ",
+    "jsd"  : r"non-lucid$\leftarrow$ $\Delta$ frequency $\rightarrow$lucid       ",
+    "fear" : r"non-nightmare$\leftarrow$ $\Delta$ frequency $\rightarrow$nightmare       ",
 }
 YLABELS = {
     "jsd"  : "JSD word shift contribution rank",

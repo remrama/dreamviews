@@ -9,9 +9,11 @@ IMPORTS
     - posts, derivatives/dreamviews-posts.tsv
 EXPORTS
 =======
-    - visualization, results/describe-timecourse.png
+    - visualization,              results/describe-timecourse.png
+    - total post and user counts, results/describe-total_counts.json
 """
 import os
+import json
 import argparse
 import pandas as pd
 import config as c
@@ -33,6 +35,7 @@ RESTRICT = args.restrict
 ################################ I/O
 
 export_fname = os.path.join(c.DATA_DIR, "results", "describe-timecourse.png")
+export_fname_totals = os.path.join(c.DATA_DIR, "results", "describe-total_counts.json")
 if WHITE:
     export_fname = export_fname.replace(".png", "_WHITE.png")
 if RESTRICT:
@@ -253,8 +256,11 @@ users_txt = fr"$n_{{total}}={n_total_users}$"
 ax1a.text(.3, .9, counts_txt, transform=ax1a.transAxes, ha="left", va="top")
 ax2a.text(.3, .9, users_txt, transform=ax2a.transAxes, ha="left", va="top")
 
-
 # export
+total_counts = dict(n_total_posts=n_total_posts, n_total_users=n_total_users)
+with open(export_fname_totals, "w", encoding="utf-8") as outfile:
+    json.dump(total_counts, outfile, indent=4) 
+
 plt.savefig(export_fname)
 c.save_hires_figs(export_fname)
 plt.close()

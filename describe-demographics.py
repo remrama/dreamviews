@@ -206,7 +206,10 @@ myworld = world.merge(country_counts, left_on="iso_a3", right_index=True, how="l
 
 # myworld.plot(ax=ax, color="white", edgecolor="black")
 # norm = plt.matplotlib.colors.SymLogNorm(linthresh=20, vmin=1, vmax=2000, base=10)
-norm = plt.matplotlib.colors.LogNorm(vmin=1, vmax=2000)
+CMAX = 2000
+assert myworld["n_users"].max() <= CMAX, f"Colormap needs a higher max value than {CMAX}."
+norm = plt.matplotlib.colors.LogNorm(vmin=1, vmax=CMAX)
+
 myworld.plot(
     ax=ax, cax=cax, column="n_users",
     edgecolor="black", linewidth=.3,

@@ -48,17 +48,16 @@ ax.set_ybound(upper=10000)
 ax.spines["top"].set_visible(False)
 ax.spines["right"].set_visible(False)
 
-# LINE_ARGS = {
-#     "linewidth" : .5,
-#     "alpha"     : 1,
-#     "color"     : "black",
-#     "linestyle" : "dashed",
-#     "clip_on"   : False,
-# }
-# ax.axvline(c.MAX_POSTCOUNT, **LINE_ARGS)
-# ax.text(c.MAX_POSTCOUNT-10, 1, "max post cutoff",
-#     transform=ax.get_xaxis_transform(),
-#     ha="right", va="top", fontsize=10)
+LINE_ARGS = {
+    "linewidth" : .5,
+    "alpha"     : 1,
+    "color"     : "black",
+    "linestyle" : "dashed",
+    "clip_on"   : False,
+}
+ax.axvline(c.MAX_POSTCOUNT, **LINE_ARGS)
+ax.text(c.MAX_POSTCOUNT-10, 1, "max post cutoff",
+    transform=ax.get_xaxis_transform(), ha="right", va="top")
 
 minor_tick_loc = np.diff(bins).mean()
 ax.set_xlim(0, c.MAX_POSTCOUNT)
