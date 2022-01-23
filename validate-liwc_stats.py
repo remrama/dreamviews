@@ -85,7 +85,7 @@ stats = pd.concat(wilcoxon_results
     ).drop(columns="alternative")
 
 # export
-stats.to_csv(export_fname_stats, float_format="%.5f", index=True, na_rep="NA", sep="\t", encoding="utf-8")
+stats.to_csv(export_fname_stats, index=True, na_rep="NA", sep="\t", encoding="utf-8")
 
 
 
