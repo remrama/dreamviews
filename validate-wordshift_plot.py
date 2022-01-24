@@ -103,7 +103,7 @@ YLABELS = {
     "fear" : "NRC fear word shift contribution rank",
 }
 CLABELS = {
-    "jsd"  : r"common $\leftarrow$ entropy $\rightarrow$ surprising",
+    "jsd"  : r"common $\leftarrow$ entropy $\rightarrow$ rare         ",
     "fear" : r"low  $\leftarrow$ fear intensity $\rightarrow$ high",
 } #r"$\leftarrow$ corpus avg $\rightarrow$"
 

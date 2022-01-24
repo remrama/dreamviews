@@ -103,7 +103,7 @@ YMIN = 1.9
 YMAX = 3.4
 FIGSIZE = (1.7, 2)
 GRIDSPEC_ARGS = dict(height_ratios=[15, 1], hspace=.04,
-    top=.99, right=.94, bottom=.1, left=.16)
+    top=.99, right=.96, bottom=.1, left=.16)
 
 # generate data for plotting
 row_indx = pd.MultiIndex.from_product([LIWC_CATS, LUCID_ORDER])
@@ -134,8 +134,8 @@ ax2.spines["top"].set_visible(False)
 ax1.tick_params(bottom=False)
 
 # draw the slanted hatch lines
-D = .5  # proportion of vertical to horizontal extent of the slanted line
-kwargs = dict(marker=[(-1, -D), (1, D)], markersize=12,
+D = .5  # proportion of vertical to horizontal extent of the slanted line (0 is flat and increasing rotates ccw)
+kwargs = dict(marker=[(-1, -D), (1, D)], markersize=8,
               linestyle="none", color="k", mec="k", mew=1, clip_on=False)
 ax1.plot([0, 1], [0, 0], transform=ax1.transAxes, **kwargs)
 ax2.plot([0, 1], [1, 1], transform=ax2.transAxes, **kwargs)
