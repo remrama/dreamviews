@@ -136,7 +136,7 @@ ax.set_xlabel("Cohen's $\it{d}$ effect size"
 ax.xaxis.set(major_locator=plt.MultipleLocator(.5),
              minor_locator=plt.MultipleLocator(.1),
              major_formatter=plt.FuncFormatter(c.no_leading_zeros))
-ax.set_ylabel("word contribution rank", labelpad=-6)
+ax.set_ylabel("word rank", labelpad=-6)
 ax.yaxis.set(major_locator=plt.FixedLocator(yticklocs))
 topax.set_ylim(-1, 1)
 topax.yaxis.set(major_locator=plt.NullLocator())
