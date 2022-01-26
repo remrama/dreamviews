@@ -13,10 +13,10 @@ MAX_WORDCOUNT = 1000
 MAX_POSTCOUNT = 1000 # limiting the number of posts a single user can have
 
 COLORS = {
-    "lucid"        : "royalblue",
-    "nonlucid"     : "darkorange",
-    "unspecified"  : "bisque",
-    "ambiguous"    : "#c69c6d",
+    "lucid"        : "#3a90fe",
+    "nonlucid"     : "#a89008",
+    "unspecified"  : "#ededec", # lucid/nonlucid midpoint on divergent cmap
+    "ambiguous"    : "#719083", # lucid/nonlucid blend
     "nightmare"    : "red",
     "novel-user"   : "gold",
     "repeat-user"  : "goldenrod",

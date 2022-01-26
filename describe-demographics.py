@@ -18,6 +18,7 @@ import geopandas
 
 import config as c
 
+import colorcet as cc
 import seaborn as sea
 import matplotlib.pyplot as plt
 c.load_matplotlib_settings()
@@ -210,10 +211,13 @@ CMAX = 2000
 assert myworld["n_users"].max() <= CMAX, f"Colormap needs a higher max value than {CMAX}."
 norm = plt.matplotlib.colors.LogNorm(vmin=1, vmax=CMAX)
 
+# colormap = "viridis"
+# jsd  --> bgy, bmy, CET_L8, kgy, dimgray
+colormap = cc.cm.bgy
 myworld.plot(
     ax=ax, cax=cax, column="n_users",
     edgecolor="black", linewidth=.3,
-    cmap="viridis", norm=norm,
+    cmap=colormap, norm=norm,
     legend=True, legend_kwds=dict(label=r"$n$ users", orientation="vertical"),
     missing_kwds=dict(facecolor="gainsboro", linewidth=.1),
 )

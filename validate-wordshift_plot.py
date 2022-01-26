@@ -14,6 +14,7 @@ import numpy as np
 import pandas as pd
 import config as c
 
+import colorcet as cc
 import matplotlib.pyplot as plt
 
 c.load_matplotlib_settings()
@@ -92,7 +93,10 @@ BAR_ARGS = dict(linewidth=.5, height=.8, edgecolor="black")
 # It's in data units so might need to be played with, and different for each panel.
 XBOUNDS = dict(jsd=.02, fear=.15)
 
-CMAP_NAMES = dict(jsd="viridis", fear="coolwarm")
+# CMAP_NAMES = dict(jsd="viridis", fear="coolwarm")
+CMAP_NAMES = dict(jsd="bgy", fear="cwr")
+# fear --> CET_CBTD1/cwr, CET_D1/coolwarm
+# jsd  --> bgy, bmy, CET_L8, CET_L17, kgy, dimgray
 
 XLABELS = {
     "jsd"  : r"non-lucid$\leftarrow$ $\Delta$ frequency $\rightarrow$lucid       ",
@@ -132,8 +136,10 @@ colors = top_df["type2s_ref_diff"].values   # color values for each bar (applied
 alphas = top_df["type2s_diff"].values       # alpha values for each bar
 # cmap_vals = top_df["type2s_diff_weighted"].values
 
-# Select colormap
-cmap = plt.get_cmap(CMAP_NAMES[SHIFT_ID])
+### Select colormap
+# cmap = plt.get_cmap(CMAP_NAMES[SHIFT_ID])
+cmap = cc.__dict__["m_" + CMAP_NAMES[SHIFT_ID]] # m_ specifies matplotlib cmap in colorcet
+# import seaborn as sea; cmap = sea.color_palette("vlag", as_cmap=True)
 # Select normalization for the colormaps and mask out fear scale
 if SHIFT_ID == "jsd":
     # clist = [c.COLORS["nonlucid"], "white", c.COLORS["lucid"]]

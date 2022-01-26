@@ -15,6 +15,7 @@ import numpy as np
 import pandas as pd
 import config as c
 
+# import colorcet as cc
 import seaborn as sea
 import matplotlib.pyplot as plt
 c.load_matplotlib_settings()
@@ -75,6 +76,7 @@ g.plot_joint(sea.histplot,
               # "format" : plt.ScalarFormatter()},
     ### passed to pcolormesh
     cmap=sea.light_palette(c.COLORS["ambiguous"], as_cmap=True),
+    # cmap=cc.cm.kgy,
 )
 
 ####### Set color to log scale.
