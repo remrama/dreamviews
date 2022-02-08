@@ -94,7 +94,7 @@ BAR_ARGS = dict(linewidth=.5, height=.8, edgecolor="black")
 XBOUNDS = dict(jsd=.02, fear=.15)
 
 # CMAP_NAMES = dict(jsd="viridis", fear="coolwarm")
-CMAP_NAMES = dict(jsd="bgy", fear="cwr")
+CMAP_NAMES = dict(jsd="bgy", fear="coolwarm")
 # fear --> CET_CBTD1/cwr, CET_D1/coolwarm
 # jsd  --> bgy, bmy, CET_L8, CET_L17, kgy, dimgray
 
@@ -107,7 +107,8 @@ YLABELS = {
     "fear" : "NRC fear word shift contribution rank",
 }
 CLABELS = {
-    "jsd"  : r"common $\leftarrow$ entropy $\rightarrow$ rare         ",
+    #"jsd"  : r"common $\leftarrow$ $\Delta$ entropy $\rightarrow$ rare         ",
+    "jsd"  : r"corpus $\leftarrow$ $\Delta$ entropy $\rightarrow$ lucid      ",
     "fear" : r"low  $\leftarrow$ fear intensity $\rightarrow$ high",
 } #r"$\leftarrow$ corpus avg $\rightarrow$"
 
@@ -148,6 +149,8 @@ if SHIFT_ID == "jsd":
     # norm = plt.Normalize(-cmax, cmax)
     # norm = plt.matplotlib.colors.CenteredNorm()
     cmin, cmax = colors.min(), colors.max()
+    cmin =  np.floor(cmin*10)/10 # round down to nearest 10th
+    cmax =  np.ceil(cmax*10)/10 # and up (bc that's the ticks)
     norm = plt.Normalize(vmin=cmin, vmax=cmax)
 elif SHIFT_ID == "fear":
     # NRC emotion scale in shifterator is 0-1
