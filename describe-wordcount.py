@@ -178,7 +178,6 @@ for i, fname in enumerate(export_fnames):
     ax.spines["top"].set_visible(False)
     ax.spines["right"].set_visible(False)
     ax.set_xlim(0, c.MAX_WORDCOUNT)
-    ax.tick_params(axis="both", which="both")
     ax.tick_params(axis="y", which="both", direction="in")
     ax.xaxis.set(major_locator=plt.MultipleLocator(MAJOR_XTICK_LOC),
                  minor_locator=plt.MultipleLocator(minor_tick_loc))

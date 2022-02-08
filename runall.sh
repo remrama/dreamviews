@@ -61,7 +61,7 @@ declare -a files2convert=(
   "validate-wordshift_proportion-ld1grams"
   "validate-wordshift_proportion-ld2grams"
 )
-for bn in "${arr[@]}"
+for bn in "${files2convert[@]}"
 do
   python tsv2latex.py --basename "${bn}"
 done
