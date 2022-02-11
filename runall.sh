@@ -52,16 +52,3 @@ if [[ -z "$1" ]]; then # no argument supplied (ie, run liwc)
   python validate-liwc_word_stats.py
   python validate-liwc_word_plot.py
 fi
-
-# cleanup
-declare -a files2convert=(
-  "describe-topcategories"
-  "describe-toptags"
-  "describe-wordcount"
-  "validate-wordshift_proportion-ld1grams"
-  "validate-wordshift_proportion-ld2grams"
-)
-for bn in "${files2convert[@]}"
-do
-  python tsv2latex.py --basename "${bn}"
-done

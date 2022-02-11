@@ -104,21 +104,3 @@ python validate-liwc_word_stats.py          # ==> DATA_DIR/results/validate-liwc
 python validate-liwc_word_plot.py -c agency # ==> DATA_DIR/results/validate-liwc_wordscores_agency-plot.png
 python validate-liwc_word_plot.py -c insight # ==> DATA_DIR/results/validate-liwc_wordscores_insight-plot.png
 ```
-
-
-### Cleanup
-
-```shell
-# Generate some latex tables from the tsv output, for manuscript.
-declare -a files2convert=(
-    "describe-topcategories"
-    "describe-toptags"
-    "describe-wordcount"
-    "validate-wordshift_proportion-ld1grams"
-    "validate-wordshift_proportion-ld2grams"
-)
-for bn in "${files2convert[@]}"
-do
-    python tsv2latex.py --basename "${bn}"  # ==> DATA_DIR/results/<bn>.tex
-done
-```
