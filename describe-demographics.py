@@ -19,7 +19,6 @@ import geopandas
 import config as c
 
 import colorcet as cc
-import seaborn as sea
 import matplotlib.pyplot as plt
 c.load_matplotlib_settings()
 
@@ -60,15 +59,17 @@ df["gender"] = pd.Categorical(df["gender"].fillna("unstated"),
     categories=GENDER_ORDER, ordered=True)
 
 # replace age NAs and bin age
-max_age = df["age"].max()
-CUT_BINS = [0, 20, 30, 40, max_age+1]
-CUT_LABELS = ["<20", "<30", "<40", "  40+"]
-CUT_LABELS_WITH_NA = ["<20", "<30", "<40", "  40+", "unstated"]
+assert df["age"].dropna().ge(18).all(), "Didn't expect any reported ages under 18."
+max_age = df["age"].dropna().astype(int).max()
+CUT_BINS = [18, 25, 35, 45, 55, 65, max_age+1]
+cut_labels = [ f"[{l}, {r})" for l, r in zip(CUT_BINS[:-1], CUT_BINS[1:]) ]
+cut_labels[-1] = cut_labels[-1].replace(str(max_age+1), r"$\infty$") #r"$\geq$65"
+cut_labels_with_na = cut_labels + ["unstated"]
 age_binned = pd.cut(df["age"],
-    bins=CUT_BINS, labels=CUT_LABELS,
+    bins=CUT_BINS, labels=cut_labels,
     right=False, include_lowest=True)
 df["age"] = pd.Categorical(age_binned,
-        categories=CUT_LABELS_WITH_NA,
+        categories=cut_labels_with_na,
         ordered=True
     ).fillna("unstated")
 
@@ -91,18 +92,18 @@ country_counts.to_csv(export_fname_locations, index=True, sep="\t", encoding="ut
 
 ######################### plot age and gender
 
-# generate a custom color palette with one colormap
-# for the binned ages and a blank/white for no info
-cmap = plt.get_cmap("plasma", len(CUT_LABELS))
-age_colors = cmap.colors
-age_colors = np.vstack([age_colors, [1,1,1,1]]) # add a white
-age_palette = { age: rgba for age, rgba in zip(CUT_LABELS_WITH_NA, age_colors) }
+# # generate a custom color palette with one colormap
+# # for the binned ages and a blank/white for no info
+# cmap = plt.get_cmap("plasma", len(CUT_LABELS))
+# age_colors = cmap.colors
+# age_colors = np.vstack([age_colors, [1,1,1,1]]) # add a white
+# age_palette = { age: rgba for age, rgba in zip(CUT_LABELS_WITH_NA, age_colors) }
 
-BAR_KWS = {
-    "linewidth" : .5,
-    "edgecolor" : "black",
-    "alpha" : 1,
-}
+# BAR_KWS = {
+#     "linewidth" : .5,
+#     "edgecolor" : "black",
+#     "alpha" : 1,
+# }
 
 # ###### open figure for both
 # # fig, (ax, ax2) = plt.subplots(ncols=2, figsize=(6,3),
@@ -123,42 +124,44 @@ BAR_KWS = {
 
 fig, ax = plt.subplots(figsize=(2, 2), constrained_layout=True)
 
-sea.histplot(data=df, x="gender", hue="age",
-    multiple="stack", stat="count", element="bars",
-    palette=age_palette,
-    hue_order=CUT_LABELS_WITH_NA[::-1],
-    ax=ax, legend=True,
-    **BAR_KWS)
 
-# # can't change the width on histplot
-# for ch in ax1.get_children():
-#     if isinstance(ch, plt.matplotlib.patches.Rectangle):
-#         ch.set_width(.8)
+n_genders = df["gender"].nunique()
+n_ages = df["age"].nunique()
 
-ax.set_ylabel(r"$n$ users")
-ax.set_xlabel("reported gender")#, labelpad=0)
-ax.tick_params(axis="x", which="major", labelrotation=25, pad=0)
-ax.set_xlim(-1, 4)
-ax.set_ylim(0, 2500)
-ax.yaxis.set(
-    major_locator=plt.MultipleLocator(500),
-    minor_locator=plt.MultipleLocator(100))
-ax.tick_params(axis="y", which="both",
-    direction="in", right=True)
+bins = range(n_genders+1)
+
+# Replace gender values with numeric so plot is in proper order.
+df["gender_int"] = df["gender"].cat.codes
+
+data = [ x for x in df.groupby("age")["gender_int"].apply(list) ]
+
+# Use colormap for sequential age colors, but leave last one white for unstated.
+age_colors = [ "white" if i==n_ages-1 else cc.cm.bgy(i/(n_ages-2)) for i in range(n_ages) ]
+
+ax.hist(data, bins=bins, align="left", rwidth=.8,
+    stacked=True, color=age_colors,
+    edgecolor="black", linewidth=.5)
+
+ax.set_xticks(bins[:-1])
+ax.set_xticklabels(GENDER_ORDER)
+ax.set_xlabel("Reported gender", labelpad=1)
+ax.set_ylabel(r"$n$ users", labelpad=2)
+ax.set_ybound(lower=0, upper=2500)
+ax.yaxis.set(major_locator=plt.LinearLocator(5+1),
+             minor_locator=plt.LinearLocator(5*5+1))
+ax.tick_params(axis="y", which="both", direction="inout", pad=2)
+ax.grid(axis="y", which="major", linewidth=1, color="gainsboro")
+ax.grid(axis="y", which="minor", linewidth=.5, color="gainsboro")
 ax.set_axisbelow(True)
-ax.yaxis.grid(which="major", color="gray", lw=.5)
-
-legend = ax.get_legend()
-handles = legend.legendHandles
-legend.remove()
-legend = ax.legend(title="reported age",
-    handles=handles, labels=CUT_LABELS_WITH_NA[::-1],
-    loc="upper left", bbox_to_anchor=(.3, .97),
-    borderaxespad=0, frameon=False,
-    labelspacing=0, # like rowspacing, vertical space between entries
-    handletextpad=.2, # space between markers and labels
-)
-# legend._legend_box.sep = 1 # brings title up farther on top of handles/labels
+legend_handles = [ plt.matplotlib.patches.Patch(
+        edgecolor="black" if c == "white" else "none",
+        linewidth=.3, facecolor=c, label=l)
+    for l, c in zip(cut_labels_with_na, age_colors) ]
+legend = ax.legend(handles=legend_handles[::-1], title="Reported age",
+    loc="upper left", bbox_to_anchor=(.27, 1), borderaxespad=0,
+    frameon=False, labelspacing=.1, handletextpad=.2)
+legend._legend_box.sep = 2 # brings title up farther on top of handles/labels
+legend._legend_box.align = "left"
 
 # export
 plt.savefig(export_fname_agegender_plot)

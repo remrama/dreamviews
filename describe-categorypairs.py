@@ -15,9 +15,9 @@ import numpy as np
 import pandas as pd
 import config as c
 
-# import colorcet as cc
-import seaborn as sea
+import colorcet as cc
 import matplotlib.pyplot as plt
+from mpl_toolkits.axes_grid1 import make_axes_locatable
 c.load_matplotlib_settings()
 
 
@@ -40,178 +40,184 @@ df_user = df[df["lucidity"].str.contains("lucid")
     )[SORT_ORDER]
 df_user.columns = df_user.columns.map(lambda c: "n_"+c)
 
-assert not df_user.gt(c.MAX_POSTCOUNT).any().any(), f"Noone should have more than {c.MAX_POSTCOUNT} posts"
+assert not df_user.gt(c.MAX_POSTCOUNT).any(axis=None), f"Noone should have more than {c.MAX_POSTCOUNT} posts"
 
 
 ################################# plotting
 
-# define bins (change if MAX_POSTCOUNT changes)
-bin_sets = [
-    np.linspace(0, 10, 11),
-    np.linspace(10, 100, 10)[1:],
-    np.linspace(100, 1000, 10)[1:],
-    np.array([2000])
-]
-bins = list(np.concatenate(bin_sets) - .5)
+SYMLOG_THRESH = 10
 
-# intialize the facetgrid/jointgrid (this doesn't draw anything)
-g = sea.JointGrid(data=df_user,
-    x="n_nonlucid", y="n_lucid",
-    marginal_ticks=True,
-    height=2.8,
-    ratio=6, # ratio of joint-to-marginal axis heights
-    space=.5, # space between joint and marginal axes
-)
+# Define bins.
 
-# create in inset axis for the colorbar legend
-cax = g.figure.add_axes([.32, .79, .25, .02])
+# This will set bins to end (inclusively) at 1000, so check that's okay.
+assert df_user.le(1000).all(axis=None), "Axis limits will cutoff data."
+bin_sets = [ np.arange(1, 11) * 10**i for i in range(3) ]
+bins = np.unique(np.concatenate(bin_sets))
+bins = np.append(0, bins)
 
-# draw the joint (main) axis
-g.plot_joint(sea.histplot,
-    ### passed to histplot
-    bins=bins, # ignored with discrete=True or (True, True)
-    cbar=True, cbar_ax=cax,
-    cbar_kws={"orientation" : "horizontal"},
-              # "ticks" : [1, 10, 100, 1000],
-              # "format" : plt.ScalarFormatter()},
-    ### passed to pcolormesh
-    cmap=sea.light_palette(c.COLORS["ambiguous"], as_cmap=True),
-    # cmap=cc.cm.kgy,
-)
 
-####### Set color to log scale.
-## Ran into some issues with JointGrid
-## where if you can't pass a custom norm to plot_joint
-## it raises a new error in matplotlib that wants you
-## to specify vmin/vmax in the norm object. I thin seaborn
-## sends default vmin/vmax unless you specify, but specifying
-## your own doesn't get around it bc they are still doubled up.
-## You need to tell seaborn to not send vmin/vmax when you
-## pass a norm object through. So to get around this I'm
-## applying norms to the data after the plot is generated.
+# Get data for plot.
+# H, xedges, yedges = np.histogram2d(x, y, bins=(xedges, yedges))
+# # Histogram does not follow Cartesian convention (see Notes),
+# # therefore transpose H for visualization purposes.
+# H = H.T
 
-# get QuadMesh that seaborn drew (should be first item in this list)
-mesh = g.ax_joint.get_children()[0]
-assert isinstance(mesh, plt.matplotlib.collections.QuadMesh)
-# apply log normalization to counts
-# Set min to 1, which should blank out any cells with zero.
-# Set max to 1000, which is sensible, there shouldn't be
-# more users than that in a given cell.
+
+X_VARIABLE = "lucid"
+Y_VARIABLE = "nonlucid"
+x_column = "n_" + X_VARIABLE
+y_column = "n_" + Y_VARIABLE
+
+fig, ax = plt.subplots(figsize=(3, 3), constrained_layout=True)
+
+# Set aspect of the main axes so it stays square.
+ax.set_aspect(1)
+
+# Create axes above and to the right.
+divider = make_axes_locatable(ax)
+ax_histx = divider.append_axes("top", .4, pad=.15, sharex=ax)
+ax_histy = divider.append_axes("right", .4, pad=.15, sharey=ax)
+
 COLOR_MAX = 1000
-assert mesh.get_array().max() <= COLOR_MAX, f"I didn't expect more than {COLOR_MAX} users in a cell"
-# norm = plt.matplotlib.colors.LogNorm(1, base=10, vmin=1, vmax=COLOR_MAX)
-norm = plt.matplotlib.colors.LogNorm(vmin=1, vmax=COLOR_MAX)
-mesh.set_norm(norm)
+color_norm = plt.matplotlib.colors.LogNorm(vmin=1, vmax=COLOR_MAX)
+colormap = cc.cm.dimgray_r # This still shows some gray on the limit.
 
-####### Set x and y axes to log scale.
-g.ax_joint.set_xscale("symlog") # symlog allows the axis to reach neative
-g.ax_joint.set_yscale("symlog")
-g.ax_joint.set_xbound(lower=bins[0], upper=bins[-1])
-g.ax_joint.set_ybound(lower=bins[0], upper=bins[-1])
+# Draw 2d histogram on main axis.
+h, xedges, yedges, img = ax.hist2d(x_column, y_column,
+    data=df_user, bins=bins,
+    norm=color_norm, cmap=colormap)
+    # cmin=1, cmax=None,
 
-####### colorbar aesthetics
-# cbar = g.ax_joint.get_children()[0].colorbar
-cbar = mesh.colorbar
-cbar.set_label(r"$n$ users",
-    x=1.1,        # higher value moves label to the right
-    labelpad=-17, # higher value moves label down
-    fontsize=8, va="center", ha="left")
-cax.tick_params(length=2)
+# Make sure the max set for colors was appropriate
+assert h.max() <= COLOR_MAX, f"I didn't expect more than {COLOR_MAX} users in a cell"
+
+ax.set_xscale("symlog", linthresh=SYMLOG_THRESH)
+ax.set_yscale("symlog", linthresh=SYMLOG_THRESH)
+# major_ticks = [ b for b in bins if b in [0, 1, 10, 100, 1000] ]
+# minor_ticks = [ b for b in bins if b not in [0, 1, 10, 100, 1000] ]
+major_ticks = plt.matplotlib.ticker.SymmetricalLogLocator(
+    base=10, linthresh=SYMLOG_THRESH)
+minor_ticks = plt.matplotlib.ticker.SymmetricalLogLocator(
+    base=10, linthresh=SYMLOG_THRESH, subs=np.linspace(.1, .9, 9))
+ax.xaxis.set(major_locator=major_ticks, minor_locator=minor_ticks)
+ax.yaxis.set(major_locator=major_ticks, minor_locator=minor_ticks)
+# major_formatter=plt.LogFormatter(base=10, labelOnlyBase=True,
+#     linthresh=symlog_lthresh),)
+
+# ax.tick_params(which="both", axis="both", direction="inout")
+
+
+# ###### Colorbar legend.
+
+# Create inset axis for the colorbar legend.
+# cax = fig.add_axes([.32, .79, .25, .02])
+from mpl_toolkits.axes_grid1.inset_locator import inset_axes
+cax = inset_axes(ax, width="3%", height="30%", loc="upper right", borderpad=.2) 
+
+sm = plt.cm.ScalarMappable(cmap=colormap, norm=color_norm)
+cbar = fig.colorbar(sm, cax=cax, orientation="vertical", ticklocation="left")
+# cbar = matplotlib.colorbar.ColorbarBase(ax, cmap=cmap, norm=norm)
+# cbar.outline.set_linewidth(.5)
+# cbar.outline.set_visible(False)
+cbar.ax.tick_params(which="major", size=3, direction="in", color="white", pad=1)#length=2
+cbar.ax.tick_params(which="minor", size=0, direction="in", color="white")
+cbar.ax.set_axisbelow(False)
 # cbar.locator = plt.LogLocator(base=10)
 # cbar.formatter = plt.ScalarFormatter()
+# cbar.ax.yaxis.set(minor_locator=plt.NullLocator())
+cbar.set_label(r"$n$ users", labelpad=0)
+    # x=1.1,        # higher value moves label to the right
+    # labelpad=-17, # higher value moves label down
+    # va="center", ha="left")
 # cbar.update_ticks()
-# cbar.ax.set_title
-# cbar.set_ticks
-
-# joint axis aesthetics
-g.ax_joint.set(
-    xlabel=r"$n$ non-lucid posts",
-    ylabel=r"$n$ lucid posts",
-    xscale="symlog",
-    yscale="symlog", # linthreshy=1???
-    xlim=(-.5, 1000),
-    ylim=(-.5, 1000),
-)
-g.ax_joint.xaxis.set(major_formatter=plt.ScalarFormatter())
-g.ax_joint.yaxis.set(major_formatter=plt.ScalarFormatter())
-# g.ax_joint.yaxis.set(minor_locator=MinorSymLogLocator(1))
-
-# plot marginal axis distributions
-g.plot_marginals(sea.histplot,
-    bins=bins, fill=False, discrete=False,
-    cumulative=True, lw=1, color="black",
-    clip_on=True, element="step")
 
 
-# I set the colorbar max at 1000,
-# so make sure there aren't any cells exceeding that!
-mesh = g.ax_joint.get_children()[0]
-max_mesh_val = mesh.get_array().data.max()
-assert max_mesh_val <= 1000
-
-# manually change colors bc I don't see a way at the initial stage
-x_polys = g.ax_marg_x.get_children()[0] # gets poly collection
-y_polys = g.ax_marg_y.get_children()[0]
-x_polys.set_color(c.COLORS["nonlucid"])
-y_polys.set_color(c.COLORS["lucid"])
-
-# unlike when using JointPlot, setting
-# marginal_ticks=True with JointGrid as
-# done here also sets the axis labels as
-# visible=False, so need to undo that
-g.ax_marg_x.yaxis.label.set_visible(True)
-g.ax_marg_y.xaxis.label.set_visible(True) # not using this one now but to avoid potential later confusion
+ax.spines["top"].set_visible(False)
+ax.spines["right"].set_visible(False)
 
 
-# marginal axis aesthetics
-MARGINAL_YMAX = 5000
-MAJOR_TICK_LOC = 5000
-MINOR_TICK_LOC = 1000
-GRID_ARGS = {
-    "linewidth" : .5,
-    "color"     : "gainsboro",
-    "alpha"     : 1,
-}
-g.ax_marg_x.set(ylim=(0, MARGINAL_YMAX), ylabel=r"$n$ users")
-g.ax_marg_y.set(xlim=(0, MARGINAL_YMAX), xlabel="", xticklabels=[])
-g.ax_marg_x.yaxis.set(major_locator=plt.MultipleLocator(MAJOR_TICK_LOC),
-                      minor_locator=plt.MultipleLocator(MINOR_TICK_LOC))
-g.ax_marg_y.xaxis.set(major_locator=plt.MultipleLocator(MAJOR_TICK_LOC),
-                      minor_locator=plt.MultipleLocator(MINOR_TICK_LOC))
-g.ax_marg_x.grid(axis="y", which="both", **GRID_ARGS)
-g.ax_marg_y.grid(axis="x", which="both", **GRID_ARGS)
-g.ax_joint.spines["top"].set_visible(True)
-g.ax_marg_x.spines["top"].set_visible(True)
-g.ax_marg_y.spines["top"].set_visible(True)
-g.ax_joint.spines["right"].set_visible(True)
-g.ax_marg_x.spines["right"].set_visible(True)
-g.ax_marg_y.spines["right"].set_visible(True)
+############## Plot the marginal distributions.
+### Normal bars on main and cumulative on twin.
 
+ax_histx_twin = ax_histx.twinx()
+ax_histy_twin = ax_histy.twiny()
+
+BARHIST_KWARGS = dict(linewidth=.5, edgecolor="black", alpha=.8)
+LINEHIST_KWARGS = dict(linewidth=1, cumulative=True, histtype="step")
+HIST_KWARGS = dict(data=df_user, bins=bins)
+
+# Normal bars.
+n, bins, patches = ax_histx.hist(x_column, color=c.COLORS[X_VARIABLE], **HIST_KWARGS, **BARHIST_KWARGS)
+n, bins, patches = ax_histy.hist(y_column, orientation="horizontal", color=c.COLORS[Y_VARIABLE], **HIST_KWARGS, **BARHIST_KWARGS)
+
+# Cumulative lines on the opposite axes.
+n, bins, patches = ax_histx_twin.hist(x_column, color=c.COLORS[X_VARIABLE], **HIST_KWARGS, **LINEHIST_KWARGS)
+n, bins, patches = ax_histy_twin.hist(y_column, orientation="horizontal", color=c.COLORS[Y_VARIABLE], **HIST_KWARGS, **LINEHIST_KWARGS)
+
+
+# Clear out some labels.
+ax_histx.tick_params(labelbottom=False)
+ax_histy.tick_params(labelbottom=False, labelleft=False)
+ax_histy_twin.tick_params(labeltop=False)
+
+# Set marginal limits and give them all same ticks.
+MARGINAL_YMAX_TWIN = 4000
+marginal_ymax = MARGINAL_YMAX_TWIN//2
+ax_histx.set_ybound(upper=marginal_ymax)
+ax_histy.set_xbound(upper=marginal_ymax)
+ax_histx_twin.set_ybound(upper=MARGINAL_YMAX_TWIN)
+ax_histy_twin.set_xbound(upper=MARGINAL_YMAX_TWIN)
+ax_histx.yaxis.set(major_locator=plt.LinearLocator(numticks=2), minor_locator=plt.LinearLocator(numticks=5))
+ax_histy.xaxis.set(major_locator=plt.LinearLocator(numticks=2), minor_locator=plt.LinearLocator(numticks=5))
+ax_histx_twin.yaxis.set(major_locator=plt.LinearLocator(numticks=2), minor_locator=plt.LinearLocator(numticks=5))
+ax_histy_twin.xaxis.set(major_locator=plt.LinearLocator(numticks=2), minor_locator=plt.LinearLocator(numticks=5))
+
+xlabel = r"$n$ " + X_VARIABLE.replace("nl", "n-l") + " posts"
+ylabel = r"$n$ " + Y_VARIABLE.replace("nl", "n-l") + " posts"
+ax_histx.set_ylabel(r"$n$ users", labelpad=3)
+ax.set_xlabel(xlabel, labelpad=0)
+ax.set_ylabel(ylabel, labelpad=2)
+ax_histx.set_ylabel(r"$n$ users", labelpad=1)
+# ax_histx_twin.set_ylabel("cumulative", rotation=0, labelpad=0)
+ax_histx_twin.set_ylabel("cumulative\n"+r"$n$ users",
+    rotation=0, labelpad=-17, y=.75, ha="left", linespacing=1)
+
+
+MARGINAL_GRID_KWARGS = dict(color="gainsboro", linewidth=.5, alpha=1)
+ax_histx.grid(axis="y", which="both", **MARGINAL_GRID_KWARGS)
+ax_histy.grid(axis="x", which="both", **MARGINAL_GRID_KWARGS)
+ax_histx.set_axisbelow(True)
+ax_histy.set_axisbelow(True)
 
 # mark the relevant (>=1) paired data on all axes
 # (box on the joint and lines on the marginals)
 # (see also g.refline)
-LINE_ARGS = {
-    "color" : "black",
-    "linewidth" : 1,
-    "linestyle" : "dashed",
-}
-g.ax_joint.hlines(.5, xmin=.5, xmax=1000, **LINE_ARGS)
-g.ax_joint.vlines(.5, ymin=.5, ymax=1000, **LINE_ARGS)
-g.ax_marg_x.axvline(.5, zorder=0, **LINE_ARGS)
-g.ax_marg_y.axhline(.5, zorder=0, **LINE_ARGS)
+LINE_KWARGS = dict(linewidth=1, color="black")
+for cut in [1, 20]:
+    if cut == 1:
+        more_line_kwargs = dict(linestyle="dashed", alpha=1)
+    else:
+        more_line_kwargs = dict(linestyle="dotted", alpha=1)
+    ax.hlines(cut, xmin=cut, xmax=bins[-1], **LINE_KWARGS, **more_line_kwargs)
+    ax.vlines(cut, ymin=cut, ymax=bins[-1], **LINE_KWARGS, **more_line_kwargs)
+    ax_histx_twin.axvline(cut, **LINE_KWARGS, **more_line_kwargs)
+    ax_histy_twin.axhline(cut, **LINE_KWARGS, **more_line_kwargs)
 
 # add some text also emphasizing the >= 1 part
 n_paired = df_user.all(axis=1).sum()
 txt = (r"$n_{users}=$" + rf"${n_paired}$"
     + "\n with "+r"$\geq1$"+" lucid and "+r"$\geq1$"+" non-lucid")
-g.ax_joint.text(800, .6, txt,
-    fontsize=8, ha="right", va="bottom")
+ax.text(1, .06, txt, transform=ax.transAxes, ha="right", va="bottom")
+
+n_twenty = df_user.ge(20).all(axis=1).sum()
+txt = r"$n_{users}=$" + rf"${n_twenty}$" + ", " + r"$\geq20$"+" of each"
+ax.text(1, .47, txt, transform=ax.transAxes, ha="right", va="bottom")
+
 
 
 # export plots and table
 df_user.to_csv(export_fname_table, sep="\t", index=True, encoding="utf-8")
 plt.savefig(export_fname_plot)
-c.save_hires_figs(export_fname_plot)
+c.save_hires_figs(export_fname_plot, hires_extensions=[".pdf", ".svg"])
 plt.close()
 

@@ -1,5 +1,5 @@
 import os
-DATA_DIR = "~/PROJECTS/dreamviews_ds/data"
+DATA_DIR = "../data"
 DATA_DIR = os.path.expanduser(DATA_DIR)
 
 BLOG_TIMESTAMP_FORMAT = "%m-%d-%Y at %I:%M %p"
@@ -15,7 +15,7 @@ MAX_POSTCOUNT = 1000 # limiting the number of posts a single user can have
 COLORS = {
     "lucid"        : "#3a90fe",
     "nonlucid"     : "#a89008",
-    "unspecified"  : "#ededec", # lucid/nonlucid midpoint on divergent cmap
+    "unspecified"  : "darkgray",
     "ambiguous"    : "#719083", # lucid/nonlucid blend
     "nightmare"    : "red",
     "novel-user"   : "gold",
