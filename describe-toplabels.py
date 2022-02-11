@@ -48,6 +48,7 @@ for col in ["tags", "categories"]:
     res = res[ res["n_users"] >= N_MIN_LABELS ]
 
     res = res.sort_values("n_posts", ascending=False)
+    res.index = res.index.str.replace("_", " ")
 
     # export
     export_fname = os.path.join(c.DATA_DIR, "results", f"describe-top{col}.tsv")
