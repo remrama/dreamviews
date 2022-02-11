@@ -45,6 +45,7 @@ python clean-users.py                       # ==> DATA_DIR/derivatives/dreamview
 ```shell
 # Visualize the amount of data over time.
 python describe-timecourse.py               # ==> DATA_DIR/results/describe-timecourse.png
+                                            # ==> DATA_DIR/results/describe-totalcounts.tsv
 python describe-usercount.py                # ==> DATA_DIR/results/describe-usercount.png
 
 # Identify the top labels (categories and tags).
