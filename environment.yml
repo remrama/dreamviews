@@ -6,9 +6,7 @@
 ######
 ###### $ conda env create --file environment.yml
 ######
-###### See environment-versions.yml
-###### and environment-builds.yml
-###### for varying levels of specified detail.
+###### See environment.txt for versions and builds.
 ######
 
 name: dv_ds
@@ -26,6 +24,7 @@ dependencies:
 
   - matplotlib                      # data visualization
   - seaborn                         # data visualization
+  - colorcet                        # data visualization - colormaps
   - conda-forge::geopandas          # data visualization - choropleth
 
   - beautifulsoup4                  # web scraping
