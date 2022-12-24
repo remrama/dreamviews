@@ -1,6 +1,6 @@
 import colorcet as cc
 
-cmap = cc.cm.bwy # CET_CBD1
+cmap = cc.cm.bwy  # CET_CBD1
 
 for val, name in [(0., "low"), (.5, "mid"), (1., "high")]:
     rgb_decimals = cmap(val) # must be float!!

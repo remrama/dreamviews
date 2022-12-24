@@ -1,4 +1,5 @@
-"""Visualize the amount of data for each label/category of interest
+"""
+Visualize the amount of data for each label/category of interest
 (ie, lucid, non-lucid, and nightmare labels).
 
 Use a venn diagram to see how often the labels overlap.
@@ -10,43 +11,35 @@ EXPORTS
 =======
     - visualization, results/describe-categorycounts.png
 """
-import os
+from matplotlib_venn import venn2, venn3
+import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
+
 import config as c
 
-import matplotlib.pyplot as plt
-from matplotlib_venn import venn2, venn3
 c.load_matplotlib_settings()
 
 
+export_path = c.DATA_DIR / "results" / "describe-categorycounts.png"
 
-######################## I/O
-
-export_fname = os.path.join(c.DATA_DIR, "results", "describe-categorycounts.png")
-
+# Load data.
 df = c.load_dreamviews_posts()
 df = df.set_index("post_id")
-
-# make new columns that denote lucid/non-lucid, independent of overlap
+# Make new columns that denote lucid/non-lucid, independent of overlap.
 df["lucid"]    = df["lucidity"].isin(["ambiguous", "lucid"])
 df["nonlucid"] = df["lucidity"].isin(["ambiguous", "nonlucid"])
 # and unspecified by itself for smaller/bottom axis
 df["unspecified"] = df["lucidity"].eq("unspecified")
 
-
-
 ######################## define some stuff
-
 VENN_ORDER_1 = ["nonlucid", "lucid", "nightmare"]
 # VENN_ORDER_2 = ["unspecified", "nightmare"]
-
 VENN_ARGS = {
     "alpha" : .4,
     "subset_label_formatter" : None,
     "normalize_to" : 1,
 }
-
 FIGSIZE = (2.4, 2.3)
 GRIDSPEC_ARGS = dict(bottom=0, top=1, left=0, right=1)
 
@@ -152,12 +145,10 @@ def draw_venn_plot(ax, columns):
         # vlabel.set_fontsize(8)
 
 
-
 draw_venn_plot(ax=ax1, columns=VENN_ORDER_1)
 # draw_venn_plot(ax=ax2, columns=VENN_ORDER_2)
 
-
-plt.savefig(export_fname)
-# leave out eps bc of transparency
-c.save_hires_figs(export_fname, hires_extensions=[".svg", ".pdf"])
+# Export.
+plt.savefig(export_path)
+plt.savefig(export_path.with_suffix(".pdf"))
 plt.close()

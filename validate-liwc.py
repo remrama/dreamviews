@@ -1,4 +1,5 @@
-"""Run custom LIWC analysis.
+"""
+Run custom LIWC analysis.
 
 IMPORTS
 =======
@@ -35,42 +36,36 @@ is important for some LIWC categories. Then the liwc-python package
 This combo might be slightly different than "official" LIWC, but any
 differences overall are likely minimal, and with such great benefits!
 """
-import os
-import tqdm
 import argparse
+from collections import Counter
+
+import liwc
+import nltk
 import numpy as np
 import pandas as pd
+from scipy import sparse
+import tqdm
+
 import config as c
 
-from scipy import sparse
 
-from collections import Counter
-import nltk
-import liwc
-
-
-
-
-# handle command-line arguments
 parser = argparse.ArgumentParser()
 parser.add_argument("-w", "--words", action="store_true", help="Get individual word contributions. Slower, more memory, extra files.")
 args = parser.parse_args()
 
 GET_WORD_CONTRIBUTIONS = args.words
 
-
-# allow for progress bar using pandas
+# Turn on pandas progress bar.
 tqdm.tqdm.pandas(desc="word-level LIWCing" if GET_WORD_CONTRIBUTIONS else "LIWCing")
-
 
 ############################ I/O
 
 # identify filenames
-dict_fname = os.path.join(c.DATA_DIR, "dictionaries", "custom.dic")
-export_fname = os.path.join(c.DATA_DIR, "derivatives", "validate-liwc_scores.tsv")
+dict_fname = c.DATA_DIR / "dictionaries" / "custom.dic"
+export_fname = c.DATA_DIR / "derivatives" / "validate-liwc_scores.tsv"
 if GET_WORD_CONTRIBUTIONS:
-    export_fname2 = os.path.join(c.DATA_DIR, "derivatives", "validate-liwc_wordscores-data.npz")
-    export_fname3 = os.path.join(c.DATA_DIR, "derivatives", "validate-liwc_wordscores-attr.npz")
+    export_fname2 = c.DATA_DIR / "derivatives" / "validate-liwc_wordscores-data.npz"
+    export_fname3 = c.DATA_DIR / "derivatives" / "validate-liwc_wordscores-attr.npz"
 
 # load data
 df = c.load_dreamviews_posts()
@@ -87,7 +82,6 @@ if GET_WORD_CONTRIBUTIONS:
     vocab_stems = set([ t.rstrip("*") for t in vocab if t.endswith("*") ])
 
 
-
 ############################ create an appropriate tokenizer for liwc
 
 # LIWC vocab includes lots of apostrophed and hyphenated words, and emojis.
@@ -99,7 +93,6 @@ def tokenize4liwc(doc):
     # remove isolated puncuation
     tokens = [ t for t in tokens if not (len(t)==1 and not t.isalpha()) ]
     return tokens
-
 
 
 ############################ run LIWC
@@ -190,7 +183,7 @@ else: # The more complex case of wanting individual word frequencies.
     cats.to_csv(export_fname, sep="\t", encoding="utf-8", index=True, float_format="%.2f")
     # toks.to_csv(export_fname_toks, sep="\t", encoding="utf-8", index=True, float_format="%.2f")
 
-    # export the word-level results
+    # Export the word-level results.
     M = sparse.csr_matrix(toks.values)
     T = toks.columns.values
     P = toks.index.values

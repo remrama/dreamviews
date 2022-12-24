@@ -1,36 +1,34 @@
 """
-Cleaning/reducing the raw user file.
+Clean/reduce the raw user file.
 
-There is a lot of likely useless user info
-that won't be in the final output file.
-
-Main time consumption is getting standardized country codes.
+There is a lot of likely useless user info that won't be in the final output file.
+Only takes a while because of the standardized country codes.
 """
-import os
-import re
-import tqdm
 import json
+import re
 import zipfile
-import pycountry
-import pandas as pd
+
 from bs4 import BeautifulSoup
+import pandas as pd
+import pycountry
+import tqdm
+
 import config as c
 
 
-export_fname = os.path.join(c.DATA_DIR, "derivatives", "dreamviews-users.tsv")
+export_path = c.DATA_DIR / "derivatives" / "dreamviews-users.tsv"
+import_path_html = c.DATA_DIR / "source" / "dreamviews-users.zip"
+import_path_userkey = c.DATA_DIR / "derivatives" / "dreamviews-users_key.json"
 
-import_fname_html = os.path.join(c.DATA_DIR, "source", "dreamviews-users.zip")
-import_fname_user_key = os.path.join(c.DATA_DIR, "derivatives", "dreamviews-users_key.json")
-
-
-# select which columns survive to final output file
-KEEP_COLUMNS = [ ## never include "biography" which sometimes has real names
+# Select which columns will be included in the output file.
+# WARNING: Never include "biography" which sometimes has real names.
+keep_columns = [
     "gender",
     "age",
     "country",
 ]
 
-USER_ATTRIBUTES = [ # these all get lowercased and cleaned when turned into columns
+user_attributes = [ # these all get lowercased and cleaned when turned into columns
     "Join Date", "Last Activity", "Wiki Contributions",
     "DJ Entries", "Age", "Country Flag:", "Location:",
     "Gender:", "LD Count:", "Biography:", "Interests:",
@@ -49,72 +47,53 @@ USER_ATTRIBUTES = [ # these all get lowercased and cleaned when turned into colu
     "Dream Journal", "Custom", "Points spend in Shop"
 ]
 
-
-
-
-
 # Load in key to get unique anonymous user IDs from the raw IDs.
-with open(import_fname_user_key, "rt", encoding="utf-8") as f:
-    user_raw2id_key = json.load(f)
+with open(import_path_userkey, "rt", encoding="utf-8") as f:
+    user_mapping = json.load(f)
 
-
+data = {}
 # Loop over all the raw html files and get user info from each.
-
-with zipfile.ZipFile(import_fname_html, mode="r") as zf:
-    fnames = zf.namelist()
-    all_user_data = {}
-    for fn in tqdm.tqdm(fnames, desc="parsing html user pages"):
+with zipfile.ZipFile(import_path_html, mode="r") as zf:
+    filenames = zf.namelist()
+    for fn in tqdm.tqdm(filenames, desc="DreamViews user cleaner"):
         # get the anonymized username
         username = fn[:-5] # remove ".html" off the end
-        user_id = user_raw2id_key[username]
+        user_id = user_mapping[username]
         html = zf.read(fn) # read in the html file
         soup = BeautifulSoup(html, "html.parser", from_encoding="windows-1252")
-        ### All good info is within <dt> tags.
-        ### But not all users have all <dt> tags,
-        ### and there are some unwanted <dt> tags.
-        ### So grab all the <dt> tags and search
-        ### for those desired. If a user doesn't
-        ### have them, it just won't get added.
-        ###
-        ### All <dt> tags are immediately followed
-        ### by a <dd> tag that has the response info.
+        ## All good info is within <dt> tags. But not all users have all <dt> tags,
+        ## and there are some unwanted <dt> tags. So grab all the <dt> tags and search
+        ## for those desired. If a user doesn't have them, it just won't get added.
+        ## All <dt> tags are immediately followed by a <dd> tag that has the response info.
         all_dt_tags = soup.find_all("dt")
-        single_user_data = {}
+        user_data = {}
         for dt_tag in all_dt_tags:
             header = dt_tag.get_text()
-            if header in USER_ATTRIBUTES:
+            if header in user_attributes:
                 response = dt_tag.find_next("dd").get_text(separator=" ", strip=True)
-                # replace commas if it's in a number
+                # Replace any numerical commas.
                 if len(response.replace(",", "")) == sum([ char.isdigit() for char in response ]):
                     response = response.replace(",", "")
-                # minor cleanup for the attribute name before using it as a dict key
+                # Clean up the attribute name before using it as a dictionary key.
                 attr_key = header.rstrip(":").replace(" ", "_").lower()
-                single_user_data[attr_key] = response
-
-        if single_user_data:
-            all_user_data[user_id] = single_user_data
-
-
+                user_data[attr_key] = response
+        if user_data:
+            data[user_id] = user_data
 
 # Aggregate user data into a dataframe.
 df = pd.DataFrame.from_dict(all_user_data, orient="index")
 
-# convert join date to year-month-day
-# other date columns (last_activity and most_recent_message)
-# could also be converted but they aren't that useful and
-# sometimes have they "Today/Yesterday" in them.
-# Not keeping any of them anyways so don't worry about converting.
+# Convert join date to year-month-day other date columns (last_activity and
+# most_recent_message) could also be converted but they aren't that useful and
+# sometimes have they "Today/Yesterday" in them. Not keeping any of them anyways
+# so don't worry about converting.
 df["join_date"] = pd.to_datetime(df["join_date"],
     format="%m-%d-%Y").dt.strftime("%Y-%m-%d")
 
-df.sort_values(["join_date", "last_activity"], inplace=True)
+df = df.sort_values(["join_date", "last_activity"])
 
-
-###################################################
-###############  Get country codes  ###############
-###################################################
-
-COUNTRY_REPLACEMENTS = {
+# Get country codes.
+country_replacements = {
     "USA" : "United States",
     "Vanutau" : "Vanuatu",
     "BosniaHerzegovina" : "Bosnia and Herzegovina",
@@ -134,23 +113,19 @@ COUNTRY_REPLACEMENTS = {
     "HeardIslandandMcDonald" : "Heard Island and McDonald Islands",
     "Iran" : "Iran, Islamic Republic of",
 }
-
-
 def get_country_code(x):
-
-    # minor string adjustments before lookup in pycountry
+    # Make minor adjustments before looking up in pycountry.
     if pd.isna(x):
         return pd.NA
-    elif x in COUNTRY_REPLACEMENTS:
-        x = COUNTRY_REPLACEMENTS[x]
+    elif x in country_replacements:
+        x = country_replacements[x]
     else:
-        # add spaces to multiword countries (for pycountry lookup)
+        # Add spaces to multiword countries.
         x = re.sub(r"(\w)([A-Z])", r"\1 \2", x)
-
-    # look up code
+    # Look up country code.
     country = pycountry.countries.get(name=x)
     if country is None:
-        # try fuzzy search, which will raise error if nothing found
+        # Try fuzzy search, which will raise error if nothing found.
         possible_codes = pycountry.countries.search_fuzzy(x)
         if len(possible_codes) > 1:
             raise Warning(f"found >1 fuzzy codes for {x}. Inspect!")
@@ -158,15 +133,9 @@ def get_country_code(x):
             country = possible_codes[0]
     return country.alpha_3
 
-
-tqdm.tqdm.pandas(desc="country code lookups")
+tqdm.tqdm.pandas(desc="DreamViews user cleaner - country code lookups")
 df["country"] = df["country_flag"].progress_apply(get_country_code)
 df["gender"] = df["gender"].str.lower()
 
-
-
-
 # Export.
-
-df[KEEP_COLUMNS].to_csv(export_fname, encoding="ascii",
-    sep="\t", na_rep="NA", index=True, index_label="user_id")
+df[keep_columns].to_csv(export_path, encoding="ascii", index_label="user_id", na_rep="NA", sep="\t")

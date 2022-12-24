@@ -10,24 +10,23 @@ EXPORTS
     - statistics table,   results/validate-liwc_scores-stats.tsv
     - visualization,      results/validate-liwc_scores-plot.png
 """
-import os
-import tqdm
+import matplotlib.pyplot as plt
 import pandas as pd
 import pingouin as pg
+import tqdm
+
 import config as c
 
-import matplotlib.pyplot as plt
 c.load_matplotlib_settings()
 
 
 LIWC_CATS = ["insight", "agency"]
 LUCID_ORDER = ["nonlucid", "lucid"]
 
-
-import_fname_liwc = os.path.join(c.DATA_DIR, "derivatives", "validate-liwc_scores.tsv")
-export_fname_descr = os.path.join(c.DATA_DIR, "results", "validate-liwc_scores-descr.tsv")
-export_fname_stats = os.path.join(c.DATA_DIR, "results", "validate-liwc_scores-stats.tsv")
-export_fname_plot  = os.path.join(c.DATA_DIR, "results", "validate-liwc_scores-plot.png")
+import_path_liwc = c.DATA_DIR / "derivatives" / "validate-liwc_scores.tsv"
+export_path_descr = c.DATA_DIR / "results" / "validate-liwc_scores-descr.tsv"
+export_path_stats = c.DATA_DIR / "results" / "validate-liwc_scores-stats.tsv"
+export_path_plot  = c.DATA_DIR / "results" / "validate-liwc_scores-plot.png"
 
 
 ########################## I/O
@@ -35,7 +34,7 @@ export_fname_plot  = os.path.join(c.DATA_DIR, "results", "validate-liwc_scores-p
 # merge the clean data file and all its attributes with the liwc results
 df = c.load_dreamviews_posts()
 df_attr = df.set_index("post_id")
-df_liwc = pd.read_csv(import_fname_liwc, index_col="post_id", sep="\t", encoding="utf-8")
+df_liwc = pd.read_csv(import_path_liwc, index_col="post_id", sep="\t", encoding="utf-8")
 df = df_attr.join(df_liwc, how="inner")
 assert len(df) == len(df_attr) == len(df_liwc), "Should all be same length after joining"
 
@@ -51,15 +50,13 @@ avgs = df.groupby(["user_id", "lucidity"]
 # avgs.index.get_level_values("user_id").duplicated(keep=False)
 
 
-
 ########################## get descriptives
 
 descriptives = avgs.agg(["mean", "std", "sem", "min", "max"]).T
 
 # export
-descriptives.to_csv(export_fname_descr, sep="\t", encoding="utf-8",
+descriptives.to_csv(export_path_descr, sep="\t", encoding="utf-8",
     na_rep="NA", index=True, float_format="%.3f")
-
 
 
 ########################## run statistics
@@ -85,8 +82,7 @@ stats = pd.concat(wilcoxon_results
     ).drop(columns="alternative")
 
 # export
-stats.to_csv(export_fname_stats, index=True, na_rep="NA", sep="\t", encoding="utf-8")
-
+stats.to_csv(export_path_stats, index=True, na_rep="NA", sep="\t", encoding="utf-8")
 
 
 ########################## plot visualization
@@ -170,7 +166,7 @@ legend = ax1.legend(handles=legend_handles,
     loc="upper left", bbox_to_anchor=(.05, .98),
     labelspacing=.1, handletextpad=.2)
 
-# export
-plt.savefig(export_fname_plot)
-c.save_hires_figs(export_fname_plot)
+# Export.
+plt.savefig(export_path_plot)
+plt.savefig(export_path_plot.with_suffix(".pdf"))
 plt.close()    

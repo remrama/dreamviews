@@ -11,7 +11,6 @@ EXPORTS
     - visualization of total word counts per user,      results/describe-wordcount_peruser.png
     - visualization of lucid and non-lucid word counts, results/describe-wordcount_lucidity.png
 """
-import os
 import numpy as np
 import pandas as pd
 import config as c
@@ -21,13 +20,12 @@ import matplotlib.pyplot as plt
 c.load_matplotlib_settings()
 
 
-################################ I/O
-export_fname_table = os.path.join(c.DATA_DIR, "results", "describe-wordcount.tsv")
+# I/O
+export_path_table = c.DATA_DIR / "results" / "describe-wordcount.tsv"
 df = c.load_dreamviews_posts()
 
 # token counts column already exists, but need to add lemma one
 df["lemmacount"] = df["post_lemmas"].str.split().str.len()
-
 
 
 ################################ generate tables for export (not used for plotting)
@@ -60,7 +58,7 @@ total_descr = pd.concat({"combined": total_descr}, names=["lucidity"])
 descriptives = pd.concat([total_descr, lucid_descr], axis=0)
 
 # export
-descriptives.to_csv(export_fname_table, float_format="%.1f", index=True, sep="\t", encoding="utf-8")
+descriptives.to_csv(export_path_table, float_format="%.1f", index=True, sep="\t", encoding="utf-8")
 
 # # a table counting how many words per dream type
 # lucidity_wc = df.groupby("lucidity"
@@ -74,7 +72,6 @@ descriptives.to_csv(export_fname_table, float_format="%.1f", index=True, sep="\t
 
 # lucidity_wc.to_csv(export_fname_table, float_format="%.1f", index=True, sep="\t", encoding="utf-8")
 
-
 # counts = df.groupby(["user_id","lucidity"]
 #     ).size().rename("n_posts").reset_index()
 # # this is a rather useful table
@@ -82,7 +79,6 @@ descriptives.to_csv(export_fname_table, float_format="%.1f", index=True, sep="\t
 #     ).size().reset_index(
 #     ).pivot(index="user_id", columns="lucidity", values=0
 #     ).fillna(0).astype(int)
-
 
 ################################ visualizeeeeee
 
@@ -114,23 +110,20 @@ BAR_ARGS = {
     "bins" : bins,
 }
 
-
 # crappy quick fix
-export_fnames = [
-    os.path.join(c.DATA_DIR, "results", "describe-wordcount_perpost.png"),
-    os.path.join(c.DATA_DIR, "results", "describe-wordcount_peruser.png"),
-    os.path.join(c.DATA_DIR, "results", "describe-wordcount_lucidity.png"),
+export_paths = [
+    c.DATA_DIR / "results" / "describe-wordcount_perpost.png",
+    c.DATA_DIR / "results" / "describe-wordcount_peruser.png",
+    c.DATA_DIR / "results" / "describe-wordcount_lucidity.png",
 ]
-
-
 
 # open figure
 # fig, axes = plt.subplots(nrows=3, figsize=(2.5, 3),
 #     sharex=True, sharey=False,
 #     constrained_layout=True)
 
-# loop over axes and word vs lemma counts
-for i, fname in enumerate(export_fnames):
+# Loop over axes and word vs lemma counts.
+for i, path in enumerate(export_paths):
 
     fig, ax = plt.subplots(figsize=(2, 1), constrained_layout=True)
 
@@ -170,7 +163,6 @@ for i, fname in enumerate(export_fnames):
         distvals = ser.values
         ax.hist(distvals, edgecolor=linecolor, linewidth=linewidth, **BAR_ARGS)
 
-
     ax.set_ylabel(ylabel, labelpad=1)
     ax.set_ybound(upper=ymax)
     ax.set_xlabel(r"$n$ words", labelpad=1)
@@ -188,7 +180,7 @@ for i, fname in enumerate(export_fnames):
         ax.yaxis.set(major_locator=plt.MultipleLocator(ymax/2),
                      minor_locator=plt.MultipleLocator(ymax/10))
 
-    # grab some values for text
+    # Grab some values for text.
     n, mean, sd, median = ser.describe().loc[["count", "mean", "std", "50%"]]
     txt_list = [
         fr"$n={n:.0f}$",
@@ -214,10 +206,7 @@ for i, fname in enumerate(export_fnames):
     #     transform=ax.get_xaxis_transform(),
     #     ha="right", va="top")
 
-
-
-
-    # export
-    plt.savefig(fname)
-    c.save_hires_figs(fname)
+    # Export.
+    plt.savefig(path)
+    plt.savefig(path.with_suffix(".pdf"))
     plt.close()

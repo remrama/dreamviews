@@ -1,28 +1,23 @@
-####
-#### See the README.md for details about each script.
-####
-#### Make sure DATA_DIR is set in the config.py file.
-####
-#### I suggest using the environment.yml file to set
-#### up the same conda environment I used.
-####
+## See the README.md for details about each script.
 
-# set script to exit if any command fails
+
+# Set script to exit if any command fails.
 set -e
 
-# handle command line argument
-if [[ $# -gt 1 ]]; then             # exit if more than one argument provided
+# Handle command line argument.
+if [[ $# -gt 1 ]]; then
   echo "!! noliwc is the only allowed argument !!"; exit;
 elif [[ $# -eq 1 ]]; then
-  if [[ $1 != "noliwc" ]]; then     # exit if the one argument is not "noliwc"
+  if [[ $1 != "noliwc" ]]; then
     echo "!! noliwc is the only allowed argument !!"; exit;
   fi
 fi
 
-# setup
+# Setup.
 python setup-data_dirs.py
+python -m spacy download en_core_web_lg
 
-# scrape and clean
+# Scrape and clean.
 echo "Scraping and cleaning all data will take hours..."
 python scrape-posts.py
 python clean-posts.py
@@ -30,7 +25,7 @@ python scrape-users.py
 python clean-users.py
 python anonymize-posts.py
 
-# describe
+# Describe.
 echo "Description analyses take just a minute altogether..."
 python describe-timecourse.py
 python describe-usercount.py
@@ -40,13 +35,13 @@ python describe-categorypairs.py
 python describe-demographics.py
 python describe-wordcount.py
 
-# validate
+# Validate.
 echo "Validation analyses are quick unless LIWCing..."
 python validate-classifier.py
 python validate-classifier_stats.py
 python validate-wordshift.py
 python validate-wordshift_plot.py
-if [[ -z "$1" ]]; then # no argument supplied (ie, run liwc)
+if [[ -z "$1" ]]; then  # no argument supplied (i.e., run liwc)
   python validate-liwc.py --words
   python validate-liwc_stats.py
   python validate-liwc_word_stats.py
