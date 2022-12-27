@@ -1,8 +1,6 @@
 """
-Visualize the amount of data for each label/category of interest
-(ie, lucid, non-lucid, and nightmare labels).
-
-Use a venn diagram to see how often the labels overlap.
+Use a Venn diagram to visualize the amount of lucid, non-lucid, and nightmare
+data and how often they overlap.
 
 IMPORTS
 =======
@@ -18,49 +16,46 @@ import pandas as pd
 
 import config as c
 
+
+################################################################################
+# SETUP
+################################################################################
+
+# Load custom plotting aesthetics.
 c.load_matplotlib_settings()
 
-
+# Choose filename for exporting.
 export_path = c.DATA_DIR / "results" / "describe-categorycounts.png"
 
 # Load data.
 df = c.load_dreamviews_posts()
 df = df.set_index("post_id")
-# Make new columns that denote lucid/non-lucid, independent of overlap.
-df["lucid"]    = df["lucidity"].isin(["ambiguous", "lucid"])
+
+# Make new columns that denote lucid/non-lucid, independent of overlap ...
+df["lucid"] = df["lucidity"].isin(["ambiguous", "lucid"])
 df["nonlucid"] = df["lucidity"].isin(["ambiguous", "nonlucid"])
-# and unspecified by itself for smaller/bottom axis
+# ... and unspecified by itself for smaller/bottom axis.
 df["unspecified"] = df["lucidity"].eq("unspecified")
 
-######################## define some stuff
-VENN_ORDER_1 = ["nonlucid", "lucid", "nightmare"]
-# VENN_ORDER_2 = ["unspecified", "nightmare"]
-VENN_ARGS = {
-    "alpha" : .4,
-    "subset_label_formatter" : None,
-    "normalize_to" : 1,
+# Define some plotting variables.
+figsize = (2.4, 2.3)
+gridspec_kwargs = dict(bottom=0, top=1, left=0, right=1)
+venn_order = ["nonlucid", "lucid", "nightmare"]
+venn_kwargs = {
+    "alpha": .4,
+    "normalize_to": 1,
+    "subset_label_formatter": None,
 }
-FIGSIZE = (2.4, 2.3)
-GRIDSPEC_ARGS = dict(bottom=0, top=1, left=0, right=1)
 
 
-######################## generate counts and venn info
-
-## requires generating 7 (or 3) venn values in a specific order
-
-#### open up the main figure and create both axes to be drawn on
-
-fig, ax1 = plt.subplots(figsize=FIGSIZE, gridspec_kw=GRIDSPEC_ARGS)
-# (using ax_top and bottom instead of 1/2 or a/b bc of possible confusion with Venn terms)
-# ax2 = ax1.inset_axes([-.11, -.04, .46, .3])
-# ax2.axis("off")
-
+################################################################################
+# MAIN PLOTTING FUNCTION
+################################################################################
 
 def draw_venn_plot(ax, columns):
-    
-    n_venns = len(columns)
+    assert (n_venns := len(columns)) in [2, 3]
 
-    # generate boolean series' to calculate them
+    # Generate boolean Series' to calculate frequencies with.
     if n_venns == 3:
         Abc = ( df[columns[0]] & ~df[columns[1]] & ~df[columns[2]])
         aBc = (~df[columns[0]] &  df[columns[1]] & ~df[columns[2]])
@@ -70,83 +65,76 @@ def draw_venn_plot(ax, columns):
         aBC = (~df[columns[0]] &  df[columns[1]] &  df[columns[2]])
         ABC = ( df[columns[0]] &  df[columns[1]] &  df[columns[2]])
         series_list = [Abc, aBc, ABc, abC, AbC, aBC, ABC]
-
     elif n_venns == 2:
         Ab = ( df[columns[0]] & ~df[columns[1]])
         aB = (~df[columns[0]] &  df[columns[1]])
         AB = ( df[columns[0]] &  df[columns[1]])
         series_list = [Ab, aB, AB]
 
-
-    # use the series to get the number of posts AND users at each venn location
+    # Get the number of posts AND number of users for each venn location.
     n_posts = [ s.sum() for s in series_list ]
     n_users = [ df.loc[s, "user_id"].nunique() for s in series_list ]
 
-    # calculate the report:user fraction for each venn location
+    # Calculate the report:user fraction for each venn location.
     venn_sizes = [ p/u for p, u in zip(n_posts, n_users) ]
 
-    # generate new txt labels
+    # Generate new text labels for each venn location.
     venn_labels = []
     for i, (p, u) in enumerate(zip(n_posts, n_users)):
         if i == 0 and n_venns == 3:
-            txt = (r"$n_{posts}=$" + str(p)
-                + "\n(" + r"$n_{users}=$" + str(u) + ")")
+            txt = r"$n_{posts}=$" + str(p) + "\n(" + r"$n_{users}=$" + str(u) + ")"
         else:
             txt = f"{p}\n({u})"
         venn_labels.append(txt)
 
+    # Choose colors and labels that appear outside the venn locations.
     venn_colors = [ c.COLORS[x] for x in columns ]
     outer_labels = [ "non-lucid" if x == "nonlucid" else x for x in columns ]
 
-    plot_venn_args = {
-        "ax" : ax,
-        "subsets" : venn_sizes,
-        "set_labels" : outer_labels,
-        "set_colors" : venn_colors
-    }
-
+    # Draw the venn diagram.
+    kwargs = dict(ax=ax, subsets=venn_sizes, set_labels=outer_labels, set_colors=venn_colors)
+    venn_kwargs.update(kwargs)
     if n_venns == 3:
-        ven = venn3(**plot_venn_args, **VENN_ARGS)
+        ven = venn3(**venn_kwargs)
     elif n_venns == 2:
-        ven = venn2(**plot_venn_args, **VENN_ARGS)
+        ven = venn2(**venn_kwargs)
 
-    # venn aesthetics
+    ############################################################################
+    # AESTHETICS
+    ############################################################################
 
-    # highlight the lucid circles in the main plot
+    # Highlight the lucidity-related circles in the main plot.
     if n_venns == 3:
         for setid in ["100", "010"]:
             patch = ven.get_patch_by_id(setid)
             patch.set_lw(1)
-            # to disentangle alpha of edge and face, need to 
-            # first get the orig facecolor (which as alpha in rgba format)
-            # then unset the main alpha and set edgecolor as rgba set.
-            # (basically, rgba values don't work if alpha param is set, it overrides)
+            # To disentangle alpha of edge and face, need to first get the
+            # original facecolor (which as alpha in RGBA format) and then unset
+            # the main alpha and set edgecolor as rgba set. (Basically, RGBA
+            # values don't work if alpha param is set, it overrides.)
             facecolor_rgba = patch.get_facecolor()
             patch.set_alpha(None)
             patch.set_ec((0,0,0,1))
             patch.set_fc(facecolor_rgba)
 
-    # # change the font of text within circles/patches
-    # for setid in ["100", "010", "001", "10", "01"]:
-    #     if n_venns == 2 and len(setid) == 3:
-    #         continue
-    #     # ven.get_label_by_id(setid).set_fontsize(10)
-
-    # change the font of the outer labels (e.g., non-lucid)
+    # Adjust the font of the outer labels.
     for setid in ["A", "B", "C"]:
         if n_venns == 2 and setid == "C":
             continue
-        # ven.get_label_by_id(setid).set_fontsize(10)
         ven.get_label_by_id(setid).set_style("italic")
 
-    # change all inner txt
+    # Adjust the inner text.
     for vlabel, txt in zip(ven.subset_labels, venn_labels):
         vlabel.set_text(txt)
-        # vlabel.set_fontsize(8)
 
 
-draw_venn_plot(ax=ax1, columns=VENN_ORDER_1)
-# draw_venn_plot(ax=ax2, columns=VENN_ORDER_2)
+################################################################################
+# DRAW AND SAVE
+################################################################################
+
+# Open figure and apply function to draw.
+fig, ax = plt.subplots(figsize=figsize, gridspec_kw=gridspec_kwargs)
+draw_venn_plot(ax=ax1, columns=venn_order)
 
 # Export.
 plt.savefig(export_path)

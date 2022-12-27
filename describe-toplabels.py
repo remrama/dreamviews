@@ -13,10 +13,10 @@ import pandas as pd
 import config as c
 
 
-# Ignore labels that don't reach a bare minimum frequency.
-N_MIN_LABELS = 10  # Only keep labels that show up >= 10 times.
-N_MIN_USERS = 10  # Across >= 10 unique users.
+n_min_labels = 10  # Only keep labels that show up >= <x> times ...
+n_min_users = 10  # ... and across >= <y> unique users.
 
+# Load data.
 df = c.load_dreamviews_posts()
 
 for col in ["tags", "categories"]:
@@ -44,8 +44,8 @@ for col in ["tags", "categories"]:
     res = pd.concat([label_counts, user_counts], axis=1, join="inner")
 
     # Drop really low counts from the table entirely.
-    res = res[ res["n_posts"] >= N_MIN_LABELS ]
-    res = res[ res["n_users"] >= N_MIN_LABELS ]
+    res = res[ res["n_posts"] >= n_min_labels ]
+    res = res[ res["n_users"] >= n_min_users ]
 
     res = res.sort_values("n_posts", ascending=False)
     res.index = res.index.str.replace("_", " ")

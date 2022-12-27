@@ -158,7 +158,8 @@ for html_byt in tqdm.tqdm(html_files, desc="DreamViews post cleaner"):
         ########################################################################
         # CLEAN/ANONYMIZE USER
         ########################################################################
-        # WARNING: Do first so each user gets a unique ID even if they don't pass restrictions.
+        # WARNING: Do this first so each user gets a unique ID even if they
+        #          don't get included.
 
         ## Convert to printable ASCII.
         # Using a little more caution with replacing whitespace here because the
@@ -213,10 +214,11 @@ for html_byt in tqdm.tqdm(html_files, desc="DreamViews post cleaner"):
         # EXTRACT TAGS AND CATEGORIES
         ########################################################################
         # WARNING: Do prior to text cleaning, otherwise it messes with parsing.
-        # The post text has more than just the dream report. At the end it will
-        # ALWAYS have a "Categories" section, even if just the "Uncategorized"
-        # label. There is also an optional "Tags" section that will immediately
-        # precede the Categories section if the user included Tags.
+        #          The post text has more than just the dream report. At the end
+        #          it will ALWAYS have a "Categories" section, even if just the
+        #          "Uncategorized" label. There is also an optional "Tags"
+        #          section that will immediately precede the Categories section
+        #          if the user included Tags.
 
         # Skip a few posts (~10-20) that have mutliple Tag/Category instances
         # because they are mostly garbage (e.g., multiple posts within one).

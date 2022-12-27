@@ -1,9 +1,8 @@
-"""
-Visualize DreamViews activity over time.
+"""Visualize DreamViews activity over time.
 
 Bottom subplot is post frequency and top subplot is user frequency.
 
-The optional command line arguments are just for changes to make presentation plots.
+Note: The optional command line arguments are just for changes to make presentation plots.
 
 IMPORTS
 =======
@@ -22,7 +21,6 @@ import seaborn as sea
 
 import config as c
 
-c.load_matplotlib_settings()
 
 parser = argparse.ArgumentParser()
 parser.add_argument("--white", action="store_true", help="To ignore labels and just plot all data in white")
@@ -32,6 +30,15 @@ args = parser.parse_args()
 WHITE = args.white
 RESTRICT = args.restrict
 
+
+################################################################################
+# SETUP
+################################################################################
+
+# Load custom matplotlib aesthetics.
+c.load_matplotlib_settings()
+
+# Choose export locations.
 export_path_plot = c.DATA_DIR / "results" / "describe-timecourse.png"
 export_path_values = c.DATA_DIR / "results" / "describe-totalcounts.tsv"
 if WHITE:
@@ -39,11 +46,7 @@ if WHITE:
 if RESTRICT:
     export_path_plot = export_path_plot.as_posix().replace(".png", "_RESTRICT.png")
 
-
-################################################################################
-# DATA LOADING
-################################################################################
-
+# Load data.
 df = c.load_dreamviews_posts()
 
 # Drop data if desired.
