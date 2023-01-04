@@ -18,7 +18,7 @@ import config as c
 
 export_path = c.DATA_DIR / "derivatives" / "dreamviews-users.tsv"
 import_path_html = c.DATA_DIR / "source" / "dreamviews-users.zip"
-import_path_userkey = c.DATA_DIR / "derivatives" / "dreamviews-users_key.json"
+import_path_userkey = c.DATA_DIR / "source" / "dreamviews-users_key.json"
 
 # Select which columns will be included in the output file.
 # WARNING: Never include "biography" which sometimes has real names.

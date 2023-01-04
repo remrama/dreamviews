@@ -12,10 +12,10 @@ all this rn.
 
 IMPORTS
 =======
-    - posts, derivatives/dreamviews-posts.tsv
+    - posts, dreamviews-posts.tsv
 EXPORTS
 =======
-    - numpy file with predictions and labels, derivatives/validate-classifier.npz
+    - numpy file with predictions and labels, validate-classifier.npz
 """
 import numpy as np
 import pandas as pd

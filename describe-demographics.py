@@ -2,14 +2,14 @@
 
 IMPORTS
 =======
-    - user info, derivatives/dreamviews-posts.tsv
+    - user info, dreamviews-posts.tsv
 EXPORTS
 =======
-    - table of how many people provided info, results/describe-demographics_provided.tsv
-    - table of reported ages and genders,     results/describe-demographics_agegender.tsv
-    - table of reported ages and genders,     results/describe-demographics_location.tsv
-    - visualization of reported age/gender,   results/describe-demographics_agegender.png
-    - visualization of reported location,     results/describe-demographics_location.png
+    - table of how many people provided info, describe-demographics_provided.tsv
+    - table of reported ages and genders,     describe-demographics_agegender.tsv
+    - table of reported ages and genders,     describe-demographics_location.tsv
+    - visualization of reported age/gender,   describe-demographics_agegender.png
+    - visualization of reported location,     describe-demographics_location.png
 """
 import colorcet as cc
 import geopandas
@@ -31,11 +31,11 @@ c.load_matplotlib_settings()
 df = c.load_dreamviews_users()
 
 # Choose export paths.
-export_path_agegender = c.DATA_DIR / "results" / "describe-demographics_agegender.tsv"
-export_path_locations = c.DATA_DIR / "results" / "describe-demographics_location.tsv"
-export_path_provided = c.DATA_DIR / "results" / "describe-demographics_provided.tsv"
-export_path_agegender_plot = c.DATA_DIR / "results" / "describe-demographics_agegender.png"
-export_path_locations_plot = c.DATA_DIR / "results" / "describe-demographics_location.png"
+export_path_agegender = c.DATA_DIR / "derivatives" / "describe-demographics_agegender.tsv"
+export_path_locations = c.DATA_DIR / "derivatives" / "describe-demographics_location.tsv"
+export_path_provided = c.DATA_DIR / "derivatives" / "describe-demographics_provided.tsv"
+export_path_agegender_plot = c.DATA_DIR / "derivatives" / "describe-demographics_agegender.png"
+export_path_locations_plot = c.DATA_DIR / "derivatives" / "describe-demographics_location.png"
 
 
 ################################################################################

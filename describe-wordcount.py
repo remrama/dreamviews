@@ -2,13 +2,13 @@
 
 IMPORTS
 =======
-    - posts, derivatives/dreamviews-posts.tsv
+    - posts, dreamviews-posts.tsv
 EXPORTS
 =======
-    - table of all word and lemma counts,               results/describe-wordcount.tsv
-    - visualization of total word counts per post,      results/describe-wordcount_perpost.png
-    - visualization of total word counts per user,      results/describe-wordcount_peruser.png
-    - visualization of lucid and non-lucid word counts, results/describe-wordcount_lucidity.png
+    - table of all word and lemma counts,               describe-wordcount.tsv
+    - visualization of total word counts per post,      describe-wordcount_perpost.png
+    - visualization of total word counts per user,      describe-wordcount_peruser.png
+    - visualization of lucid and non-lucid word counts, describe-wordcount_lucidity.png
 """
 import matplotlib.pyplot as plt
 import numpy as np
@@ -27,11 +27,11 @@ import config as c
 c.load_matplotlib_settings()
 
 # Pick export locations.
-export_path_table = c.DATA_DIR / "results" / "describe-wordcount.tsv"
+export_path_table = c.DATA_DIR / "derivatives" / "describe-wordcount.tsv"
 export_path_plots = [
-    c.DATA_DIR / "results" / "describe-wordcount_perpost.png",
-    c.DATA_DIR / "results" / "describe-wordcount_peruser.png",
-    c.DATA_DIR / "results" / "describe-wordcount_lucidity.png",
+    c.DATA_DIR / "derivatives" / "describe-wordcount_perpost.png",
+    c.DATA_DIR / "derivatives" / "describe-wordcount_peruser.png",
+    c.DATA_DIR / "derivatives" / "describe-wordcount_lucidity.png",
 ]
 
 # Load data.

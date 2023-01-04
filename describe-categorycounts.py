@@ -4,10 +4,10 @@ data and how often they overlap.
 
 IMPORTS
 =======
-    - posts, derivatives/dreamviews-posts.tsv
+    - posts, dreamviews-posts.tsv
 EXPORTS
 =======
-    - visualization, results/describe-categorycounts.png
+    - visualization, describe-categorycounts.png
 """
 from matplotlib_venn import venn2, venn3
 import matplotlib.pyplot as plt
@@ -25,7 +25,7 @@ import config as c
 c.load_matplotlib_settings()
 
 # Choose filename for exporting.
-export_path = c.DATA_DIR / "results" / "describe-categorycounts.png"
+export_path = c.DATA_DIR / "derivatives" / "describe-categorycounts.png"
 
 # Load data.
 df = c.load_dreamviews_posts()

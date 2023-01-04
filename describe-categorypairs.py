@@ -5,11 +5,11 @@ This was really annoying and I think there's more manual adjusting than normal.
 
 IMPORTS
 =======
-    - posts, derivatives/dreamviews-posts.tsv
+    - posts, dreamviews-posts.tsv
 EXPORTS
 =======
-    - raw counts, results/describe-categorypairs.tsv
-    - visualization, results/describe-categorypairs.png
+    - raw counts,    describe-categorypairs.tsv
+    - visualization, describe-categorypairs.png
 """
 import colorcet as cc
 import matplotlib.pyplot as plt
@@ -29,8 +29,8 @@ import config as c
 c.load_matplotlib_settings()
 
 # Choose export paths.
-export_path_table = c.DATA_DIR / "results" / "describe-categorypairs.tsv"
-export_path_plot  = c.DATA_DIR / "results" / "describe-categorypairs.png"
+export_path_table = c.DATA_DIR / "derivatives" / "describe-categorypairs.tsv"
+export_path_plot  = c.DATA_DIR / "derivatives" / "describe-categorypairs.png"
 
 # Load data.
 df = c.load_dreamviews_posts()

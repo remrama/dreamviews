@@ -8,7 +8,6 @@ import config as c
 DATA_SUBDIRECTORIES = [
     "source",         # for the RAW data -- no touchey
     "derivatives",    # for mid-stage, between source and results
-    "results",        # for final output (plots, stats tables, etc.)
 ]
 
 for subdir in DATA_SUBDIRECTORIES:

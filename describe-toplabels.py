@@ -2,11 +2,11 @@
 
 IMPORTS
 =======
-    - posts, derivatives/dreamviews-posts.tsv
+    - posts, dreamviews-posts.tsv
 EXPORTS
 =======
-    - ordered table of top categories, results/describe-topcategories.tsv
-    - ordered table of top tags,       results/describe-toptags.tsv
+    - ordered table of top categories, describe-topcategories.tsv
+    - ordered table of top tags,       describe-toptags.tsv
 """
 import pandas as pd
 
@@ -51,5 +51,5 @@ for col in ["tags", "categories"]:
     res.index = res.index.str.replace("_", " ")
 
     # export
-    export_path = c.DATA_DIR / "results" / f"describe-top{col}.tsv"
+    export_path = c.DATA_DIR / "derivatives" / f"describe-top{col}.tsv"
     res.to_csv(export_path, index=True, sep="\t", encoding="utf-8")

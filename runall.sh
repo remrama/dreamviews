@@ -26,7 +26,7 @@ python clean-users.py
 python anonymize-posts.py
 
 # Describe.
-echo "Description analyses take just a minute altogether..."
+echo "Descriptive analyses take just a minute altogether..."
 python describe-timecourse.py
 python describe-usercount.py
 python describe-toplabels.py

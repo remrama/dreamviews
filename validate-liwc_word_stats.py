@@ -3,12 +3,12 @@
 
 IMPORTS
 =======
-    - original post info,     derivatives/dreamviews-posts.tsv
-    - word-level LIWC scores, derivatives/validate-liwc_wordscores.tsv
+    - original post info,     dreamviews-posts.tsv
+    - word-level LIWC scores, validate-liwc_wordscores.tsv
     - LIWC dictionary,        dictionaries/custom.dic
 EXPORTS
 =======
-    - effect sizes (d) for top words from each category, results/validate-liwc_wordscores-stats.tsv
+    - effect sizes (d) for top words from each category, validate-liwc_wordscores-stats.tsv
 
 
 Some of this is copy/pasted from the general liwc_stats script,
@@ -20,31 +20,27 @@ but this is way messier so better alone.
 5. don't want to run both stats on this, too out of hand just pick one
 6. export is different, here it's the top N words of a few categories and their effect sizes
 """
-import os
-import tqdm
+import liwc
 import numpy as np
 import pandas as pd
 import pingouin as pg
 from scipy import sparse
-import liwc
+import tqdm
+
 import config as c
 
 
+################################################################################
+# SETUP
+################################################################################
+
 LIWC_CATEGORIES = ["insight", "agency"]
-TOP_N = 20 # save out the top N contributing tokens/words for each category
+top_n = 20  # Top n contributing tokens/words for each category.
 
-
-###########################
-########################### i/o and loading data
-###########################
-
-import_fname_dict = os.path.join(c.DATA_DIR, "dictionaries", "custom.dic")
-import_fname_data = os.path.join(c.DATA_DIR, "derivatives", "validate-liwc_wordscores-data.npz")
-import_fname_attr = os.path.join(c.DATA_DIR, "derivatives", "validate-liwc_wordscores-attr.npz")
-# import_fname_liwc = os.path.join(c.DATA_DIR, "results", "validate-liwc.tsv")
-
-export_fname = os.path.join(c.DATA_DIR, "results", "validate-liwc_wordscores-stats.tsv")
-
+import_path_dict = c.DATA_DIR / "dictionaries" / "custom.dic"
+import_path_data = c.DATA_DIR / "derivatives" / "validate-liwc_wordscores-data.npz"
+import_path_attr = c.DATA_DIR / "derivatives" / "validate-liwc_wordscores-attr.npz"
+export_path = c.DATA_DIR / "derivatives" / "validate-liwc_wordscores-stats.tsv"
 
 #### load in the original posts file to get attributes lucidity and user_id
 # and drop un-labeled posts.
@@ -82,10 +78,9 @@ df = posts.join(scores, how="left")
 assert len(df) == len(posts)
 
 
-
-###########################
-########################### run wilcoxon tests
-###########################
+################################################################################
+# STATISTICAL TESTS
+################################################################################
 
 # Average the LD and NLD scores of each token for each user.
 # Some users might not have both dream types and they'll be removed.
@@ -134,5 +129,5 @@ for cat in LIWC_CATEGORIES:
 
 out = pd.concat(token_rank_results)
 
-# export
-out.to_csv(export_fname, float_format="%.4f", index=True, na_rep="NA", sep="\t", encoding="utf-8")
+# Export.
+out.to_csv(export_path, float_format="%.4f", index=True, na_rep="NA", sep="\t", encoding="utf-8")

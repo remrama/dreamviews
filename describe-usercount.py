@@ -2,10 +2,10 @@
 
 IMPORTS
 =======
-    - posts, derivatives/dreamviews-posts.tsv
+    - posts, dreamviews-posts.tsv
 EXPORTS
 =======
-    - visualization of post-per-user frequency, results/describe-usercount.png
+    - visualization of post-per-user frequency, describe-usercount.png
 """
 import matplotlib.pyplot as plt
 import numpy as np
@@ -23,7 +23,7 @@ import config as c
 c.load_matplotlib_settings()
 
 # Choose export location.
-export_path = c.DATA_DIR / "results" / "describe-usercount.png"
+export_path = c.DATA_DIR / "derivatives" / "describe-usercount.png"
 
 # Load data.
 df = c.load_dreamviews_posts()

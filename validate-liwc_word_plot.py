@@ -2,63 +2,70 @@
 
 IMPORTS
 =======
-    - effect sizes (d) for top words from each category, results/validate-liwc_wordscores-stats.tsv
-    - stats output for traditional LIWC,                 results/validate-liwc_scores-stats.tsv
+    - effect sizes (d) for top words from each category, validate-liwc_wordscores-stats.tsv
+    - stats output for traditional LIWC,                 validate-liwc_scores-stats.tsv
 EXPORTS
 =======
-    - visualization of a category, results/validate-liwc_wordscores_<category>-plot.png
+    - visualization of a category, validate-liwc_wordscores_<category>-plot.png
 """
-import os
 import argparse
-import numpy as np
-import pandas as pd
-import config as c
 
 import matplotlib.pyplot as plt
-c.load_matplotlib_settings()
+import numpy as np
+import pandas as pd
+
+import config as c
 
 
-# handle command-line arguments
 parser = argparse.ArgumentParser()
 parser.add_argument("-c", "--category", choices=["insight", "agency"], type=str, required=True)
 args = parser.parse_args()
 
 CATEGORY = args.category
 
-TOP_N = 10 # might be more stored, only plot this many
+
+################################################################################
+# SETUP
+################################################################################
+
+top_n = 10  # Top n contributing tokens/words for each category.
+
+# Load custom plotting aesthetics.
+c.load_matplotlib_settings()
+
+# Pick path locations.
+import_path = os.path.join(c.DATA_DIR, "derivatives", "validate-liwc_wordscores-stats.tsv")
+export_path = os.path.join(c.DATA_DIR, "derivatives", f"validate-liwc_wordscores_{CATEGORY}-plot.png")
+import_path_full_liwc = os.path.join(c.DATA_DIR, "derivatives", "validate-liwc_scores-stats.tsv")
+
+# Load data.
+df = pd.read_csv(import_path, sep="\t", encoding="utf-8")
+
+# Load full category LIWC results (to draw on top row).
+liwccats = pd.read_csv(
+    import_path_full_liwc,
+    sep="\t", encoding="utf-8",
+    index_col="category",
+    usecols=["category", "cohen-d", "cohen-d_lo", "cohen-d_hi"],
+)
 
 
-######################## I/O
+################################################################################
+# PLOTTING
+################################################################################
 
-import_fname = os.path.join(c.DATA_DIR, "results", "validate-liwc_wordscores-stats.tsv")
-export_fname = os.path.join(c.DATA_DIR, "results", f"validate-liwc_wordscores_{CATEGORY}-plot.png")
-import_fname_full_liwc = os.path.join(c.DATA_DIR, "results", "validate-liwc_scores-stats.tsv")
-
-df = pd.read_csv(import_fname, sep="\t", encoding="utf-8")
-
-# load full category liwc results (to draw on top row)
-liwccats = pd.read_csv(import_fname_full_liwc, sep="\t", encoding="utf-8",
-    index_col="category", usecols=["category", "cohen-d", "cohen-d_lo", "cohen-d_hi"])
-
-
-######################## plot
-
-# # identify categories to plot
-# category_columns = [ c for c in df if "rank" in c ]
-# n_cats = len(category_columns)
-
-# define some variables for aesthetics
+# Define some plotting variables.
 BAR_ARGS = dict(height=.8, edgecolor="k", lw=.5, alpha=1)
 ERROR_ARGS = dict(ecolor="k", elinewidth=.5, capsize=0)
 GRID_COLOR = "gainsboro"
 YTICK_GAP = 10
-yticklocs = np.linspace(0, TOP_N, int(TOP_N/YTICK_GAP+1))
+yticklocs = np.linspace(0, top_n, int(top_n / YTICK_GAP+1))
 yticklocs[0] = 1
 XLIM = 1.4 # xaxis is centered at 0, this will be balanced on either side
 TXT_BUFF = .05 # space between tip of bar and text
 FIG_SIZE = (1.7, 2.5) #(3.2, 2.5)
 GRIDSPEC_ARGS = {
-    "height_ratios" : [2, TOP_N],
+    "height_ratios" : [2, top_n],
     "hspace"        : 0,
     # "wspace"        : .05,
     "top"           : .99,
@@ -95,7 +102,7 @@ topax.barh(0, dval, xerr=derr,
 column_name = CATEGORY + "_rank"
 subdf = df.loc[df[column_name].notna()
     ].sort_values(column_name, ascending=True
-    )[:TOP_N]
+    )[:top_n]
 
 # generate relevant plot info
 dvals = subdf["cohen-d"].values
@@ -157,7 +164,7 @@ ax.text(xloc_txt, .99,
     ha=ha_align, va="top")
 
 
-# export
-plt.savefig(export_fname)
-c.save_hires_figs(export_fname)
+# Export.
+plt.savefig(export_path)
+plt.savefig(export_path.with_suffix(".pdf"))
 plt.close()

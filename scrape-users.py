@@ -18,7 +18,7 @@ import tqdm
 import config as c
 
 
-import_path = c.DATA_DIR / "derivatives" / "dreamviews-users_key.json"
+import_path = c.DATA_DIR / "source" / "dreamviews-users_key.json"
 export_path = c.DATA_DIR / "source" / "dreamviews-users.zip"
 
 base_user_url = "https://www.dreamviews.com/members"

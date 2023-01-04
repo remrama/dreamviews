@@ -2,13 +2,13 @@
 
 IMPORTS
 =======
-    - original post info,         derivatives/dreamviews-posts.tsv
-    - traditionally LIWCed posts, derivatives/validate-liwc_scores.tsv
+    - original post info,         dreamviews-posts.tsv
+    - traditionally LIWCed posts, validate-liwc_scores.tsv
 EXPORTS
 =======
-    - descriptives table, results/validate-liwc_scores-descr.tsv
-    - statistics table,   results/validate-liwc_scores-stats.tsv
-    - visualization,      results/validate-liwc_scores-plot.png
+    - descriptives table, validate-liwc_scores-descr.tsv
+    - statistics table,   validate-liwc_scores-stats.tsv
+    - visualization,      validate-liwc_scores-plot.png
 """
 import matplotlib.pyplot as plt
 import pandas as pd
@@ -24,9 +24,9 @@ LIWC_CATS = ["insight", "agency"]
 LUCID_ORDER = ["nonlucid", "lucid"]
 
 import_path_liwc = c.DATA_DIR / "derivatives" / "validate-liwc_scores.tsv"
-export_path_descr = c.DATA_DIR / "results" / "validate-liwc_scores-descr.tsv"
-export_path_stats = c.DATA_DIR / "results" / "validate-liwc_scores-stats.tsv"
-export_path_plot  = c.DATA_DIR / "results" / "validate-liwc_scores-plot.png"
+export_path_descr = c.DATA_DIR / "derivatives" / "validate-liwc_scores-descr.tsv"
+export_path_stats = c.DATA_DIR / "derivatives" / "validate-liwc_scores-stats.tsv"
+export_path_plot  = c.DATA_DIR / "derivatives" / "validate-liwc_scores-plot.png"
 
 
 ########################## I/O

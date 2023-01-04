@@ -2,11 +2,11 @@
 
 IMPORTS
 =======
-    - numpy file with clf predictions and labels, derivatives/validate-classifier.npz
+    - numpy file with clf predictions and labels, validate-classifier.npz
 EXPORTS
 =======
-    - table of raw performance metrics at each cv fold,   derivatives/validate-classifier_cv.npz
-    - table of performance metrics averaged across folds, derivatives/validate-classifier_avg.npz
+    - table of raw performance metrics at each cv fold,   validate-classifier_cv.npz
+    - table of performance metrics averaged across folds, validate-classifier_avg.npz
 """
 import numpy as np
 import pandas as pd
@@ -17,7 +17,7 @@ import config as c
 
 import_path = c.DATA_DIR / "derivatives" / "validate-classifier.npz"
 export_path_cv = c.DATA_DIR / "derivatives" / "validate-classifier_cv.tsv"
-export_path_cv_avg = c.DATA_DIR / "results" / "validate-classifier_avg.tsv"
+export_path_cv_avg = c.DATA_DIR / "derivatives" / "validate-classifier_avg.tsv"
 
 # Load data.
 data = np.load(import_path)
