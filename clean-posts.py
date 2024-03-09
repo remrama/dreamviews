@@ -1,17 +1,18 @@
 """
-Convert raw DreamViews html dream report files into individual text files
-and a corresponding attributes tsv file. Also generate random IDs for all posts
-and users, exporting the user legend as a json file.
+Convert raw DreamViews dream journal HTML pages into a tsv file holding
+dream reports and their attributes.
+
+Also generate random IDs for all posts and users, exporting the user legend as a json file.
 
 Each dream report also ends up with a unique identifier that is a filename for
 the text file and a row in the attributes file that has all the relevant
 corresponding info (username, date, tags, categories, title, etc.).
 
-Only real exclusion besides a few anomolous errors is that there is a minimum
+Only real exclusion besides a few anomalous errors is that there is a minimum
 amount of alphabetic characters required for the dream report.
 
 Extremely minimal cleaning here. The goal is not to clean dream reports, only to
-make them all consistent with each other and remove html decoding errors. Most
+make them all consistent with each other and remove HTML decoding errors. Most
 of these corrections fix minimal instances anyways, like just a couple, so they
 probably coulda been left anyways :/
 - convert to ASCII characters (what a fucking headache)
@@ -129,19 +130,19 @@ user_mapping = {}  # key, value pairs of raw_username, unique_username
 # Initialize a random state value that will increment every post.
 random_state = 0
 
-# Loop over each html file.
-for html_byt in tqdm.tqdm(html_files, desc="DreamViews post cleaner"):
+# Loop over each HTML file
+for html in tqdm.tqdm(html_files, desc="Cleaning DreamViews posts"):
 
     # Extract the post, user, date, and title, from each post of the current html file.
-    soup = BeautifulSoup(html_byt, "html.parser", from_encoding="windows-1252")
+    soup = BeautifulSoup(html, "html.parser", from_encoding="windows-1252")
     page_posts = soup.find_all("div", class_="blogbody")
     page_users = soup.find_all("div", class_="popupmenu memberaction")
     page_dates = soup.find_all("div", class_="blog_date")
     page_titles = soup.find_all("a", class_="blogtitle")
     assert len(page_posts) == len(page_users) == len(page_dates) == len(page_titles)
 
-    ## Loop over each entry (and components) of the current html page and
-    ## perform *minimal* cleaning and further parsing of the html.
+    ## Loop over each entry (and components) of the current HTML page and
+    ## perform *minimal* cleaning and further parsing of the HTML.
     ##
     ## There are some "continue" statements that will push into the next loop
     ## and prevent saving that data (in cases where the post fails inclusion).
