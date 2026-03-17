@@ -24,8 +24,8 @@ import liwc
 import numpy as np
 import pandas as pd
 import pingouin as pg
-import tqdm
 from scipy import sparse
+from tqdm import tqdm
 
 import config as c
 
@@ -37,9 +37,9 @@ LIWC_CATEGORIES = ["insight", "agency"]
 TOP_N = 20  # Top n contributing tokens/words for each category
 
 import_path_dict = c.DATA_DIR / "dictionaries" / "custom.dic"
-import_path_data = c.DATA_DIR / "derivatives" / "validate-liwc_wordscores-data.npz"
-import_path_attr = c.DATA_DIR / "derivatives" / "validate-liwc_wordscores-attr.npz"
-export_path = c.DATA_DIR / "derivatives" / "validate-liwc_wordscores-stats.tsv"
+import_path_data = c.derivatives_dir / "validate-liwc_wordscores-data.npz"
+import_path_attr = c.derivatives_dir / "validate-liwc_wordscores-attr.npz"
+export_path = c.derivatives_dir / "validate-liwc_wordscores-stats.tsv"
 
 #### load in the original posts file to get attributes lucidity and user_id
 # and drop un-labeled posts
@@ -94,7 +94,7 @@ avgs = (
 # We already have only relevant tokens, so get effect
 # sizes for all of them
 effectsize_results = []
-for tok in tqdm.tqdm(relevant_tokens, desc="stats on word-level LIWC scores"):
+for tok in tqdm(relevant_tokens, desc="LIWC word stats"):
     ld, nld = avgs[tok][["lucid", "nonlucid"]].T.values
     stats = {}
     stats["cohen-d"] = pg.compute_effsize(ld, nld, paired=True, eftype="cohen")

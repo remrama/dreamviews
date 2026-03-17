@@ -19,14 +19,14 @@ EXPORTS
 """
 
 import numpy as np
-import tqdm
 from sklearn.feature_extraction.text import CountVectorizer
 from sklearn.model_selection import StratifiedShuffleSplit
 from sklearn.svm import SVC
+from tqdm import tqdm
 
 import config as c
 
-export_path = c.DATA_DIR / "derivatives" / "validate-classifier.npz"
+export_path = c.derivatives_dir / "validate-classifier.npz"
 
 column_name = "post_lemmas"
 n_splits = 5
@@ -68,7 +68,7 @@ y = df["lucidity"].map({"nonlucid": nonlucid_digit, "lucid": lucid_digit}).value
 # Cross-validation
 true_labels_list = []
 pred_labels_list = []
-for train_index, test_index in tqdm.tqdm(cv.split(X, y), total=n_splits, desc="DreamViews clf"):
+for train_index, test_index in tqdm(cv.split(X, y), total=n_splits, desc="Lucidity classifier"):
     X_train, X_test = X[train_index], X[test_index]
     y_train, y_test = y[train_index], y[test_index]
     clf.fit(X_train, y_train)

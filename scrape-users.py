@@ -12,15 +12,14 @@ import json
 import zipfile
 
 import requests
-import tqdm
+from tqdm import tqdm
 
 import config as c
 
-import_path = c.DATA_DIR / "derivatives" / "dreamviews-users_key.json"
-export_path = c.DATA_DIR / "sourcedata" / "dreamviews-users.zip"
+import_path = c.raw_dir / "dreamviews-users_key.json"
+export_path = c.sourcedata_dir / "dreamviews-users.zip"
 
-base_user_url = "https://www.dreamviews.com/members"
-
+BASE_USER_URL = "https://www.dreamviews.com/members"
 
 # Get all unique usernames from dataset
 with open(import_path, "rt", encoding="ascii") as f:
@@ -30,8 +29,8 @@ user_list = list(user_mappings)
 with requests.Session() as session:
     with zipfile.ZipFile(export_path, mode="x", compression=zipfile.ZIP_DEFLATED) as zf:
         # Loop over all the users and try to grab each user profile, skipping failures
-        for user in tqdm.tqdm(user_list, desc="DreamViews users crawl"):
-            url = f"{base_user_url}/{user}"
+        for user in tqdm(user_list, desc="Scraping users"):
+            url = f"{BASE_USER_URL}/{user}"
             export_name = f"{user}.html"
             response = session.get(url)
             if response.ok and "This user has not registered" not in response.text:

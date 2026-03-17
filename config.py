@@ -4,7 +4,16 @@ import pandas as pd
 from matplotlib.pyplot import rcParams
 
 DATA_DIR = "../data"
-DATA_DIR = Path(DATA_DIR).expanduser()
+
+data_dir = Path(DATA_DIR).expanduser()
+
+sourcedata_dir = data_dir / "sourcedata"
+raw_dir = data_dir / "raw"
+derivatives_dir = data_dir / "derivatives"
+
+sourcedata_dir.mkdir(parents=True, exist_ok=True)
+raw_dir.mkdir(parents=True, exist_ok=True)
+derivatives_dir.mkdir(parents=True, exist_ok=True)
 
 MIN_WORDCOUNT = 50
 MAX_WORDCOUNT = 1000
@@ -22,13 +31,13 @@ COLORS = {
 
 
 def load_dreamviews_users():
-    users_fname = DATA_DIR / "derivatives" / "dreamviews-users.tsv"
+    users_fname = raw_dir / "dreamviews-users.tsv"
     users = pd.read_csv(users_fname, sep="\t", encoding="ascii")
     return users
 
 
 def load_dreamviews_posts():
-    posts_fname = DATA_DIR / "derivatives" / "dreamviews-posts.tsv"
+    posts_fname = raw_dir / "dreamviews-posts.tsv"
     posts = pd.read_csv(posts_fname, sep="\t", encoding="ascii", parse_dates=["timestamp"])
     return posts
 

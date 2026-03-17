@@ -25,11 +25,11 @@ import config as c
 c.load_matplotlib_settings()
 
 # Pick export locations
-export_path_table = c.DATA_DIR / "derivatives" / "describe-wordcount.tsv"
+export_path_table = c.derivatives_dir / "describe-wordcount.tsv"
 export_path_plots = [
-    c.DATA_DIR / "derivatives" / "describe-wordcount_perpost.png",
-    c.DATA_DIR / "derivatives" / "describe-wordcount_peruser.png",
-    c.DATA_DIR / "derivatives" / "describe-wordcount_lucidity.png",
+    c.derivatives_dir / "describe-wordcount_perpost.png",
+    c.derivatives_dir / "describe-wordcount_peruser.png",
+    c.derivatives_dir / "describe-wordcount_lucidity.png",
 ]
 
 # Load data

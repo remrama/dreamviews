@@ -47,5 +47,5 @@ for col in ["tags", "categories"]:
     res.index = res.index.str.replace("_", " ")
 
     # export
-    export_path = c.DATA_DIR / "derivatives" / f"describe-top{col}.tsv"
+    export_path = c.derivatives_dir / f"describe-top{col}.tsv"
     res.to_csv(export_path, index=True, sep="\t", encoding="utf-8")

@@ -14,7 +14,7 @@ EXPORTS
 import matplotlib.pyplot as plt
 import pandas as pd
 import pingouin as pg
-import tqdm
+from tqdm import tqdm
 
 import config as c
 
@@ -24,10 +24,10 @@ c.load_matplotlib_settings()
 LIWC_CATS = ["insight", "agency"]
 LUCID_ORDER = ["nonlucid", "lucid"]
 
-import_path_liwc = c.DATA_DIR / "derivatives" / "validate-liwc_scores.tsv"
-export_path_descr = c.DATA_DIR / "derivatives" / "validate-liwc_scores-descr.tsv"
-export_path_stats = c.DATA_DIR / "derivatives" / "validate-liwc_scores-stats.tsv"
-export_path_plot = c.DATA_DIR / "derivatives" / "validate-liwc_scores-plot.png"
+import_path_liwc = c.derivatives_dir / "validate-liwc_scores.tsv"
+export_path_descr = c.derivatives_dir / "validate-liwc_scores-descr.tsv"
+export_path_stats = c.derivatives_dir / "validate-liwc_scores-stats.tsv"
+export_path_plot = c.derivatives_dir / "validate-liwc_scores-plot.png"
 
 
 ########################## I/O
@@ -69,7 +69,7 @@ descriptives.to_csv(
 
 # loop over each LIWC category, running test and getting effect size at each
 wilcoxon_results = []
-for cat in tqdm.tqdm(LIWC_CATS, desc="stats on total LIWC scores"):
+for cat in tqdm(LIWC_CATS, desc="LIWC stats"):
     ld, nld = avgs[cat][["lucid", "nonlucid"]].T.values
     stats_ = pg.wilcoxon(ld, nld, alternative="two-sided")
     stats_.index = [cat]

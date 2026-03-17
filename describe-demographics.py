@@ -30,11 +30,11 @@ c.load_matplotlib_settings()
 df = c.load_dreamviews_users()
 
 # Choose export paths
-export_path_agegender = c.DATA_DIR / "derivatives" / "describe-demographics_agegender.tsv"
-export_path_locations = c.DATA_DIR / "derivatives" / "describe-demographics_location.tsv"
-export_path_provided = c.DATA_DIR / "derivatives" / "describe-demographics_provided.tsv"
-export_path_agegender_plot = c.DATA_DIR / "derivatives" / "describe-demographics_agegender.png"
-export_path_locations_plot = c.DATA_DIR / "derivatives" / "describe-demographics_location.png"
+export_path_agegender = c.derivatives_dir / "describe-demographics_agegender.tsv"
+export_path_locations = c.derivatives_dir / "describe-demographics_location.tsv"
+export_path_provided = c.derivatives_dir / "describe-demographics_provided.tsv"
+export_path_agegender_plot = c.derivatives_dir / "describe-demographics_agegender.png"
+export_path_locations_plot = c.derivatives_dir / "describe-demographics_location.png"
 
 ################################################################################
 # GET FREQUENCIES

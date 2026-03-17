@@ -44,8 +44,8 @@ import liwc
 import nltk
 import numpy as np
 import pandas as pd
-import tqdm
 from scipy import sparse
+from tqdm import tqdm
 
 import config as c
 
@@ -60,21 +60,19 @@ args = parser.parse_args()
 
 GET_WORD_CONTRIBUTIONS = args.words
 
-
 ################################################################################
 # SETUP
 ################################################################################
 
-
 # Turn on pandas progress bar
-tqdm.tqdm.pandas(desc="word-level LIWCing" if GET_WORD_CONTRIBUTIONS else "LIWCing")
+tqdm.pandas(desc="LIWCing words" if GET_WORD_CONTRIBUTIONS else "LIWCing posts")
 
 # Select filenames
-dict_fname = c.DATA_DIR / "dictionaries" / "custom.dic"
-export_fname = c.DATA_DIR / "derivatives" / "validate-liwc_scores.tsv"
+dict_fname = c.data_dir / "dictionaries" / "custom.dic"
+export_fname = c.derivatives_dir / "validate-liwc_scores.tsv"
 if GET_WORD_CONTRIBUTIONS:
-    export_fname2 = c.DATA_DIR / "derivatives" / "validate-liwc_wordscores-data.npz"
-    export_fname3 = c.DATA_DIR / "derivatives" / "validate-liwc_wordscores-attr.npz"
+    export_fname2 = c.derivatives_dir / "validate-liwc_wordscores-data.npz"
+    export_fname3 = c.derivatives_dir / "validate-liwc_wordscores-attr.npz"
 
 # Load data
 df = c.load_dreamviews_posts()

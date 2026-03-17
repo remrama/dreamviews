@@ -8,7 +8,7 @@ Turning the public [DreamViews dream journal](https://www.dreamviews.com/blogs) 
 
 * `config.py` houses directory info, default constants, and utility functions
 * `environment.yaml` file to set up a conda environment
-* `runall.sh` to run everything (`runall.sh noliwc` if you don't have a LIWC dictionary file)
+* `runall.py` to run everything
 
 ### Setup
 
@@ -21,19 +21,19 @@ python setup-data_dirs.py                   #=> <DATA_DIR>/source/
 python -m spacy download en_core_web_lg
 ```
 
-### Scrape raw data and clean it up
+### Scrape raw data and extract content to TSV files
 
 ```shell
 # Collect raw dream journal posts as html files
-python scrape-posts.py                      #=> source/dreamviews-posts.zip
+python scrape-posts.py                      #=> sourcedata/dreamviews-posts.zip
 
 # Convert raw html posts into a cleaned tsv file (exclusion criteria applied)
-python clean-posts.py                       #=> derivatives/dreamviews-posts.tsv
-                                            #=> derivatives/dreamviews-users_key.json
+python extract-posts.py                     #=> raw/dreamviews-posts.tsv
+                                            #=> raw/dreamviews-users_key.json
 
 # Collect the relevant user profiles and clean them
-python scrape-users.py                      #=> source/dreamviews-users.zip
-python clean-users.py                       #=> derivatives/dreamviews-users.tsv
+python scrape-users.py                      #=> sourcedata/dreamviews-users.zip
+python extract-users.py                     #=> raw/dreamviews-users.tsv
 ```
 
 ### Describe the dataset with visualizations and summary statistics

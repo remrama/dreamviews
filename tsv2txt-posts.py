@@ -29,7 +29,7 @@ ser = pd.read_csv(
 )
 
 n_posts = ser.size
-for post_id, post_txt in tqdm.tqdm(ser.items(), total=n_posts, desc="writing posts as txt files"):
+for post_id, post_txt in tqdm(ser.items(), total=n_posts, desc="Writing posts as txt files"):
     export_fname = os.path.join(export_txt_directory, f"{post_id}.txt")
     with open(export_fname, "xt", encoding="utf-8") as f:
         f.write(post_txt)

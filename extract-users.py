@@ -11,14 +11,14 @@ import zipfile
 
 import pandas as pd
 import pycountry
-import tqdm
 from bs4 import BeautifulSoup
+from tqdm import tqdm
 
 import config as c
 
-export_path = c.DATA_DIR / "derivatives" / "dreamviews-users.tsv"
-import_path_html = c.DATA_DIR / "sourcedata" / "dreamviews-users.zip"
-import_path_userkey = c.DATA_DIR / "derivatives" / "dreamviews-users_key.json"
+import_path_html = c.sourcedata_dir / "dreamviews-users.zip"
+import_path_userkey = c.raw_dir / "dreamviews-users_key.json"
+export_path = c.raw_dir / "dreamviews-users.tsv"
 
 # Select which columns will be included in the output file
 # WARNING: Never include "biography" which sometimes has real names
@@ -82,9 +82,11 @@ data = {}
 # Loop over all the raw html files and get user info from each
 with zipfile.ZipFile(import_path_html, mode="r") as zf:
     filenames = zf.namelist()
-    for fn in tqdm.tqdm(filenames, desc="DreamViews user cleaner"):
+    for fn in tqdm(filenames, desc="Extracting users"):
         # get the anonymized username
         username = fn[:-5]  # remove ".html" off the end
+        if username not in user_mapping:
+            continue  # skip users whose posts didn't survive filtering
         user_id = user_mapping[username]
         html = zf.read(fn)  # read in the html file
         soup = BeautifulSoup(html, "html.parser", from_encoding="windows-1252")
@@ -138,6 +140,7 @@ country_replacements = {
     "Indonezia": "Indonesia",
     "HeardIslandandMcDonald": "Heard Island and McDonald Islands",
     "Iran": "Iran, Islamic Republic of",
+    "Turkey": "Türkiye",
 }
 
 
@@ -162,8 +165,7 @@ def get_country_code(x):
     return country.alpha_3
 
 
-tqdm.tqdm.pandas(desc="DreamViews user cleaner - country code lookups")
-df["country"] = df["country_flag"].progress_apply(get_country_code)
+df["country"] = df["country_flag"].apply(get_country_code)
 df["gender"] = df["gender"].str.lower()
 
 # Export

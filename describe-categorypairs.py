@@ -28,8 +28,8 @@ import config as c
 c.load_matplotlib_settings()
 
 # Choose export paths
-export_path_table = c.DATA_DIR / "derivatives" / "describe-categorypairs.tsv"
-export_path_plot = c.DATA_DIR / "derivatives" / "describe-categorypairs.png"
+export_path_table = c.derivatives_dir / "describe-categorypairs.tsv"
+export_path_plot = c.derivatives_dir / "describe-categorypairs.png"
 
 # Load data
 df = c.load_dreamviews_posts()

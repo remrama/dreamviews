@@ -59,13 +59,13 @@ TOP_N_PLOTS = 50
 TOP_N_TABLES = 100
 
 # Choose export locations
-export_path_jsd_table = c.DATA_DIR / "derivatives" / "validate-wordshift_jsd-scores.tsv"
-export_path_jsd_plot = c.DATA_DIR / "derivatives" / "validate-wordshift_jsd-plot.png"
-export_path_fear_table = c.DATA_DIR / "derivatives" / "validate-wordshift_fear-scores.tsv"
-export_path_fear_plot = c.DATA_DIR / "derivatives" / "validate-wordshift_fear-plot.png"
-export_path_prop_plot = c.DATA_DIR / "derivatives" / "validate-wordshift_proportion-plot.png"
-export_path_top1grams = c.DATA_DIR / "derivatives" / "validate-wordshift_proportion-ld1grams.tsv"
-export_path_top2grams = c.DATA_DIR / "derivatives" / "validate-wordshift_proportion-ld2grams.tsv"
+export_path_jsd_table = c.derivatives_dir / "validate-wordshift_jsd-scores.tsv"
+export_path_jsd_plot = c.derivatives_dir / "validate-wordshift_jsd-plot.png"
+export_path_fear_table = c.derivatives_dir / "validate-wordshift_fear-scores.tsv"
+export_path_fear_plot = c.derivatives_dir / "validate-wordshift_fear-plot.png"
+export_path_prop_plot = c.derivatives_dir / "validate-wordshift_proportion-plot.png"
+export_path_top1grams = c.derivatives_dir / "validate-wordshift_proportion-ld1grams.tsv"
+export_path_top2grams = c.derivatives_dir / "validate-wordshift_proportion-ld2grams.tsv"
 
 # Load data
 df = c.load_dreamviews_posts()
@@ -96,7 +96,7 @@ if not NO_BIGRAMS:  # Sorry for the double negative
     def _unigram2ngram(x):
         return phrase_model[x]
 
-    tqdm.tqdm.pandas(desc="Mixing bigrams into corpus")
+    tqdm.pandas(desc="Mixing bigrams into corpus")
     df[COLUMN_NAME] = (
         df[COLUMN_NAME].str.lower().str.split().progress_apply(_unigram2ngram).str.join(" ")
     )

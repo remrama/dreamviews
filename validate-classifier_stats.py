@@ -15,9 +15,9 @@ from sklearn import metrics
 
 import config as c
 
-import_path = c.DATA_DIR / "derivatives" / "validate-classifier.npz"
-export_path_cv = c.DATA_DIR / "derivatives" / "validate-classifier_cv.tsv"
-export_path_cv_avg = c.DATA_DIR / "derivatives" / "validate-classifier_avg.tsv"
+import_path = c.derivatives_dir / "validate-classifier.npz"
+export_path_cv = c.derivatives_dir / "validate-classifier_cv.tsv"
+export_path_cv_avg = c.derivatives_dir / "validate-classifier_avg.tsv"
 
 # Load data
 data = np.load(import_path)

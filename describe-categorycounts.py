@@ -23,7 +23,7 @@ import config as c
 c.load_matplotlib_settings()
 
 # Choose filename for exporting
-export_path = c.DATA_DIR / "derivatives" / "describe-categorycounts.png"
+export_path = c.derivatives_dir / "describe-categorycounts.png"
 
 # Load data
 df = c.load_dreamviews_posts()

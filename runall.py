@@ -12,9 +12,8 @@ def run(script, *args):
 
 
 parser = argparse.ArgumentParser(description="Run all steps")
-parser.add_argument("--scrape", action="store_true", help="Scrape all data")
-parser.add_argument("--clean", action="store_true", help="Clean all data")
-parser.add_argument("--noliwc", action="store_true", help="Skip LIWC validation steps")
+parser.add_argument("--scrape", action="store_true", help="Scrape data")
+parser.add_argument("--extract", action="store_true", help="Extract data")
 args = parser.parse_args()
 
 # Setup
@@ -23,18 +22,17 @@ subprocess.run([sys.executable, "-m", "spacy", "download", "en_core_web_lg"], ch
 
 # Scrape
 if args.scrape:
-    print("Scraping and cleaning data will take hours...")
+    print("Scraping and extracting data will take hours...")
     run("scrape-posts.py")
-    run("clean-posts.py")
+    run("extract-posts.py")
     run("scrape-users.py")
 
-# Clean
-if args.clean:
+# Extract
+if args.extract:
     if not args.scrape:
-        print("Cleaning data will take hours...")
-        run("clean-posts.py")
-    run("clean-users.py")
-    run("anonymize-posts.py")
+        print("Extracting data will take hours...")
+        run("extract-posts.py")
+    run("extract-users.py")
 
 # Describe
 print("Descriptive analyses take just a minute altogether...")
@@ -52,8 +50,7 @@ run("validate-classifier.py")
 run("validate-classifier_stats.py")
 run("validate-wordshift.py")
 run("validate-wordshift_plot.py")
-if not args.noliwc:
-    run("validate-liwc.py", "--words")
-    run("validate-liwc_stats.py")
-    run("validate-liwc_word_stats.py")
-    run("validate-liwc_word_plot.py")
+run("validate-liwc.py", "--words")
+run("validate-liwc_stats.py")
+run("validate-liwc_word_stats.py")
+run("validate-liwc_word_plot.py")

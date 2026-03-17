@@ -43,8 +43,8 @@ RESTRICT = args.restrict
 c.load_matplotlib_settings()
 
 # Choose export locations
-export_path_plot = c.DATA_DIR / "derivatives" / "describe-timecourse.png"
-export_path_values = c.DATA_DIR / "derivatives" / "describe-totalcounts.tsv"
+export_path_plot = c.derivatives_dir / "describe-timecourse.png"
+export_path_values = c.derivatives_dir / "describe-totalcounts.tsv"
 if WHITE:
     export_path_plot = export_path_plot.as_posix().replace(".png", "_WHITE.png")
 if RESTRICT:

@@ -36,16 +36,16 @@ import contractions
 import langdetect
 import pandas as pd
 import spacy
-import tqdm
 import unidecode
 from bs4 import BeautifulSoup
+from tqdm import tqdm
 
 import config as c
 
 # Identify filepaths
-import_path = c.DATA_DIR / "sourcedata" / "dreamviews-posts.zip"
-export_path_posts = c.DATA_DIR / "derivatives" / "dreamviews-posts.tsv"
-export_path_userkey = c.DATA_DIR / "derivatives" / "dreamviews-users_key.json"
+import_path = c.sourcedata_dir / "dreamviews-posts.zip"
+export_path_posts = c.raw_dir / "dreamviews-posts.tsv"
+export_path_userkey = c.raw_dir / "dreamviews-users_key.json"
 
 # Load spaCy model (used for named entity recognition)
 nlp = spacy.load("en_core_web_lg")
@@ -132,7 +132,7 @@ data = {}  # To hold key, value pairs of post_id, post_data
 user_mapping = {}  # key, value pairs of raw_username, unique_username
 
 # Loop over each html file
-for html_byt in tqdm.tqdm(html_files, desc="DreamViews post cleaner"):
+for html_byt in tqdm(html_files, desc="Extracting posts"):
     # Extract the post, user, date, and title, from each post of the current html file
     soup = BeautifulSoup(html_byt, "html.parser", from_encoding="windows-1252")
     page_posts = soup.find_all("div", class_="blogbody")
@@ -176,7 +176,9 @@ for html_byt in tqdm.tqdm(html_files, desc="DreamViews post cleaner"):
 
         # Generate deterministic user ID from username
         if user_txt not in user_mapping:
-            user_mapping[user_txt] = generate_id(user_txt, n_chars=4, existing_ids=set(user_mapping.values()))
+            user_mapping[user_txt] = generate_id(
+                user_txt, n_chars=4, existing_ids=set(user_mapping.values())
+            )
 
         ########################################################################
         # CLEAN/PARSE DATE
