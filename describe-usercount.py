@@ -7,25 +7,23 @@ EXPORTS
 =======
     - visualization of post-per-user frequency, describe-usercount.png
 """
+
 import matplotlib.pyplot as plt
 import numpy as np
-import pandas as pd
-import seaborn as sea
 
 import config as c
-
 
 ################################################################################
 # SETUP
 ################################################################################
 
-# Load custom plotting aesthetics.
+# Load custom plotting aesthetics
 c.load_matplotlib_settings()
 
-# Choose export location.
+# Choose export location
 export_path = c.DATA_DIR / "derivatives" / "describe-usercount.png"
 
-# Load data.
+# Load data
 df = c.load_dreamviews_posts()
 counts = df["user_id"].value_counts().rename_axis("user_id").rename("n_posts")
 
@@ -34,20 +32,18 @@ counts = df["user_id"].value_counts().rename_axis("user_id").rename("n_posts")
 # PLOTTING
 ################################################################################
 
-# Generate bins.
+# Generate bins
 n_bins = 50
-bins = np.linspace(0, c.MAX_POSTCOUNT, n_bins+1)
+bins = np.linspace(0, c.MAX_POSTCOUNT, n_bins + 1)
 
-# Open figure.
+# Open figure
 fig, ax = plt.subplots(figsize=(3, 1.8), constrained_layout=True)
 
-# Draw.
-ax.hist(counts.values, bins=bins, log=True, color="gainsboro", linewidth=.5, edgecolor="black")
+# Draw
+ax.hist(counts.values, bins=bins, log=True, color="gainsboro", linewidth=0.5, edgecolor="black")
 
-# Indicate post limit.
-ax.axvline(
-    c.MAX_POSTCOUNT, color="black", ls="dashed", lw=0.5, alpha=1, clip_on=False
-)
+# Indicate post limit
+ax.axvline(c.MAX_POSTCOUNT, color="black", ls="dashed", lw=0.5, alpha=1, clip_on=False)
 ax.text(
     c.MAX_POSTCOUNT - 10,
     1,
@@ -57,7 +53,7 @@ ax.text(
     va="top",
 )
 
-# Aesthetics.
+# Aesthetics
 ax.set_xlim(0, c.MAX_POSTCOUNT)
 ax.set_xlabel(r"$n$ posts per user", labelpad=0)
 ax.set_ylabel(r"$n$ users")
@@ -68,7 +64,7 @@ ax.xaxis.set_major_locator(plt.MultipleLocator(major_tick_loc))
 ax.xaxis.set_minor_locator(plt.MultipleLocator(minor_tick_loc))
 ax.spines[["top", "right"]].set_visible(False)
 
-# Export.
+# Export
 plt.savefig(export_path)
 plt.savefig(export_path.with_suffix(".pdf"))
 plt.close()

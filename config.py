@@ -1,8 +1,7 @@
 from pathlib import Path
 
-from matplotlib.pyplot import rcParams
 import pandas as pd
-
+from matplotlib.pyplot import rcParams
 
 DATA_DIR = "../data"
 DATA_DIR = Path(DATA_DIR).expanduser()
@@ -21,18 +20,21 @@ COLORS = {
     "repeat-user": "goldenrod",
 }
 
+
 def load_dreamviews_users():
     users_fname = DATA_DIR / "derivatives" / "dreamviews-users.tsv"
     users = pd.read_csv(users_fname, sep="\t", encoding="ascii")
     return users
+
 
 def load_dreamviews_posts():
     posts_fname = DATA_DIR / "derivatives" / "dreamviews-posts.tsv"
     posts = pd.read_csv(posts_fname, sep="\t", encoding="ascii", parse_dates=["timestamp"])
     return posts
 
+
 def load_matplotlib_settings():
-    rcParams["savefig.dpi"] = 600
+    rcParams["savefig.dpi"] = 300
     rcParams["font.family"] = "Times New Roman"
     rcParams["mathtext.fontset"] = "custom"
     rcParams["mathtext.rm"] = "Times New Roman"
@@ -47,6 +49,7 @@ def load_matplotlib_settings():
     rcParams["ytick.labelsize"] = 8
     rcParams["legend.fontsize"] = 8
     rcParams["legend.title_fontsize"] = 8
+
 
 def no_leading_zeros(x, pos):
     # a custom tick formatter for matplotlib to show decimals without a leading zero

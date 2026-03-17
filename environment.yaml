@@ -1,34 +1,31 @@
-## OS  -----------  Windows 10, version 21H2, OS build 19044.2364
-## miniconda  ----  conda version 22.11.1
-##
-## See environment.txt for versions and builds.
-
 name: dreamviews
-
+channels:
+  - conda-forge
+  - defaults
 dependencies:
-  - ipython                         # development
-  - conda-forge::tqdm               # progress bars
-  - numpy                           # data analysis
-  - pandas                          # data analysis
-  - scipy                           # data analysis
-  - conda-forge::pingouin           # data analysis - statistics
-  - scikit-learn                    # data analysis - machine learning
-  - matplotlib                      # data visualization
-  - seaborn                         # data visualization
-  - colorcet                        # data visualization - colormaps
-  - conda-forge::geopandas          # data visualization - choropleth
-  - beautifulsoup4                  # web scraping
-  - conda-forge::unidecode          # text cleaning - ascii conversion
-  - conda-forge::pyahocorasick      # text cleaning - contraction conversion
-  - nltk                            # natural language processing
-  - gensim                          # natural language processing
-  - conda-forge::spacy              # natural language processing
-  - conda-forge::python-levenshtein # natural language processing - silence gensim warning
+  - ipython             # development
+  - tqdm                # progress bars
+  - numpy               # data analysis
+  - pandas              # data analysis
+  - scipy               # data analysis
+  - pingouin            # data analysis - statistics
+  - scikit-learn        # data analysis - machine learning
+  - matplotlib          # data visualization
+  - seaborn             # data visualization
+  - colorcet            # data visualization - colormaps
+  - geopandas           # data visualization - choropleth
+  - beautifulsoup4      # web scraping
+  - unidecode           # text cleaning - ascii conversion
+  - pyahocorasick       # text cleaning - contraction conversion
+  - nltk                # natural language processing
+  - gensim              # natural language processing
+  - spacy               # natural language processing
+  - python-levenshtein  # natural language processing - silence gensim warning
   - pip
   - pip:
-    - pycountry                     # demographics - ISO country codes
-    - matplotlib-venn               # data visualization - venn diagram
-    - contractions                  # text cleaning - expand contractions
-    - langdetect                    # text cleaning - detect language
-    - shifterator                   # text analysis - word shifts
-    - liwc                          # text analysis - LIWC
+    - pycountry         # demographics - ISO country codes
+    - matplotlib-venn   # data visualization - venn diagram
+    - contractions      # text cleaning - expand contractions
+    - langdetect        # text cleaning - detect language
+    - shifterator       # text analysis - word shifts
+    - liwc              # text analysis - LIWC

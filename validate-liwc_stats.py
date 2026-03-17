@@ -1,4 +1,4 @@
-"""Analyze traditional LIWC scores between lucid and non-lucid dreams. 
+"""Analyze traditional LIWC scores between lucid and non-lucid dreams.
 
 IMPORTS
 =======
@@ -10,6 +10,7 @@ EXPORTS
     - statistics table,   validate-liwc_scores-stats.tsv
     - visualization,      validate-liwc_scores-plot.png
 """
+
 import matplotlib.pyplot as plt
 import pandas as pd
 import pingouin as pg
@@ -26,7 +27,7 @@ LUCID_ORDER = ["nonlucid", "lucid"]
 import_path_liwc = c.DATA_DIR / "derivatives" / "validate-liwc_scores.tsv"
 export_path_descr = c.DATA_DIR / "derivatives" / "validate-liwc_scores-descr.tsv"
 export_path_stats = c.DATA_DIR / "derivatives" / "validate-liwc_scores-stats.tsv"
-export_path_plot  = c.DATA_DIR / "derivatives" / "validate-liwc_scores-plot.png"
+export_path_plot = c.DATA_DIR / "derivatives" / "validate-liwc_scores-plot.png"
 
 
 ########################## I/O
@@ -38,15 +39,17 @@ df_liwc = pd.read_csv(import_path_liwc, index_col="post_id", sep="\t", encoding=
 df = df_attr.join(df_liwc, how="inner")
 assert len(df) == len(df_attr) == len(df_liwc), "Should all be same length after joining"
 
-# Average the LD and NLD scores for each user.
-# Users without both dream types will be removed.
-avgs = df.groupby(["user_id", "lucidity"]
-    )[LIWC_CATS].mean(
-    ).drop(["ambiguous", "unspecified"], level="lucidity"
-    ).rename_axis(columns="category"
-    ).pivot_table(index="user_id", columns="lucidity"
-    ).dropna(
-    ).multiply(100) # convert to percentages
+# Average the LD and NLD scores for each user
+# Users without both dream types will be removed
+avgs = (
+    df.groupby(["user_id", "lucidity"])[LIWC_CATS]
+    .mean()
+    .drop(["ambiguous", "unspecified"], level="lucidity")
+    .rename_axis(columns="category")
+    .pivot_table(index="user_id", columns="lucidity")
+    .dropna()
+    .multiply(100)
+)  # convert to percentages
 # avgs.index.get_level_values("user_id").duplicated(keep=False)
 
 
@@ -55,8 +58,9 @@ avgs = df.groupby(["user_id", "lucidity"]
 descriptives = avgs.agg(["mean", "std", "sem", "min", "max"]).T
 
 # export
-descriptives.to_csv(export_path_descr, sep="\t", encoding="utf-8",
-    na_rep="NA", index=True, float_format="%.3f")
+descriptives.to_csv(
+    export_path_descr, sep="\t", encoding="utf-8", na_rep="NA", index=True, float_format="%.3f"
+)
 
 
 ########################## run statistics
@@ -70,16 +74,14 @@ for cat in tqdm.tqdm(LIWC_CATS, desc="stats on total LIWC scores"):
     stats_ = pg.wilcoxon(ld, nld, alternative="two-sided")
     stats_.index = [cat]
     stats_["cohen-d"] = pg.compute_effsize(ld, nld, paired=True, eftype="cohen")
-    stats_["cohen-d_lo"], stats_["cohen-d_hi"] = pg.compute_bootci(ld, nld,
-        paired=True, func="cohen", method="cper",
-        confidence=.95, n_boot=2000, decimals=4)
-    stats_["n"] = len(ld) # should be the same every time
+    stats_["cohen-d_lo"], stats_["cohen-d_hi"] = pg.compute_bootci(
+        ld, nld, paired=True, func="cohen", method="cper", confidence=0.95, n_boot=2000, decimals=4
+    )
+    stats_["n"] = len(ld)  # should be the same every time
     wilcoxon_results.append(stats_)
 
 # combine into one dataframe
-stats = pd.concat(wilcoxon_results
-    ).rename_axis("category"
-    ).drop(columns="alternative")
+stats = pd.concat(wilcoxon_results).rename_axis("category").drop(columns="alternative")
 
 # export
 stats.to_csv(export_path_stats, index=True, na_rep="NA", sep="\t", encoding="utf-8")
@@ -87,7 +89,7 @@ stats.to_csv(export_path_stats, index=True, na_rep="NA", sep="\t", encoding="utf
 
 ########################## plot visualization
 #### Barplot,
-#### one bar for Agency the other for Insight.
+#### one bar for Agency the other for Insight
 #### It's a little overly complicated to get
 #### the hatches in the y-axis (that's why there are two different axes)
 
@@ -98,75 +100,97 @@ SIG_LINEWIDTH = 1
 YMIN = 1.9
 YMAX = 3.4
 FIGSIZE = (1.7, 2)
-GRIDSPEC_ARGS = dict(height_ratios=[15, 1], hspace=.04,
-    top=.99, right=.96, bottom=.1, left=.16)
+GRIDSPEC_ARGS = dict(
+    height_ratios=[15, 1], hspace=0.04, top=0.99, right=0.96, bottom=0.1, left=0.16
+)
 
 # generate data for plotting
 row_indx = pd.MultiIndex.from_product([LIWC_CATS, LUCID_ORDER])
 yvals = descriptives.loc[row_indx, "mean"].values
 yerrs = descriptives.loc[row_indx, "sem"].values
-xvals = [ x+.5 if x>1 else x for x in range(yvals.size) ]
-cvals = [ c.COLORS[luc] for cat, luc in row_indx ]
-xticks = [ sum(xvals[:2])/2, sum(xvals[2:])/2 ]
+xvals = [x + 0.5 if x > 1 else x for x in range(yvals.size)]
+cvals = [c.COLORS[luc] for cat, luc in row_indx]
+xticks = [sum(xvals[:2]) / 2, sum(xvals[2:]) / 2]
 
 # open the figure
-fig, axes = plt.subplots(nrows=2, figsize=FIGSIZE,
-    sharex=True, sharey=False, gridspec_kw=GRIDSPEC_ARGS)
+fig, axes = plt.subplots(
+    nrows=2, figsize=FIGSIZE, sharex=True, sharey=False, gridspec_kw=GRIDSPEC_ARGS
+)
 
 # plot data on both axes
 for ax in axes:
     ax.bar(xvals, yvals, yerr=yerrs, color=cvals, error_kw=ERROR_ARGS, **BAR_ARGS)
 
 # play with axis stuff - labels, ticks, and limits
-ax1, ax2 = axes # axis 2 is for the low/blanked axes, to make hatches
+ax1, ax2 = axes  # axis 2 is for the low/blanked axes, to make hatches
 ax2.set_xticks(xticks)
 ax2.set_xticklabels(LIWC_CATS)
-ax2.set_xlim(min(xvals)-1, max(xvals)+1)
+ax2.set_xlim(min(xvals) - 1, max(xvals) + 1)
 ax1.set_ylabel(r"total word category %")
 ax1.set_ylim(YMIN, YMAX)
-ax2.set_ylim(0, .01) # arbitrarily low, just wanna avoid any ticks
+ax2.set_ylim(0, 0.01)  # arbitrarily low, just wanna avoid any ticks
 ax1.spines["bottom"].set_visible(False)
 ax2.spines["top"].set_visible(False)
 ax1.tick_params(bottom=False)
 
 # draw the slanted hatch lines
-D = .5  # proportion of vertical to horizontal extent of the slanted line (0 is flat and increasing rotates ccw)
-kwargs = dict(marker=[(-1, -D), (1, D)], markersize=8,
-              linestyle="none", color="k", mec="k", mew=1, clip_on=False)
+D = 0.5  # proportion of vertical to horizontal extent of the slanted line (0 is flat and increasing rotates ccw)
+kwargs = dict(
+    marker=[(-1, -D), (1, D)],
+    markersize=8,
+    linestyle="none",
+    color="k",
+    mec="k",
+    mew=1,
+    clip_on=False,
+)
 ax1.plot([0, 1], [0, 0], transform=ax1.transAxes, **kwargs)
 ax2.plot([0, 1], [1, 1], transform=ax2.transAxes, **kwargs)
 
 # more tick stuff
 for ax in axes:
-    ax.yaxis.set(major_locator=plt.MultipleLocator(1),
-        minor_locator=plt.MultipleLocator(.2),
-        major_formatter=plt.FuncFormatter(c.no_leading_zeros))
+    ax.yaxis.set(
+        major_locator=plt.MultipleLocator(1),
+        minor_locator=plt.MultipleLocator(0.2),
+        major_formatter=plt.FuncFormatter(c.no_leading_zeros),
+    )
     ax.tick_params(which="both", axis="y", direction="in")
     ax.yaxis.grid(True, which="major", linewidth=1, clip_on=False, color="gainsboro")
-    ax.yaxis.grid(True, which="minor", linewidth=.3, clip_on=False, color="gainsboro")
+    ax.yaxis.grid(True, which="minor", linewidth=0.3, clip_on=False, color="gainsboro")
     ax.set_axisbelow(True)
 
 # draw significance markers
 for cat, xloc in zip(LIWC_CATS, xticks):
     pval = stats.loc[cat, "p-val"]
-    sigchars = "*" * sum([ pval<cutoff for cutoff in (.05, .01, .001) ])
+    sigchars = "*" * sum([pval < cutoff for cutoff in (0.05, 0.01, 0.001)])
     yloc = descriptives.loc[cat, ["mean", "sem"]].sort_values("mean").sum(axis=1)[-1]
-    yloc += .1
-    ax1.text(xloc, yloc+.01, sigchars, fontsize=10,
-        weight="bold", ha="center", va="center")
-    ax1.hlines(y=yloc, xmin=xloc-BAR_ARGS["width"]/2,
-        xmax=xloc+BAR_ARGS["width"]/2, lw=SIG_LINEWIDTH, color="k", capstyle="round")
+    yloc += 0.1
+    ax1.text(xloc, yloc + 0.01, sigchars, fontsize=10, weight="bold", ha="center", va="center")
+    ax1.hlines(
+        y=yloc,
+        xmin=xloc - BAR_ARGS["width"] / 2,
+        xmax=xloc + BAR_ARGS["width"] / 2,
+        lw=SIG_LINEWIDTH,
+        color="k",
+        capstyle="round",
+    )
 
 # legend
-legend_handles = [ plt.matplotlib.patches.Patch(
-        facecolor=c.COLORS[l], edgecolor="none", label=l)
-    for l in LUCID_ORDER ]
-legend = ax1.legend(handles=legend_handles,
-    frameon=False, borderaxespad=0,
-    loc="upper left", bbox_to_anchor=(.05, .98),
-    labelspacing=.1, handletextpad=.2)
+legend_handles = [
+    plt.matplotlib.patches.Patch(facecolor=c.COLORS[label], edgecolor="none", label=label)
+    for label in LUCID_ORDER
+]
+legend = ax1.legend(
+    handles=legend_handles,
+    frameon=False,
+    borderaxespad=0,
+    loc="upper left",
+    bbox_to_anchor=(0.05, 0.98),
+    labelspacing=0.1,
+    handletextpad=0.2,
+)
 
-# Export.
+# Export
 plt.savefig(export_path_plot)
 plt.savefig(export_path_plot.with_suffix(".pdf"))
-plt.close()    
+plt.close()

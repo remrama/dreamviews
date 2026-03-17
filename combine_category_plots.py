@@ -14,8 +14,12 @@ effort to have it coexist with something else.
 ## pip install svg-stack
 
 import os
-import config as c
+
 import svg_stack as ss
+from reportlab.graphics import renderPDF, renderPM
+from svglib.svglib import svg2rlg
+
+import config as c
 
 export_fname = os.path.join(c.DATA_DIR, "results", "hires", "describe-categories.svg")
 import_fname1 = os.path.join(c.DATA_DIR, "results", "hires", "describe-categorycounts.svg")
@@ -23,8 +27,8 @@ import_fname2 = os.path.join(c.DATA_DIR, "results", "hires", "describe-categoryp
 
 doc = ss.Document()
 layout1 = ss.HBoxLayout()
-layout1.setSpacing(100) # n pixels between images
-layout1.addSVG(import_fname1, alignment=ss.AlignTop|ss.AlignHCenter)
+layout1.setSpacing(100)  # n pixels between images
+layout1.addSVG(import_fname1, alignment=ss.AlignTop | ss.AlignHCenter)
 layout1.addSVG(import_fname2, alignment=ss.AlignCenter)
 
 # layout2 = ss.VBoxLayout()
@@ -39,15 +43,12 @@ doc.save(export_fname)
 
 
 ## svg to other formats
-from svglib.svglib import svg2rlg
-from reportlab.graphics import renderPDF, renderPM
 
 export_fname_png = export_fname.replace(".svg", ".png")
 export_fname_pdf = export_fname.replace(".svg", ".pdf")
 drawing = svg2rlg(export_fname)
 renderPDF.drawToFile(drawing, export_fname_pdf)
 renderPM.drawToFile(drawing, export_fname_png, fmt="PNG")
-
 
 
 ###### other route w/ svg utils, had issues
@@ -79,6 +80,3 @@ renderPM.drawToFile(drawing, export_fname_png, fmt="PNG")
 
 # # save generated SVG files
 # fig.save(export_fname)
-
-
-
