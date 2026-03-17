@@ -3,14 +3,14 @@ Run custom LIWC analysis.
 
 IMPORTS
 =======
-    - non-lemmatized posts, derivatives/dreamviews-posts.tsv
-    - LIWC dictionary,      dictionaries/custom.dic
+    - non-lemmatized posts, dreamviews-posts.tsv
+    - LIWC dictionary,      a_AgencyCommunion.dic
 EXPORTS
 =======
-    - traditional (ie, total) LIWC scores for each dream report, derivatives/validate-liwc_scores.tsv
+    - traditional (ie, total) LIWC scores for each dream report, validate-liwc_scores.tsv
     IF WORD-LEVEL ANALYSIS
     - numpy arrays for frequency of each LIWC word and the corresponding post ID,
-        derivatives/validate-liwc_wordscores-[data.npz] and [attr.npz]
+        validate-liwc_wordscores-[data.npz] and [attr.npz]
 
 The LIWC application/gui and its dictionaries are proprietary (https://liwc.net/).
 But if you have the dictionaries, the application is just a word search
@@ -68,7 +68,7 @@ GET_WORD_CONTRIBUTIONS = args.words
 tqdm.pandas(desc="LIWCing words" if GET_WORD_CONTRIBUTIONS else "LIWCing posts")
 
 # Select filenames
-dict_fname = c.data_dir / "dictionaries" / "custom.dic"
+dict_fname = c.fetch_file("a_AgencyCommunion.dic")
 export_fname = c.derivatives_dir / "validate-liwc_scores.tsv"
 if GET_WORD_CONTRIBUTIONS:
     export_fname2 = c.derivatives_dir / "validate-liwc_wordscores-data.npz"

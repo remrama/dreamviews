@@ -5,7 +5,7 @@ IMPORTS
 =======
     - original post info,     dreamviews-posts.tsv
     - word-level LIWC scores, validate-liwc_wordscores.tsv
-    - LIWC dictionary,        dictionaries/custom.dic
+    - LIWC dictionary,        a_AgencyCommunion.dic
 EXPORTS
 =======
     - effect sizes (d) for top words from each category, validate-liwc_wordscores-stats.tsv
@@ -36,7 +36,7 @@ import config as c
 LIWC_CATEGORIES = ["insight", "agency"]
 TOP_N = 20  # Top n contributing tokens/words for each category
 
-import_path_dict = c.DATA_DIR / "dictionaries" / "custom.dic"
+import_path_dict = c.fetch_file("a_AgencyCommunion.dic")
 import_path_data = c.derivatives_dir / "validate-liwc_wordscores-data.npz"
 import_path_attr = c.derivatives_dir / "validate-liwc_wordscores-attr.npz"
 export_path = c.derivatives_dir / "validate-liwc_wordscores-stats.tsv"

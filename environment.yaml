@@ -21,6 +21,7 @@ dependencies:
   - gensim              # natural language processing
   - spacy               # natural language processing
   - python-levenshtein  # natural language processing - silence gensim warning
+  - pooch               # data management - fetching remote files
   - pip
   - pip:
     - pycountry         # demographics - ISO country codes

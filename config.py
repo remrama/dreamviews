@@ -1,6 +1,7 @@
 from pathlib import Path
 
 import pandas as pd
+import pooch
 from matplotlib.pyplot import rcParams
 
 DATA_DIR = "../data"
@@ -28,6 +29,24 @@ COLORS = {
     "novel-user": "gold",
     "repeat-user": "goldenrod",
 }
+
+REGISTRY = {
+    "a_AgencyCommunion.dic": {
+        "url": "https://osf.io/62txv/download",
+        "known_hash": "md5:d2240a5eb36568d9eefaa428130a0577",
+    },
+}
+
+fetcher = pooch.create(
+    path=raw_dir,
+    base_url="",
+    registry={k: v["known_hash"] for k, v in REGISTRY.items()},
+    urls={k: v["url"] for k, v in REGISTRY.items()},
+)
+
+
+def fetch_file(filename):
+    return Path(fetcher.fetch(filename))
 
 
 def load_dreamviews_users():
