@@ -26,10 +26,10 @@ analyzed that is later tossed out. Not that worried about it.
 """
 
 import datetime
+import hashlib
 import json
 import random
 import re
-import uuid
 import zipfile
 
 import contractions
@@ -53,10 +53,6 @@ nlp = spacy.load("en_core_web_lg")
 # SPACY_PIPE_DISABLES = ["tok2vec", "tagger", "parser", "attribute_ruler", "lemmatizer"]
 # nlp = spacy.load(SPACY_MODEL, disable=SPACY_PIPE_DISABLES)
 nlp.add_pipe("merge_entities")  # So "John Paul" gets treated as a single entity
-
-# Initialize some randomizers
-rd4ids = random.Random()
-rd4shuf = random.Random()
 
 # Create datetime objects to restrict posts
 START_DATE = "2010-01-01"
@@ -112,18 +108,19 @@ def lemmatize(doc, shuffle=False, pos_remove_list=["PROPN", "SMY"]):
         return " ".join(token_list)
 
 
-def _gen_str(nchars):
-    return uuid.UUID(int=rd4ids.getrandbits(128)).hex[:nchars]
-
-
-def generate_id(n_chars):
-    """Return a random alpha-numeric character sequence (str) of length n_chars.
+def generate_id(content: str, n_chars: int, existing_ids: set) -> str:
+    """Return a deterministic ID derived from content via SHA-256 hash.
     Always starts with a capital letter, to ensure categorical interpretation later.
+    Appends an incrementing suffix to resolve collisions.
     """
-    id_string = _gen_str(n_chars)
-    while not id_string[0].isalpha():
-        id_string = _gen_str(n_chars)
-    return id_string.upper()
+    for attempt in range(1000):
+        key = content if attempt == 0 else f"{content}|_collision_{attempt}"
+        h = hashlib.sha256(key.encode()).hexdigest()[:n_chars]
+        if h[0].isalpha():
+            h = h.upper()
+            if h not in existing_ids:
+                return h
+    raise RuntimeError(f"Could not generate unique ID for: {content[:50]}...")
 
 
 ################################################################################
@@ -133,9 +130,6 @@ def generate_id(n_chars):
 # Initialize empty dictionaries to store content that survives exclusion
 data = {}  # To hold key, value pairs of post_id, post_data
 user_mapping = {}  # key, value pairs of raw_username, unique_username
-
-# Initialize a random state value that will increment every post
-random_state = 0
 
 # Loop over each html file
 for html_byt in tqdm.tqdm(html_files, desc="DreamViews post cleaner"):
@@ -153,9 +147,6 @@ for html_byt in tqdm.tqdm(html_files, desc="DreamViews post cleaner"):
     ## There are some "continue" statements that will push into the next loop
     ## and prevent saving that data (in cases where the post fails inclusion)
     for post, user, date, title in zip(page_posts, page_users, page_dates, page_titles):
-        random_state += 1
-        rd4ids.seed(random_state)
-
         post_txt = post.text
         user_txt = user.text  # WARNING: Don't use strip here bc some usernames are just spaces
         date_txt = date.text
@@ -183,12 +174,9 @@ for html_byt in tqdm.tqdm(html_files, desc="DreamViews post cleaner"):
             user_txt = user.find("a").attrs["title"].split(" is offline")[0]
         user_txt = convert2ascii(user_txt, retain_whitespace_count=True)
 
-        # Generate random user ID
+        # Generate deterministic user ID from username
         if user_txt not in user_mapping:
-            unique_user_id = generate_id(n_chars=4)
-            while unique_user_id in user_mapping.values():
-                unique_user_id = generate_id(n_chars=4)
-            user_mapping[user_txt] = unique_user_id
+            user_mapping[user_txt] = generate_id(user_txt, n_chars=4, existing_ids=set(user_mapping.values()))
 
         ########################################################################
         # CLEAN/PARSE DATE
@@ -384,10 +372,10 @@ for html_byt in tqdm.tqdm(html_files, desc="DreamViews post cleaner"):
         # UPDATE DICTIONARIES
         ########################################################################
 
-        # Generate random post ID
-        unique_post_id = generate_id(n_chars=8)
-        while unique_post_id in data:
-            unique_post_id = generate_id(n_chars=8)
+        # Generate deterministic post ID from username + date + title
+        unique_user_id = user_mapping[user_txt]
+        post_id_content = f"{user_txt}|{date_txt_iso}|{title_txt}"
+        unique_post_id = generate_id(post_id_content, n_chars=6, existing_ids=set(data.keys()))
 
         data[unique_post_id] = {
             "user_id": unique_user_id,
