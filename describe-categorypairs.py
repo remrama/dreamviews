@@ -49,7 +49,6 @@ assert not df_user.gt(c.MAX_POSTCOUNT).any(axis=None), (
     f"Noone should have more than {c.MAX_POSTCOUNT} posts"
 )
 
-
 ################################################################################
 # PLOT MAIN AXIS
 ################################################################################
@@ -116,7 +115,6 @@ cbar.ax.tick_params(which="major", size=3, direction="in", color="white", pad=1)
 cbar.ax.tick_params(which="minor", size=0, direction="in", color="white")
 cbar.ax.set_axisbelow(False)
 cbar.set_label(r"$n$ users", labelpad=0)
-
 
 ################################################################################
 # PLOT MARGINAL AND TWIN AXES
@@ -189,7 +187,6 @@ ax_histy.grid(axis="x", which="both", **marginal_grid_kwargs)
 ax_histx.set_axisbelow(True)
 ax_histy.set_axisbelow(True)
 
-
 ################################################################################
 # DRAW HIGHLIGHTING LINES
 ################################################################################
@@ -225,7 +222,6 @@ ax.text(1, 0.06, text_total, transform=ax.transAxes, ha="right", va="bottom")
 n_twenty = df_user.ge(20).all(axis=1).sum()
 text_twenty = r"$n_{users}=$" + rf"${n_twenty}$" + ", " + r"$\geq20$" + " of each"
 ax.text(1, 0.47, text_twenty, transform=ax.transAxes, ha="right", va="bottom")
-
 
 ################################################################################
 # EXPORT

@@ -27,14 +27,13 @@ export_path = c.derivatives_dir / "describe-usercount.png"
 df = c.load_dreamviews_posts()
 counts = df["user_id"].value_counts().rename_axis("user_id").rename("n_posts")
 
-
 ################################################################################
 # PLOTTING
 ################################################################################
 
 # Generate bins
-n_bins = 50
-bins = np.linspace(0, c.MAX_POSTCOUNT, n_bins + 1)
+N_BINS = 50
+bins = np.linspace(0, c.MAX_POSTCOUNT, N_BINS + 1)
 
 # Open figure
 fig, ax = plt.subplots(figsize=(3, 1.8), constrained_layout=True)
@@ -58,9 +57,9 @@ ax.set_xlim(0, c.MAX_POSTCOUNT)
 ax.set_xlabel(r"$n$ posts per user", labelpad=0)
 ax.set_ylabel(r"$n$ users")
 ax.set_ybound(upper=10000)
-major_tick_loc = 200
+MAJOR_TICK_LOC = 200
 minor_tick_loc = np.diff(bins).mean()
-ax.xaxis.set_major_locator(plt.MultipleLocator(major_tick_loc))
+ax.xaxis.set_major_locator(plt.MultipleLocator(MAJOR_TICK_LOC))
 ax.xaxis.set_minor_locator(plt.MultipleLocator(minor_tick_loc))
 ax.spines[["top", "right"]].set_visible(False)
 

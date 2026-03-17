@@ -10,10 +10,16 @@ EXPORTS
     - visualization, describe-categorycounts.png
 """
 
+import warnings
+
 import matplotlib.pyplot as plt
 from matplotlib_venn import venn2, venn3
 
 import config as c
+
+warnings.filterwarnings(
+    "ignore", message="normalize_to is deprecated.*", category=UserWarning, module="matplotlib"
+)
 
 ################################################################################
 # SETUP

@@ -83,7 +83,7 @@ df_out.to_csv(export_path_agegender, index=True, sep="\t", encoding="utf-8")
 
 # Get location frequencies
 country_counts = (
-    df["country"].fillna("unstated").value_counts().rename("n_users").rename_axis("iso_a3")
+    df["country"].fillna("unstated").value_counts().rename("n_users").rename_axis("ISO_A3")
 )
 
 # Export (before dropping the unstated and converting to log values)
@@ -165,18 +165,20 @@ ax = fig.add_subplot(gs1[0])
 cax = fig.add_subplot(gs2[0])
 
 # Load the world geopandas data to get country geometries
-world = geopandas.read_file(geopandas.datasets.get_path("naturalearth_lowres"))
+world = geopandas.read_file(
+    "https://naciscdn.org/naturalearth/110m/cultural/ne_110m_admin_0_countries.zip"
+)
 
 # Pop out the "unstated" country bc it's meaningless here
 unstated_n = country_counts.pop("unstated")
 
 # Add the country user counts to the world geodataframe
-myworld = world.merge(country_counts, left_on="iso_a3", right_index=True, how="left")
+myworld = world.merge(country_counts, left_on="ISO_A3", right_index=True, how="left")
 
 # Pick colormap info
-color_max = 2000
-color_norm = plt.matplotlib.colors.LogNorm(vmin=1, vmax=color_max)
-assert myworld["n_users"].max() <= color_max, f"Data exceeds colormap upper limit of {color_max}."
+COLOR_MAX = 2000
+color_norm = plt.matplotlib.colors.LogNorm(vmin=1, vmax=COLOR_MAX)
+assert myworld["n_users"].max() <= COLOR_MAX, f"Data exceeds colormap upper limit of {COLOR_MAX}."
 location_cmap = cc.cm.bgy
 
 myworld.plot(
@@ -196,5 +198,5 @@ ax.axis("off")
 
 # Export
 plt.savefig(export_path_locations_plot)
-c.save_hires_figs(export_path_locations_plot)
+plt.savefig(export_path_locations_plot.with_suffix(".pdf"))
 plt.close()

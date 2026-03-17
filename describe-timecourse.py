@@ -162,7 +162,6 @@ else:
         "hue_order": USER_ORDER,
     }
 
-
 ################################################################################
 # DRAWING
 ################################################################################
@@ -215,7 +214,6 @@ if not WHITE:
     ax2_legend = ax2b.legend(
         handles=ax2_handles, bbox_to_anchor=(0.6, 0.98), loc="upper left", **LEGEND_ARGS
     )
-
 
 ################################################################################
 # AESTHETICS
@@ -276,7 +274,6 @@ counts_txt = rf"$n_{{total}}={n_total_posts}$"
 users_txt = rf"$n_{{total}}={n_total_users}$"
 ax1a.text(0.3, 0.9, counts_txt, transform=ax1a.transAxes, ha="left", va="top")
 ax2a.text(0.3, 0.9, users_txt, transform=ax2a.transAxes, ha="left", va="top")
-
 
 ################################################################################
 # EXPORTING

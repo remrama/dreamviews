@@ -85,12 +85,12 @@ descriptives.to_csv(export_path_table, float_format="%.1f", index=True, sep="\t"
 ################################################################################
 
 # Define some plotting variables
-n_bins = 20
-bin_min = 0
+N_BINS = 20
+BIN_MIN = 0
 bin_max = c.MAX_WORDCOUNT
-bins = np.linspace(0, bin_max, n_bins + 1)
+bins = np.linspace(BIN_MIN, bin_max, N_BINS + 1)
 minor_xtick_loc = np.diff(bins).mean()
-major_xtick_loc = 200
+MAJOR_TICK_LOC = 200
 line_kwargs = {
     "linewidth": 0.5,
     "alpha": 1,
@@ -170,7 +170,7 @@ for i, path in enumerate(export_path_plots):
     ax.set_xlim(0, c.MAX_WORDCOUNT)
     ax.tick_params(axis="y", which="both", direction="in")
     ax.xaxis.set(
-        major_locator=plt.MultipleLocator(major_xtick_loc),
+        major_locator=plt.MultipleLocator(MAJOR_TICK_LOC),
         minor_locator=plt.MultipleLocator(minor_xtick_loc),
     )
     if i == 2:
