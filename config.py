@@ -62,7 +62,7 @@ def load_dreamviews_posts():
 
 
 def load_matplotlib_settings():
-    rcParams["savefig.dpi"] = 300
+    rcParams["savefig.dpi"] = 600
     rcParams["font.family"] = "Times New Roman"
     rcParams["mathtext.fontset"] = "custom"
     rcParams["mathtext.rm"] = "Times New Roman"
