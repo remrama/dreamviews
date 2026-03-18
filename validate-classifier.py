@@ -26,7 +26,8 @@ from tqdm import tqdm
 
 import config as c
 
-export_path = c.derivatives_dir / "validate-classifier.npz"
+EXPORT_STEM = "validate-classifier"
+export_path = c.derivatives_dir / f"{EXPORT_STEM}.npz"
 
 COLUMN_NAME = "post_lemmas"
 N_SPLITS = 5

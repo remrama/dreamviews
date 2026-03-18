@@ -61,8 +61,33 @@ def load_dreamviews_posts():
     return posts
 
 
+def export_table(dataframe, filestem, **kwargs):
+    default_kwargs = {"sep": "\t", "index": True, "encoding": "utf-8", "float_format": "%.5f", "na_rep": "n/a"}
+    kwargs = {**default_kwargs, **kwargs}
+    if kwargs["sep"] == "\t":
+        suffix = ".tsv"
+    elif kwargs["sep"] == ",":
+        suffix = ".csv"
+    else:
+        raise ValueError("Unsupported separator")
+    export_path = (derivatives_dir / filestem).with_suffix(suffix)
+    dataframe.to_csv(export_path, **kwargs)
+    return
+
+
+def save_and_close_fig(fig, filestem, **kwargs):
+    assert "format" not in kwargs, "format should not be specified in kwargs"
+    default_kwargs = {"dpi": 600}
+    kwargs = {**default_kwargs, **kwargs}
+    formats = ["png", "pdf"]
+    for fmt in formats:
+        export_path = (derivatives_dir / filestem).with_suffix(f".{fmt}")
+        fig.savefig(export_path, **kwargs)
+    fig.clf()
+    return
+
+
 def load_matplotlib_settings():
-    rcParams["savefig.dpi"] = 600
     rcParams["font.family"] = "Times New Roman"
     rcParams["mathtext.fontset"] = "custom"
     rcParams["mathtext.rm"] = "Times New Roman"

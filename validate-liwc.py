@@ -70,10 +70,10 @@ tqdm.pandas(desc="LIWCing words" if GET_WORD_CONTRIBUTIONS else "LIWCing posts")
 # Select filenames
 # dict_fname = c.fetch_file("a_AgencyCommunion.dic")
 dict_fname = c.sourcedata_dir / "custom.dic"
-export_fname = c.derivatives_dir / "validate-liwc_scores.tsv"
+EXPORT_STEM = "validate-liwc_scores"
 if GET_WORD_CONTRIBUTIONS:
-    export_fname2 = c.derivatives_dir / "validate-liwc_wordscores-data.npz"
-    export_fname3 = c.derivatives_dir / "validate-liwc_wordscores-attr.npz"
+    export_fname_data = c.derivatives_dir / f"{EXPORT_STEM}-data.npz"
+    export_fname_attr = c.derivatives_dir / f"{EXPORT_STEM}-attr.npz"
 
 # Load data
 df = c.load_dreamviews_posts()
@@ -127,7 +127,7 @@ if not GET_WORD_CONTRIBUTIONS:  # Not using this but leaving it to show the much
     df = df[category_names]  # Reorder according to the LIWC dic file, just for cleanliness
     df = df.sort_index()  # Also just bc it looks nice
     # Export
-    df.to_csv(export_fname, float_format="%.2f", index=True, sep="\t", encoding="utf-8")
+    c.export_table(df, EXPORT_STEM, float_format="%.2f")
 
 else:
     # The more complex case of wanting individual word frequencies
@@ -191,12 +191,12 @@ else:
     # Export the traditional LIWC results (i.e., total category counts)
     ######## I think - for the tokens - this is too much memory used at once
     ######## and the file is big so use sparse matrix instead
-    cats.to_csv(export_fname, sep="\t", encoding="utf-8", index=True, float_format="%.2f")
+    c.export_table(cats, EXPORT_STEM, float_format="%.2f")
     # toks.to_csv(export_fname_toks, sep="\t", encoding="utf-8", index=True, float_format="%.2f")
 
     # Export the word-level results
     M = sparse.csr_matrix(toks.values)
     T = toks.columns.values
     P = toks.index.values
-    sparse.save_npz(export_fname2, M, compressed=True)
-    np.savez(export_fname3, token=T, post_id=P)
+    sparse.save_npz(export_fname_data, M, compressed=True)
+    np.savez(export_fname_attr, token=T, post_id=P)

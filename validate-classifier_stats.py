@@ -16,8 +16,7 @@ from sklearn import metrics
 import config as c
 
 import_path = c.derivatives_dir / "validate-classifier.npz"
-export_path_cv = c.derivatives_dir / "validate-classifier_cv.tsv"
-export_path_cv_avg = c.derivatives_dir / "validate-classifier_avg.tsv"
+EXPORT_STEM = "validate-classifier"
 
 # Load data
 data = np.load(import_path)
@@ -39,5 +38,7 @@ avg = df.agg(["mean", "std"]).T.rename_axis("scorer")
 avg.columns = avg.columns.map(lambda x: "CV " + x)
 
 # Export
-df.to_csv(export_path_cv, index=True, sep="\t", encoding="utf-8", float_format="%.4f")
-avg.to_csv(export_path_cv_avg, index=True, sep="\t", encoding="utf-8", float_format="%.4f")
+export_stem_cv = f"{EXPORT_STEM}_cv"
+export_stem_avg = f"{EXPORT_STEM}_avg"
+c.export_table(df, export_stem_cv, float_format="%.4f")
+c.export_table(avg, export_stem_avg, float_format="%.4f")

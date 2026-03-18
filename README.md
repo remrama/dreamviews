@@ -40,7 +40,7 @@ python extract-users.py                     #=> raw/dreamviews-users.tsv
 
 ```shell
 # Visualize the amount of data over time
-python describe-timecourse.py               #=> derivatives/describe-timecourse.png
+python describe-totalcounts.py              #=> derivatives/describe-totalcounts.png
                                             #=> derivatives/describe-totalcounts.tsv
 python describe-usercount.py                #=> derivatives/describe-usercount.png
 

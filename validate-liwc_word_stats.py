@@ -49,7 +49,7 @@ TOP_N = 20  # Top n contributing tokens/words for each category
 import_path_dict = c.sourcedata_dir / "custom.dic"
 import_path_data = c.derivatives_dir / "validate-liwc_wordscores-data.npz"
 import_path_attr = c.derivatives_dir / "validate-liwc_wordscores-attr.npz"
-export_path = c.derivatives_dir / "validate-liwc_wordscores-stats.tsv"
+EXPORT_STEM = "validate-liwc_wordscores-stats"
 
 #### load in the original posts file to get attributes lucidity and user_id
 # and drop un-labeled posts
@@ -142,4 +142,4 @@ out = pd.concat(token_rank_results)
 out["rank"] = out["rank"].astype("Int64")
 
 # Export
-out.to_csv(export_path, float_format="%.4f", index=True, na_rep="n/a", sep="\t", encoding="utf-8")
+c.export_table(out, EXPORT_STEM, float_format="%.4f")

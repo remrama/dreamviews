@@ -34,8 +34,8 @@ c.load_matplotlib_settings()
 
 # Pick path locations
 import_path = c.derivatives_dir / "validate-liwc_wordscores-stats.tsv"
-export_path = c.derivatives_dir / f"validate-liwc_wordscores_{CATEGORY}-plot.png"
 import_path_full_liwc = c.derivatives_dir / "validate-liwc_scores-stats.tsv"
+export_stem = f"validate-liwc_wordscores_{CATEGORY}-plot"
 
 # Load data
 df = pd.read_csv(import_path, sep="\t", encoding="utf-8", index_col="category")
@@ -161,6 +161,4 @@ topax.text(
 ax.text(xloc_txt, 0.99, "Individual\nword effects", transform=ax.transAxes, ha=ha_align, va="top")
 
 # Export
-plt.savefig(export_path)
-plt.savefig(export_path.with_suffix(".pdf"))
-plt.close()
+c.save_and_close_fig(fig, export_stem)

@@ -25,11 +25,12 @@ import config as c
 c.load_matplotlib_settings()
 
 # Pick export locations
+EXPORT_STEM = "describe-wordcount"
 export_path_table = c.derivatives_dir / "describe-wordcount.tsv"
-export_path_plots = [
-    c.derivatives_dir / "describe-wordcount_perpost.png",
-    c.derivatives_dir / "describe-wordcount_peruser.png",
-    c.derivatives_dir / "describe-wordcount_lucidity.png",
+export_stem_plots = [
+    f"{EXPORT_STEM}_perpost",
+    f"{EXPORT_STEM}_peruser",
+    f"{EXPORT_STEM}_lucidity",
 ]
 
 # Load data
@@ -75,7 +76,7 @@ descriptives = pd.concat([total_descr, lucid_descr], axis=0)
 
 # Export
 descriptives = descriptives.convert_dtypes()
-descriptives.to_csv(export_path_table, float_format="%.1f", index=True, sep="\t", encoding="utf-8")
+c.export_table(descriptives, EXPORT_STEM, float_format="%.1f")
 
 ################################################################################
 # PLOTTING
@@ -104,7 +105,7 @@ bar_kwargs = {
 }
 
 # Loop over axes and word vs lemma counts to draw and export individual plots
-for i, path in enumerate(export_path_plots):
+for i, export_stem_fig in enumerate(export_stem_plots):
     # Open figure
     fig, ax = plt.subplots(figsize=(2, 1), constrained_layout=True)
 
@@ -208,6 +209,4 @@ for i, path in enumerate(export_path_plots):
     )
 
     # Export
-    plt.savefig(path)
-    plt.savefig(path.with_suffix(".pdf"))
-    plt.close()
+    c.save_and_close_fig(fig, export_stem_fig)

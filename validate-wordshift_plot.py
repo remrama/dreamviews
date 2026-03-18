@@ -35,7 +35,7 @@ c.load_matplotlib_settings()
 
 # Pick filepaths
 import_path = c.derivatives_dir / f"validate-wordshift_{SHIFT_ID}-scores.tsv"
-export_path = c.derivatives_dir / f"validate-wordshift_{SHIFT_ID}-custom.png"
+export_stem = f"validate-wordshift_{SHIFT_ID}-custom"
 
 # Load shift scores
 df = pd.read_csv(import_path, index_col="ngram", sep="\t", encoding="utf-8")
@@ -168,6 +168,4 @@ cbar.ax.xaxis.set_minor_locator(minor_cticks)
 cbar.update_ticks()
 
 # Export
-plt.savefig(export_path)
-plt.savefig(export_path.with_suffix(".pdf"))
-plt.close()
+c.save_and_close_fig(fig, export_stem)

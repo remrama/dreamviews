@@ -29,12 +29,10 @@ c.load_matplotlib_settings()
 # Load data
 df = c.load_dreamviews_users()
 
-# Choose export paths
-export_path_agegender = c.derivatives_dir / "describe-demographics_agegender.tsv"
-export_path_locations = c.derivatives_dir / "describe-demographics_location.tsv"
-export_path_provided = c.derivatives_dir / "describe-demographics_provided.tsv"
-export_path_agegender_plot = c.derivatives_dir / "describe-demographics_agegender.png"
-export_path_locations_plot = c.derivatives_dir / "describe-demographics_location.png"
+# Choose export stems
+EXPORT_STEM_AGEGENDER = "describe-demographics_agegender"
+EXPORT_STEM_LOCATION = "describe-demographics_location"
+EXPORT_STEM_PROVIDED = "describe-demographics_provided"
 
 ################################################################################
 # GET FREQUENCIES
@@ -52,16 +50,14 @@ reported = pd.concat([reported_sum, reported_pct], axis=1)
 reported.columns = ["n_reported", "pct_reported"]
 
 # Export
-reported.to_csv(
-    export_path_provided, index_label="demographic_variable", sep="\t", encoding="utf-8"
-)
+c.export_table(reported, EXPORT_STEM_PROVIDED, index_label="demographic_variable")
 
 # Get age and gender frequencies
 
 # Replace gender NAs
-gender_order = ["male", "female", "trans", "unstated"]
+GENDER_ORDER = ["male", "female", "trans", "unstated"]
 df["gender"] = pd.Categorical(
-    df["gender"].fillna("unstated"), categories=gender_order, ordered=True
+    df["gender"].fillna("unstated"), categories=GENDER_ORDER, ordered=True
 )
 
 # Replace age NAs and bin age
@@ -78,8 +74,7 @@ df["age"] = pd.Categorical(age_binned, categories=cut_labels_with_na, ordered=Tr
 
 # Export
 df_out = df.groupby(["gender", "age"]).size().rename("count")
-df_out.to_csv(export_path_agegender, index=True, sep="\t", encoding="utf-8")
-
+c.export_table(df_out, EXPORT_STEM_AGEGENDER)
 
 # Get location frequencies
 country_counts = (
@@ -87,7 +82,7 @@ country_counts = (
 )
 
 # Export (before dropping the unstated and converting to log values)
-country_counts.to_csv(export_path_locations, index=True, sep="\t", encoding="utf-8")
+c.export_table(country_counts, EXPORT_STEM_LOCATION)
 
 ################################################################################
 # PLOT AGE AND GENDER DATA
@@ -116,7 +111,7 @@ ax.hist(
 
 # Adjust aesthetics
 ax.set_xticks(bins[:-1])
-ax.set_xticklabels(gender_order)
+ax.set_xticklabels(GENDER_ORDER)
 ax.set_xlabel("Reported gender", labelpad=1)
 ax.set_ylabel(r"$n$ users", labelpad=2)
 ax.set_ybound(lower=0, upper=2500)
@@ -150,9 +145,7 @@ legend._legend_box.sep = 2  # Brings title up farther on top of handles/labels
 legend._legend_box.align = "left"
 
 # Export
-plt.savefig(export_path_agegender_plot)
-plt.savefig(export_path_agegender_plot.with_suffix(".pdf"))
-plt.close()
+c.save_and_close_fig(fig, EXPORT_STEM_AGEGENDER)
 
 ################################################################################
 # PLOT LOCATION DATA
@@ -197,6 +190,4 @@ myworld.plot(
 ax.axis("off")
 
 # Export
-plt.savefig(export_path_locations_plot)
-plt.savefig(export_path_locations_plot.with_suffix(".pdf"))
-plt.close()
+c.save_and_close_fig(fig, EXPORT_STEM_LOCATION)

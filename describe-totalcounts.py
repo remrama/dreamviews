@@ -9,7 +9,7 @@ IMPORTS
     - posts, dreamviews-posts.tsv
 EXPORTS
 =======
-    - visualization,              describe-timecourse.png
+    - visualization,              describe-totalcounts.png
     - total post and user counts, describe-totalcounts.tsv
 """
 
@@ -34,7 +34,6 @@ args = parser.parse_args()
 WHITE = args.white
 RESTRICT = args.restrict
 
-
 ################################################################################
 # SETUP
 ################################################################################
@@ -42,13 +41,12 @@ RESTRICT = args.restrict
 # Load custom matplotlib aesthetics
 c.load_matplotlib_settings()
 
-# Choose export locations
-export_path_plot = c.derivatives_dir / "describe-timecourse.png"
-export_path_values = c.derivatives_dir / "describe-totalcounts.tsv"
+# Choose export stem
+EXPORT_STEM = "describe-totalcounts"
 if WHITE:
-    export_path_plot = export_path_plot.as_posix().replace(".png", "_WHITE.png")
+    EXPORT_STEM += "_WHITE"
 if RESTRICT:
-    export_path_plot = export_path_plot.as_posix().replace(".png", "_RESTRICT.png")
+    EXPORT_STEM += "_RESTRICT"
 
 # Load data
 df = c.load_dreamviews_posts()
@@ -67,7 +65,6 @@ monthly_users["novel"] = (
     .duplicated(keep="first")
     .map({True: "repeat-user", False: "novel-user"})
 )
-
 
 ################################################################################
 # PLOTTING PARAMETERS
@@ -167,7 +164,7 @@ else:
 ################################################################################
 
 # Open figure
-_, axes = plt.subplots(
+fig, axes = plt.subplots(
     nrows=2,
     ncols=1,
     figsize=(6.5, 2.5),
@@ -285,8 +282,6 @@ ser = pd.Series(
     name="count",
 )
 
-ser.to_csv(export_path_values, index=True, sep="\t")
+c.export_table(ser, EXPORT_STEM, index=True)
 
-plt.savefig(export_path_plot)
-plt.savefig(export_path_plot.with_suffix(".pdf"))
-plt.close()
+c.save_and_close_fig(fig, EXPORT_STEM)

@@ -23,10 +23,11 @@ c.load_matplotlib_settings()
 LIWC_CATS = ["insight", "agency"]
 LUCID_ORDER = ["nonlucid", "lucid"]
 
+EXPORT_STEM = "validate-liwc_scores"
 import_path_liwc = c.derivatives_dir / "validate-liwc_scores.tsv"
-export_path_descr = c.derivatives_dir / "validate-liwc_scores-descr.tsv"
-export_path_stats = c.derivatives_dir / "validate-liwc_scores-stats.tsv"
-export_path_plot = c.derivatives_dir / "validate-liwc_scores-plot.png"
+export_stem_descr = f"{EXPORT_STEM}-descr"
+export_stem_stats = f"{EXPORT_STEM}-stats"
+export_stem_plot = f"{EXPORT_STEM}-plot"
 
 ########################## I/O
 
@@ -55,9 +56,7 @@ avgs = (
 descriptives = avgs.agg(["mean", "std", "sem", "min", "max"]).T
 
 # export
-descriptives.to_csv(
-    export_path_descr, sep="\t", encoding="utf-8", na_rep="n/a", index=True, float_format="%.3f"
-)
+c.export_table(descriptives, export_stem_descr, float_format="%.3f")
 
 ########################## run statistics
 #### Repeated-measures test
@@ -80,7 +79,7 @@ for cat in tqdm(LIWC_CATS, desc="LIWC stats"):
 stats = pd.concat(wilcoxon_results).rename_axis("category").drop(columns="alternative")
 
 # export
-stats.to_csv(export_path_stats, index=True, na_rep="n/a", sep="\t", encoding="utf-8")
+c.export_table(stats, export_stem_stats)
 
 ########################## plot visualization
 #### Barplot,
@@ -186,6 +185,4 @@ legend = ax1.legend(
 )
 
 # Export
-plt.savefig(export_path_plot)
-plt.savefig(export_path_plot.with_suffix(".pdf"))
-plt.close()
+c.save_and_close_fig(fig, export_stem_plot)

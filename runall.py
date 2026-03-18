@@ -36,7 +36,7 @@ if args.extract:
 
 # Describe
 print("Descriptive analyses take a minute...")
-run("describe-timecourse.py")
+run("describe-totalcounts.py")
 run("describe-usercount.py")
 run("describe-toplabels.py")
 run("describe-categorycounts.py")

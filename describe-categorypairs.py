@@ -27,22 +27,21 @@ import config as c
 # Load custom matplotlib aesthetics
 c.load_matplotlib_settings()
 
-# Choose export paths
-export_path_table = c.derivatives_dir / "describe-categorypairs.tsv"
-export_path_plot = c.derivatives_dir / "describe-categorypairs.png"
+# Choose export stemp
+EXPORT_STEM = "describe-categorypairs"
 
 # Load data
 df = c.load_dreamviews_posts()
 
 # Generate a dataframe that has lucid and non-lucid post counts per user (for those with >= 1)
-sort_order = ["nonlucid", "lucid"]
+SORT_ORDER = ["nonlucid", "lucid"]
 df_user = (
     df[df["lucidity"].str.contains("lucid")]
     .groupby(["user_id", "lucidity"])
     .size()
     .rename("count")
     .unstack(fill_value=0)
-    .sort_values(sort_order, ascending=False)[sort_order]
+    .sort_values(SORT_ORDER, ascending=False)[SORT_ORDER]
 )
 df_user.columns = df_user.columns.map(lambda c: "n_" + c)
 assert not df_user.gt(c.MAX_POSTCOUNT).any(axis=None), (
@@ -71,14 +70,14 @@ ax_histx = divider.append_axes("top", 0.4, pad=0.15, sharex=ax)
 ax_histy = divider.append_axes("right", 0.4, pad=0.15, sharey=ax)
 
 # Pick colormap
-color_max = 1000  # See check for colormap limits below
-color_norm = plt.matplotlib.colors.LogNorm(vmin=1, vmax=color_max)
+COLOR_MAX = 1000  # See check for colormap limits below
+color_norm = plt.matplotlib.colors.LogNorm(vmin=1, vmax=COLOR_MAX)
 colormap = cc.cm.dimgray_r
 
-x_variable = "lucid"
-y_variable = "nonlucid"
-x_column = "n_" + x_variable
-y_column = "n_" + y_variable
+X_VARIABLE = "lucid"
+Y_VARIABLE = "nonlucid"
+x_column = "n_" + X_VARIABLE
+y_column = "n_" + Y_VARIABLE
 
 # Draw 2D histogram on main axis
 h, xedges, yedges, img = ax.hist2d(
@@ -91,15 +90,15 @@ h, xedges, yedges, img = ax.hist2d(
 )
 
 # Make sure the max set for colors was appropriate
-assert h.max() <= color_max, f"Data exceeds upper colormap limit of {color_max}"
+assert h.max() <= COLOR_MAX, f"Data exceeds upper colormap limit of {COLOR_MAX}"
 
 # Set axis ticks
-symlog_thresh = 10
-ax.set_xscale("symlog", linthresh=symlog_thresh)
-ax.set_yscale("symlog", linthresh=symlog_thresh)
-major_ticks = plt.matplotlib.ticker.SymmetricalLogLocator(base=10, linthresh=symlog_thresh)
+SYMLOG_THRESH = 10
+ax.set_xscale("symlog", linthresh=SYMLOG_THRESH)
+ax.set_yscale("symlog", linthresh=SYMLOG_THRESH)
+major_ticks = plt.matplotlib.ticker.SymmetricalLogLocator(base=10, linthresh=SYMLOG_THRESH)
 minor_ticks = plt.matplotlib.ticker.SymmetricalLogLocator(
-    base=10, linthresh=symlog_thresh, subs=np.linspace(0.1, 0.9, 9)
+    base=10, linthresh=SYMLOG_THRESH, subs=np.linspace(0.1, 0.9, 9)
 )
 ax.xaxis.set(major_locator=major_ticks, minor_locator=minor_ticks)
 ax.yaxis.set(major_locator=major_ticks, minor_locator=minor_ticks)
@@ -131,15 +130,15 @@ barhist_kwargs.update(hist_kwargs)
 linehist_kwargs.update(hist_kwargs)
 
 # Draw non-cumulative bar histograms on the regular axes
-n, bins, patches = ax_histx.hist(x_column, color=c.COLORS[x_variable], **barhist_kwargs)
+n, bins, patches = ax_histx.hist(x_column, color=c.COLORS[X_VARIABLE], **barhist_kwargs)
 n, bins, patches = ax_histy.hist(
-    y_column, orientation="horizontal", color=c.COLORS[y_variable], **barhist_kwargs
+    y_column, orientation="horizontal", color=c.COLORS[Y_VARIABLE], **barhist_kwargs
 )
 
 # Draw cumulative line histograms on the twin/opposite axes
-n, bins, patches = ax_histx_twin.hist(x_column, color=c.COLORS[x_variable], **linehist_kwargs)
+n, bins, patches = ax_histx_twin.hist(x_column, color=c.COLORS[X_VARIABLE], **linehist_kwargs)
 n, bins, patches = ax_histy_twin.hist(
-    y_column, orientation="horizontal", color=c.COLORS[y_variable], **linehist_kwargs
+    y_column, orientation="horizontal", color=c.COLORS[Y_VARIABLE], **linehist_kwargs
 )
 
 # Remove some tick labels
@@ -148,12 +147,12 @@ ax_histy.tick_params(labelbottom=False, labelleft=False)
 ax_histy_twin.tick_params(labeltop=False)
 
 # Set marginal axes limits
-marginal_ymax_twin = 4000
-marginal_ymax = marginal_ymax_twin // 2
+MARGINAL_YMAX_TWIN = 4000
+marginal_ymax = MARGINAL_YMAX_TWIN // 2
 ax_histx.set_ybound(upper=marginal_ymax)
 ax_histy.set_xbound(upper=marginal_ymax)
-ax_histx_twin.set_ybound(upper=marginal_ymax_twin)
-ax_histy_twin.set_xbound(upper=marginal_ymax_twin)
+ax_histx_twin.set_ybound(upper=MARGINAL_YMAX_TWIN)
+ax_histy_twin.set_xbound(upper=MARGINAL_YMAX_TWIN)
 
 # Set marginal axes ticks
 ax_histx.yaxis.set(
@@ -170,8 +169,8 @@ ax_histy_twin.xaxis.set(
 )
 
 # Set marginal axes labels
-xlabel = r"$n$ " + x_variable.replace("nl", "n-l") + " posts"
-ylabel = r"$n$ " + y_variable.replace("nl", "n-l") + " posts"
+xlabel = r"$n$ " + X_VARIABLE.replace("nl", "n-l") + " posts"
+ylabel = r"$n$ " + Y_VARIABLE.replace("nl", "n-l") + " posts"
 ax_histx.set_ylabel(r"$n$ users", labelpad=3)
 ax.set_xlabel(xlabel, labelpad=0)
 ax.set_ylabel(ylabel, labelpad=2)
@@ -194,17 +193,13 @@ ax_histy.set_axisbelow(True)
 # Put some lines on all axes to highlight sections
 # Highlight users with >=1 of *both* lucid and nonlucid posts
 # (see also g.refline)
-line_kwargs = dict(linewidth=1, color="black")
+LINE_KWARGS = dict(linewidth=1, color="black", alpha=1)
 for cut in [1, 20]:
-    if cut == 1:
-        more_line_kwargs = dict(linestyle="dashed", alpha=1)
-    else:
-        more_line_kwargs = dict(linestyle="dotted", alpha=1)
-    line_kwargs.update(more_line_kwargs)
-    ax.hlines(cut, xmin=cut, xmax=bins[-1], **line_kwargs)
-    ax.vlines(cut, ymin=cut, ymax=bins[-1], **line_kwargs)
-    ax_histx_twin.axvline(cut, **line_kwargs)
-    ax_histy_twin.axhline(cut, **line_kwargs)
+    linestyle = "dashed" if cut == 1 else "dotted"
+    ax.hlines(cut, xmin=cut, xmax=bins[-1], linestyle=linestyle, **LINE_KWARGS)
+    ax.vlines(cut, ymin=cut, ymax=bins[-1], linestyle=linestyle, **LINE_KWARGS)
+    ax_histx_twin.axvline(cut, linestyle=linestyle, **LINE_KWARGS)
+    ax_histy_twin.axhline(cut, linestyle=linestyle, **LINE_KWARGS)
 
 # Add some explanatory text
 n_paired = df_user.all(axis=1).sum()
@@ -227,7 +222,5 @@ ax.text(1, 0.47, text_twenty, transform=ax.transAxes, ha="right", va="bottom")
 # EXPORT
 ################################################################################
 
-df_user.to_csv(export_path_table, sep="\t", index=True, encoding="utf-8")
-plt.savefig(export_path_plot)
-plt.savefig(export_path_plot.with_suffix(".pdf"))
-plt.close()
+c.export_table(df_user, EXPORT_STEM)
+c.save_and_close_fig(fig, EXPORT_STEM)

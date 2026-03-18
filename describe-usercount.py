@@ -20,8 +20,8 @@ import config as c
 # Load custom plotting aesthetics
 c.load_matplotlib_settings()
 
-# Choose export location
-export_path = c.derivatives_dir / "describe-usercount.png"
+# Choose export stem
+EXPORT_STEM = "describe-usercount"
 
 # Load data
 df = c.load_dreamviews_posts()
@@ -31,15 +31,26 @@ counts = df["user_id"].value_counts().rename_axis("user_id").rename("n_posts")
 # PLOTTING
 ################################################################################
 
-# Generate bins
 N_BINS = 50
+X_BOUNDS = (0, c.MAX_POSTCOUNT)
+Y_MAX = 10000
+MAJOR_TICK_LOC = 200
+HIST_KWARGS = dict(log=True, color="gainsboro", linewidth=0.5, edgecolor="black")
+
+# Generate bins
 bins = np.linspace(0, c.MAX_POSTCOUNT, N_BINS + 1)
+minor_tick_loc = np.diff(bins).mean()
+
+assert counts.min() >= 1, "Post counts should be non-negative."
+assert counts.max() <= c.MAX_POSTCOUNT, f"Post counts should be capped at {c.MAX_POSTCOUNT}."
+values = counts.to_numpy()
 
 # Open figure
 fig, ax = plt.subplots(figsize=(3, 1.8), constrained_layout=True)
 
 # Draw
-ax.hist(counts.values, bins=bins, log=True, color="gainsboro", linewidth=0.5, edgecolor="black")
+yvals, _, _ = ax.hist(values, bins=bins, **HIST_KWARGS)
+assert yvals.max() <= Y_MAX, f"Expected no more than {Y_MAX} users with the same post count."
 
 # Indicate post limit
 ax.axvline(c.MAX_POSTCOUNT, color="black", ls="dashed", lw=0.5, alpha=1, clip_on=False)
@@ -53,17 +64,13 @@ ax.text(
 )
 
 # Aesthetics
-ax.set_xlim(0, c.MAX_POSTCOUNT)
+ax.set_xlim(*X_BOUNDS)
 ax.set_xlabel(r"$n$ posts per user", labelpad=0)
 ax.set_ylabel(r"$n$ users")
-ax.set_ybound(upper=10000)
-MAJOR_TICK_LOC = 200
-minor_tick_loc = np.diff(bins).mean()
+ax.set_ybound(upper=Y_MAX)
 ax.xaxis.set_major_locator(plt.MultipleLocator(MAJOR_TICK_LOC))
 ax.xaxis.set_minor_locator(plt.MultipleLocator(minor_tick_loc))
 ax.spines[["top", "right"]].set_visible(False)
 
 # Export
-plt.savefig(export_path)
-plt.savefig(export_path.with_suffix(".pdf"))
-plt.close()
+c.save_and_close_fig(fig, EXPORT_STEM)

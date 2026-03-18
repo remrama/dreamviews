@@ -58,13 +58,16 @@ TOP_N_PLOTS = 50
 TOP_N_TABLES = 100
 
 # Choose export locations
-export_path_jsd_table = c.derivatives_dir / "validate-wordshift_jsd-scores.tsv"
-export_path_jsd_plot = c.derivatives_dir / "validate-wordshift_jsd-plot.png"
-export_path_fear_table = c.derivatives_dir / "validate-wordshift_fear-scores.tsv"
-export_path_fear_plot = c.derivatives_dir / "validate-wordshift_fear-plot.png"
-export_path_prop_plot = c.derivatives_dir / "validate-wordshift_proportion-plot.png"
-export_path_top1grams = c.derivatives_dir / "validate-wordshift_proportion-ld1grams.tsv"
-export_path_top2grams = c.derivatives_dir / "validate-wordshift_proportion-ld2grams.tsv"
+EXPORT_STEM = "validate-wordshift"
+
+export_stem_jsd_table = f"{EXPORT_STEM}_jsd-scores.tsv"
+export_stem_fear_table = f"{EXPORT_STEM}_fear-scores.tsv"
+export_stem_top1grams = f"{EXPORT_STEM}_proportion-ld1grams.tsv"
+export_stem_top2grams = f"{EXPORT_STEM}_proportion-ld2grams.tsv"
+
+export_path_jsd_plot = c.derivatives_dir / f"{EXPORT_STEM}_jsd-plot.png"
+export_path_fear_plot = c.derivatives_dir / f"{EXPORT_STEM}_fear-plot.png"
+export_path_prop_plot = c.derivatives_dir / f"{EXPORT_STEM}_proportion-plot.png"
 
 # Load data
 df = c.load_dreamviews_posts()
@@ -232,7 +235,7 @@ plt.close()
 
 # Export scores
 out_df = shift2df(shift, detail_level=2)
-out_df.to_csv(export_path_fear_table, index=True, na_rep="n/a", sep="\t", encoding="utf-8")
+c.export_table(out_df, export_stem_fear_table)
 
 # JSD shift comparing lucids vs non-lucids #
 ############################################
@@ -269,7 +272,7 @@ plt.close()
 
 # Export scores
 out_df = shift2df(shift, detail_level=2)
-out_df.to_csv(export_path_jsd_table, index=True, na_rep="n/a", sep="\t", encoding="utf-8")
+c.export_table(out_df, export_stem_jsd_table)
 
 # Proportion shift comparing lucids vs non-lucids #
 ###################################################
@@ -302,5 +305,5 @@ top_1grams = grams1["type2p_diff"].sort_values(ascending=False)[:TOP_N_TABLES]
 top_2grams = grams2["type2p_diff"].sort_values(ascending=False)[:TOP_N_TABLES]
 
 # Export
-top_1grams.to_csv(export_path_top1grams, index=True, sep="\t", encoding="utf-8")
-top_2grams.to_csv(export_path_top2grams, index=True, sep="\t", encoding="utf-8")
+c.export_table(top_1grams, export_stem_top1grams)
+c.export_table(top_2grams, export_stem_top2grams)

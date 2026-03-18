@@ -29,7 +29,7 @@ warnings.filterwarnings(
 c.load_matplotlib_settings()
 
 # Choose filename for exporting
-export_path = c.derivatives_dir / "describe-categorycounts.png"
+EXPORT_STEM = "describe-categorycounts"
 
 # Load data
 df = c.load_dreamviews_posts()
@@ -141,6 +141,4 @@ fig, ax = plt.subplots(figsize=figsize, gridspec_kw=gridspec_kwargs)
 draw_venn_plot(ax=ax, columns=venn_order)
 
 # Export
-plt.savefig(export_path)
-plt.savefig(export_path.with_suffix(".pdf"))
-plt.close()
+c.save_and_close_fig(fig, EXPORT_STEM)
