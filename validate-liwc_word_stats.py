@@ -5,7 +5,7 @@ IMPORTS
 =======
     - original post info,     dreamviews-posts.tsv
     - word-level LIWC scores, validate-liwc_wordscores.tsv
-    - LIWC dictionary,        a_AgencyCommunion.dic
+    - LIWC dictionary,        custom.dic
 EXPORTS
 =======
     - effect sizes (d) for top words from each category, validate-liwc_wordscores-stats.tsv
@@ -20,6 +20,8 @@ but this is way messier so better alone.
 6. export is different, here it's the top N words of a few categories and their effect sizes
 """
 
+import warnings
+
 import liwc
 import numpy as np
 import pandas as pd
@@ -29,6 +31,13 @@ from tqdm import tqdm
 
 import config as c
 
+warnings.filterwarnings(
+    "ignore",
+    category=RuntimeWarning,
+    module="pingouin",
+    message="invalid value encountered in scalar divide",
+)
+
 ################################################################################
 # SETUP
 ################################################################################
@@ -36,7 +45,8 @@ import config as c
 LIWC_CATEGORIES = ["insight", "agency"]
 TOP_N = 20  # Top n contributing tokens/words for each category
 
-import_path_dict = c.fetch_file("a_AgencyCommunion.dic")
+# import_path_dict = c.fetch_file("a_AgencyCommunion.dic")
+import_path_dict = c.sourcedata_dir / "custom.dic"
 import_path_data = c.derivatives_dir / "validate-liwc_wordscores-data.npz"
 import_path_attr = c.derivatives_dir / "validate-liwc_wordscores-attr.npz"
 export_path = c.derivatives_dir / "validate-liwc_wordscores-stats.tsv"
@@ -124,10 +134,12 @@ for cat in LIWC_CATEGORIES:
     df_ = df_.sort_values("cohen-d", ascending=False, key=abs)
     # take top rows and clean up a bit
     df_ = df_[:TOP_N]
-    df_[f"{cat}_rank"] = np.arange(TOP_N) + 1
+    df_["rank"] = np.arange(TOP_N) + 1
+    df_["category"] = cat
     token_rank_results.append(df_)
 
 out = pd.concat(token_rank_results)
+out["rank"] = out["rank"].astype("Int64")
 
 # Export
-out.to_csv(export_path, float_format="%.4f", index=True, na_rep="NA", sep="\t", encoding="utf-8")
+out.to_csv(export_path, float_format="%.4f", index=True, na_rep="n/a", sep="\t", encoding="utf-8")

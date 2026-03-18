@@ -169,4 +169,6 @@ df["country"] = df["country_flag"].apply(get_country_code)
 df["gender"] = df["gender"].str.lower()
 
 # Export
-df[keep_columns].to_csv(export_path, encoding="ascii", index_label="user_id", na_rep="NA", sep="\t")
+df[keep_columns].to_csv(
+    export_path, encoding="ascii", index_label="user_id", na_rep="N/A", sep="\t"
+)

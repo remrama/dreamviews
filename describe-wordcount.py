@@ -35,7 +35,6 @@ export_path_plots = [
 # Load data
 df = c.load_dreamviews_posts()
 
-
 ################################################################################
 # GET FREQUENCIES
 ################################################################################
@@ -54,21 +53,19 @@ token_melt["token_type"] = token_melt["token_type"].str.rstrip("count")
 
 # Get table of descriptives across the whole corpus that averages within users to account for bias
 total_descr = (
-    token_melt.groupby(["user_id", "token_type"])
+    token_melt.groupby(["user_id", "token_type"])["n"]
     .mean()
     .groupby("token_type")
     .describe()
-    .droplevel(level=0, axis=1)
     .rename_axis("metric", axis=1)
 )
 
 # Same thing but for lucid and non-lucid labeled posts
 lucid_descr = (
-    token_melt.groupby(["user_id", "lucidity", "token_type"])
+    token_melt.groupby(["user_id", "lucidity", "token_type"])["n"]
     .mean()
     .groupby(["lucidity", "token_type"])
     .describe()
-    .droplevel(level=0, axis=1)
     .rename_axis("metric", axis=1)
 )
 
@@ -77,8 +74,8 @@ total_descr = pd.concat({"combined": total_descr}, names=["lucidity"])
 descriptives = pd.concat([total_descr, lucid_descr], axis=0)
 
 # Export
+descriptives = descriptives.convert_dtypes()
 descriptives.to_csv(export_path_table, float_format="%.1f", index=True, sep="\t", encoding="utf-8")
-
 
 ################################################################################
 # PLOTTING

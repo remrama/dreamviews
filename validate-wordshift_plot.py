@@ -6,7 +6,7 @@ IMPORTS
     - raw NRC-fear shift scores for nightmares, validate-wordshift_fear-scores.tsv
 EXPORTS
 =======
-    - visualization of a shift, validate-wordshift_<shift>-myplot.png
+    - visualization of a shift, validate-wordshift_<shift>-custom.png
 """
 
 import argparse
@@ -35,7 +35,7 @@ c.load_matplotlib_settings()
 
 # Pick filepaths
 import_path = c.derivatives_dir / f"validate-wordshift_{SHIFT_ID}-scores.tsv"
-export_path = c.derivatives_dir / f"validate-wordshift_{SHIFT_ID}-myplot.png"
+export_path = c.derivatives_dir / f"validate-wordshift_{SHIFT_ID}-custom.png"
 
 # Load shift scores
 df = pd.read_csv(import_path, index_col="ngram", sep="\t", encoding="utf-8")

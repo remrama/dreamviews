@@ -24,7 +24,6 @@ data = np.load(import_path)
 cv_true = data["true_labels"]
 cv_pred = data["predicted_labels"]
 
-
 # Get some classification performance measures for a table
 METRICS = ["accuracy", "f1", "precision", "recall", "roc_auc"]
 results = {m: [] for m in METRICS}
@@ -40,5 +39,5 @@ avg = df.agg(["mean", "std"]).T.rename_axis("scorer")
 avg.columns = avg.columns.map(lambda x: "CV " + x)
 
 # Export
-df.to_csv(export_path_cv, index=True, sep="\t", encoding="utf-8")
-avg.to_csv(export_path_cv_avg, index=True, sep="\t", encoding="utf-8")
+df.to_csv(export_path_cv, index=True, sep="\t", encoding="utf-8", float_format="%.4f")
+avg.to_csv(export_path_cv_avg, index=True, sep="\t", encoding="utf-8", float_format="%.4f")

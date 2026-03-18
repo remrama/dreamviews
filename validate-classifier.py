@@ -28,11 +28,11 @@ import config as c
 
 export_path = c.derivatives_dir / "validate-classifier.npz"
 
-column_name = "post_lemmas"
-n_splits = 5
-train_size = 0.7
-nonlucid_digit = 0
-lucid_digit = 1
+COLUMN_NAME = "post_lemmas"
+N_SPLITS = 5
+TRAIN_SIZE = 0.7
+NONLUCID_DIGIT = 0
+LUCID_DIGIT = 1
 
 # Initialize the classification pipeline components
 vectorizer = CountVectorizer(
@@ -43,11 +43,11 @@ vectorizer = CountVectorizer(
     binary=False,
 )
 clf = SVC(kernel="linear", C=1.0)
-cv = StratifiedShuffleSplit(n_splits=n_splits, train_size=train_size, random_state=2)
+cv = StratifiedShuffleSplit(n_splits=N_SPLITS, train_size=TRAIN_SIZE, random_state=2)
 
 # Load data
 df = c.load_dreamviews_posts()
-usecols = ["post_id", "user_id", "lucidity", column_name]
+usecols = ["post_id", "user_id", "lucidity", COLUMN_NAME]
 df = df[usecols].set_index("post_id")
 # Drop non-lucid data
 df = df[df["lucidity"].str.contains("lucid")]
@@ -61,14 +61,14 @@ n_per_class = df["lucidity"].value_counts().min()
 df = df.groupby("lucidity").sample(n=n_per_class, replace=False, random_state=1)
 
 # Convert to vectors for training/testing
-corpus = df[column_name].tolist()
+corpus = df[COLUMN_NAME].tolist()
 X = vectorizer.fit_transform(corpus)
-y = df["lucidity"].map({"nonlucid": nonlucid_digit, "lucid": lucid_digit}).values
+y = df["lucidity"].map({"nonlucid": NONLUCID_DIGIT, "lucid": LUCID_DIGIT}).values
 
 # Cross-validation
 true_labels_list = []
 pred_labels_list = []
-for train_index, test_index in tqdm(cv.split(X, y), total=n_splits, desc="Lucidity classifier"):
+for train_index, test_index in tqdm(cv.split(X, y), total=N_SPLITS, desc="Lucidity classifier"):
     X_train, X_test = X[train_index], X[test_index]
     y_train, y_test = y[train_index], y[test_index]
     clf.fit(X_train, y_train)

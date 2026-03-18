@@ -28,5 +28,6 @@ dependencies:
     - matplotlib-venn   # data visualization - venn diagram
     - contractions      # text cleaning - expand contractions
     - langdetect        # text cleaning - detect language
-    - shifterator       # text analysis - word shifts
+    # - shifterator       # text analysis - word shifts
+    - git+https://github.com/remrama/shifterator.git  # For >=3.11 Python compatibility
     - liwc              # text analysis - LIWC

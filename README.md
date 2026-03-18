@@ -85,8 +85,8 @@ python validate-wordshift.py                #=> derivatives/validate-wordshift_j
                                             #=> derivatives/validate-wordshift_proportion-plot.png
                                             #=> derivatives/validate-wordshift_proportion-ld1grams.tsv
                                             #=> derivatives/validate-wordshift_proportion-ld2grams.tsv
-python validate-wordshift_plot.py -s jsd    #=> derivatives/validate-wordshift_jsd-myplot.png
-python validate-wordshift_plot.py -s fear   #=> derivatives/validate-wordshift_fear-myplot.png
+python validate-wordshift_plot.py -s jsd    #=> derivatives/validate-wordshift_jsd-custom.png
+python validate-wordshift_plot.py -s fear   #=> derivatives/validate-wordshift_fear-custom.png
 
 # Compare lucid and non-lucid reports using LIWC categories Insight and Agency
 python validate-liwc.py --words             #=> derivatives/validate-liwc_scores.tsv

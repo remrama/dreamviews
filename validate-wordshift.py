@@ -28,8 +28,8 @@ import argparse
 import matplotlib.pyplot as plt
 import pandas as pd
 import shifterator as sh
-import tqdm
 from gensim.models.phrases import Phraser, Phrases
+from tqdm import tqdm
 
 import config as c
 
@@ -48,7 +48,6 @@ args = parser.parse_args()
 
 NO_BIGRAMS = args.nobigrams
 NO_NORMING = args.nonorm
-
 
 ################################################################################
 # SETUP
@@ -69,7 +68,6 @@ export_path_top2grams = c.derivatives_dir / "validate-wordshift_proportion-ld2gr
 
 # Load data
 df = c.load_dreamviews_posts()
-
 
 ################################################################################
 # CONNECT BIGRAMS
@@ -109,7 +107,6 @@ if not NO_BIGRAMS:  # Sorry for the double negative
 # reduce user bias
 # df = df.groupby("user_id").sample(n=1, replace=False)
 
-
 ################################################################################
 # EXTRACT DATA SUBSETS
 ################################################################################
@@ -122,7 +119,6 @@ ld_ser = df.query("lucidity.str.contains('lucid')", engine="python").set_index(
 # Export nightmare Series for NRC-fear shift
 df["nightmare"] = df["nightmare"].map({True: "nightmare", False: "nonnightmare"})
 nm_ser = df.set_index(["nightmare", "user_id"])[COLUMN_NAME]
-
 
 ################################################################################
 # NORMALIZATION FUNCTIONS
@@ -236,7 +232,7 @@ plt.close()
 
 # Export scores
 out_df = shift2df(shift, detail_level=2)
-out_df.to_csv(export_path_fear_table, index=True, na_rep="NA", sep="\t", encoding="utf-8")
+out_df.to_csv(export_path_fear_table, index=True, na_rep="n/a", sep="\t", encoding="utf-8")
 
 # JSD shift comparing lucids vs non-lucids #
 ############################################
@@ -273,7 +269,7 @@ plt.close()
 
 # Export scores
 out_df = shift2df(shift, detail_level=2)
-out_df.to_csv(export_path_jsd_table, index=True, na_rep="NA", sep="\t", encoding="utf-8")
+out_df.to_csv(export_path_jsd_table, index=True, na_rep="n/a", sep="\t", encoding="utf-8")
 
 # Proportion shift comparing lucids vs non-lucids #
 ###################################################

@@ -22,7 +22,7 @@ subprocess.run([sys.executable, "-m", "spacy", "download", "en_core_web_lg"], ch
 
 # Scrape
 if args.scrape:
-    print("Scraping and extracting data will take hours...")
+    print("Scraping and extracting data takes hours...")
     run("scrape-posts.py")
     run("extract-posts.py")
     run("scrape-users.py")
@@ -30,12 +30,12 @@ if args.scrape:
 # Extract
 if args.extract:
     if not args.scrape:
-        print("Extracting data will take hours...")
+        print("Extracting data takes hours...")
         run("extract-posts.py")
     run("extract-users.py")
 
 # Describe
-print("Descriptive analyses take just a minute altogether...")
+print("Descriptive analyses take a minute...")
 run("describe-timecourse.py")
 run("describe-usercount.py")
 run("describe-toplabels.py")
@@ -45,12 +45,14 @@ run("describe-demographics.py")
 run("describe-wordcount.py")
 
 # Validate
-print("Validation analyses are quick unless LIWCing...")
+print("Validation analyses take a few minutes...")
 run("validate-classifier.py")
 run("validate-classifier_stats.py")
 run("validate-wordshift.py")
-run("validate-wordshift_plot.py")
+run("validate-wordshift_plot.py", "--shift", "jsd")
+run("validate-wordshift_plot.py", "--shift", "fear")
 run("validate-liwc.py", "--words")
 run("validate-liwc_stats.py")
 run("validate-liwc_word_stats.py")
-run("validate-liwc_word_plot.py")
+run("validate-liwc_word_plot.py", "--category", "insight")
+run("validate-liwc_word_plot.py", "--category", "agency")

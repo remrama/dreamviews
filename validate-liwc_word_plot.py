@@ -38,7 +38,7 @@ export_path = c.derivatives_dir / f"validate-liwc_wordscores_{CATEGORY}-plot.png
 import_path_full_liwc = c.derivatives_dir / "validate-liwc_scores-stats.tsv"
 
 # Load data
-df = pd.read_csv(import_path, sep="\t", encoding="utf-8")
+df = pd.read_csv(import_path, sep="\t", encoding="utf-8", index_col="category")
 
 # Load full category LIWC results (to draw on top row)
 liwccats = pd.read_csv(
@@ -95,8 +95,7 @@ topax.barh(0, dval, xerr=derr, color=color, error_kw=ERROR_ARGS, **BAR_ARGS)
 ## draw word-level LIWC effects on bottom
 
 # grab top N tokens for THIS category and sort it
-column_name = CATEGORY + "_rank"
-subdf = df.loc[df[column_name].notna()].sort_values(column_name, ascending=True)[:TOP_N]
+subdf = df.loc[CATEGORY].sort_values("rank", ascending=True)[:TOP_N]
 
 # generate relevant plot info
 dvals = subdf["cohen-d"].values
@@ -132,7 +131,7 @@ ax.xaxis.grid(True, which="minor", linewidth=0.3, clip_on=False, color=GRID_COLO
 # xmax = max(map(abs, ax.get_xlim()))
 ax.set_xlim(-XLIM, XLIM)
 ax.set_xlabel(
-    "Cohen's $\it{d}$ effect size" + "\nnon-lucid$\leftarrow$   $\\rightarrow$lucid        ",
+    r"Cohen's $\it{d}$ effect size" + "\n" + r"non-lucid$\leftarrow$   $\rightarrow$lucid        ",
     labelpad=2,
 )
 ax.xaxis.set(

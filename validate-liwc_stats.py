@@ -20,7 +20,6 @@ import config as c
 
 c.load_matplotlib_settings()
 
-
 LIWC_CATS = ["insight", "agency"]
 LUCID_ORDER = ["nonlucid", "lucid"]
 
@@ -28,7 +27,6 @@ import_path_liwc = c.derivatives_dir / "validate-liwc_scores.tsv"
 export_path_descr = c.derivatives_dir / "validate-liwc_scores-descr.tsv"
 export_path_stats = c.derivatives_dir / "validate-liwc_scores-stats.tsv"
 export_path_plot = c.derivatives_dir / "validate-liwc_scores-plot.png"
-
 
 ########################## I/O
 
@@ -52,16 +50,14 @@ avgs = (
 )  # convert to percentages
 # avgs.index.get_level_values("user_id").duplicated(keep=False)
 
-
 ########################## get descriptives
 
 descriptives = avgs.agg(["mean", "std", "sem", "min", "max"]).T
 
 # export
 descriptives.to_csv(
-    export_path_descr, sep="\t", encoding="utf-8", na_rep="NA", index=True, float_format="%.3f"
+    export_path_descr, sep="\t", encoding="utf-8", na_rep="n/a", index=True, float_format="%.3f"
 )
-
 
 ########################## run statistics
 #### Repeated-measures test
@@ -84,8 +80,7 @@ for cat in tqdm(LIWC_CATS, desc="LIWC stats"):
 stats = pd.concat(wilcoxon_results).rename_axis("category").drop(columns="alternative")
 
 # export
-stats.to_csv(export_path_stats, index=True, na_rep="NA", sep="\t", encoding="utf-8")
-
+stats.to_csv(export_path_stats, index=True, na_rep="n/a", sep="\t", encoding="utf-8")
 
 ########################## plot visualization
 #### Barplot,
@@ -161,9 +156,9 @@ for ax in axes:
 
 # draw significance markers
 for cat, xloc in zip(LIWC_CATS, xticks):
-    pval = stats.loc[cat, "p-val"]
+    pval = stats.loc[cat, "p_val"]
     sigchars = "*" * sum([pval < cutoff for cutoff in (0.05, 0.01, 0.001)])
-    yloc = descriptives.loc[cat, ["mean", "sem"]].sort_values("mean").sum(axis=1)[-1]
+    yloc = descriptives.loc[cat, ["mean", "sem"]].sum(axis=1).max()
     yloc += 0.1
     ax1.text(xloc, yloc + 0.01, sigchars, fontsize=10, weight="bold", ha="center", va="center")
     ax1.hlines(

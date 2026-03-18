@@ -18,7 +18,7 @@ from matplotlib_venn import venn2, venn3
 import config as c
 
 warnings.filterwarnings(
-    "ignore", message="normalize_to is deprecated.*", category=UserWarning, module="matplotlib"
+    "ignore", category=UserWarning, module="matplotlib", message="normalize_to is deprecated.*"
 )
 
 ################################################################################

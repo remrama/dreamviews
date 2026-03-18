@@ -4,7 +4,7 @@ Run custom LIWC analysis.
 IMPORTS
 =======
     - non-lemmatized posts, dreamviews-posts.tsv
-    - LIWC dictionary,      a_AgencyCommunion.dic
+    - LIWC dictionary,      custom.dic
 EXPORTS
 =======
     - traditional (ie, total) LIWC scores for each dream report, validate-liwc_scores.tsv
@@ -68,7 +68,8 @@ GET_WORD_CONTRIBUTIONS = args.words
 tqdm.pandas(desc="LIWCing words" if GET_WORD_CONTRIBUTIONS else "LIWCing posts")
 
 # Select filenames
-dict_fname = c.fetch_file("a_AgencyCommunion.dic")
+# dict_fname = c.fetch_file("a_AgencyCommunion.dic")
+dict_fname = c.sourcedata_dir / "custom.dic"
 export_fname = c.derivatives_dir / "validate-liwc_scores.tsv"
 if GET_WORD_CONTRIBUTIONS:
     export_fname2 = c.derivatives_dir / "validate-liwc_wordscores-data.npz"
@@ -88,7 +89,6 @@ if GET_WORD_CONTRIBUTIONS:
     vocab_fulls = set([t for t in vocab if not t.endswith("*")])
     vocab_stems = set([t.rstrip("*") for t in vocab if t.endswith("*")])
 
-
 # Create an appopriate tokenizer for LIWC
 # LIWC vocab includes lots of apostrophed and hyphenated words, and emojis
 # The nltk tweet tokenizer is good for this situation, but I also wanna get rid of punctuation
@@ -104,7 +104,6 @@ def tokenize4liwc(doc):
 ################################################################################
 # RUN LIWC
 ################################################################################
-
 
 # There's an easier way, without token/word frequencies and more concise code
 # For now I'll leave that as a separate code chunk in case I want it later
