@@ -29,5 +29,5 @@ dependencies:
     - contractions      # text cleaning - expand contractions
     - langdetect        # text cleaning - detect language
     # - shifterator       # text analysis - word shifts
-    - git+https://github.com/remrama/shifterator.git  # For >=3.11 Python compatibility
+    - git+https://github.com/ryanjgallagher/shifterator.git  # For >=3.11 Python compatibility
     - liwc              # text analysis - LIWC
