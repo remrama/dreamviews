@@ -35,6 +35,10 @@ REGISTRY = {
         "url": "https://osf.io/62txv/download",
         "known_hash": "md5:d2240a5eb36568d9eefaa428130a0577",
     },
+    "ne_110m_admin_0_countries.zip": {
+        "url": "https://naciscdn.org/naturalearth/110m/cultural/ne_110m_admin_0_countries.zip",
+        "known_hash": "md5:374f5381a2ff702d3d79d345a9e5f65c",
+    },
 }
 
 fetcher = pooch.create(

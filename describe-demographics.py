@@ -54,23 +54,18 @@ c.export_table(reported, EXPORT_STEM_PROVIDED, index_label="demographic_variable
 
 # Get age and gender frequencies
 
-# Replace gender NAs
-GENDER_ORDER = ["male", "female", "trans", "unstated"]
+# Replace gender NAs and make ordered categorical for plotting purposes
+UNREPORTED_LABEL = "unreported"
+GENDER_ORDER = ["male", "female", "trans", UNREPORTED_LABEL]
+assert df["gender"].dropna().isin(GENDER_ORDER[:-1]).all(), (
+    f"Expected gender values to be in {GENDER_ORDER[:-1]}."
+)
 df["gender"] = pd.Categorical(
-    df["gender"].fillna("unstated"), categories=GENDER_ORDER, ordered=True
+    df["gender"].fillna(UNREPORTED_LABEL), categories=GENDER_ORDER, ordered=True
 )
 
-# Replace age NAs and bin age
-assert df["age"].dropna().ge(18).all(), "Didn't expect any reported ages under 18."
-max_age = df["age"].dropna().astype(int).max()
-cut_bins = [18, 25, 35, 45, 55, 65, max_age + 1]
-cut_labels = [f"[{left}, {right})" for left, right in zip(cut_bins[:-1], cut_bins[1:])]
-cut_labels[-1] = cut_labels[-1].replace(str(max_age + 1), r"$\infty$")
-cut_labels_with_na = cut_labels + ["unstated"]
-age_binned = pd.cut(df["age"], bins=cut_bins, labels=cut_labels, right=False, include_lowest=True)
-df["age"] = pd.Categorical(age_binned, categories=cut_labels_with_na, ordered=True).fillna(
-    "unstated"
-)
+# Replace age NAs and make ordered categorical for plotting purposes
+df["age"] = pd.Categorical(df["age"].fillna(UNREPORTED_LABEL), ordered=True)
 
 # Export
 df_out = df.groupby(["gender", "age"]).size().rename("count")
@@ -78,10 +73,10 @@ c.export_table(df_out, EXPORT_STEM_AGEGENDER)
 
 # Get location frequencies
 country_counts = (
-    df["country"].fillna("unstated").value_counts().rename("n_users").rename_axis("ISO_A3")
+    df["country"].fillna(UNREPORTED_LABEL).value_counts().rename("n_users").rename_axis("ISO_A3")
 )
 
-# Export (before dropping the unstated and converting to log values)
+# Export (before dropping the unreported and converting to log values)
 c.export_table(country_counts, EXPORT_STEM_LOCATION)
 
 ################################################################################
@@ -100,14 +95,17 @@ n_ages = df["age"].nunique()
 bins = range(n_genders + 1)
 data = [x for x in df.groupby("age")["gender_int"].apply(list)]
 
-# Get sequential colormap colors for age, but leave last one white for unstated
-age_cmap = cc.cm.bgy
-age_colors = ["white" if i == n_ages - 1 else age_cmap(i / (n_ages - 2)) for i in range(n_ages)]
+# Get age labels for legend
+age_labels = df["age"].cat.categories.tolist()
+age_labels = [label.replace("inf", r"$\infty$") for label in age_labels]
+
+# Get sequential colormap colors for age, but leave last one white for unreported
+AGE_CMAP = cc.cm.bgy
+age_colors = ["white" if i == n_ages - 1 else AGE_CMAP(i / (n_ages - 2)) for i in range(n_ages)]
 
 # Draw histogram
-ax.hist(
-    data, bins=bins, align="left", rwidth=0.8, stacked=True, color=age_colors, ec="black", lw=0.5
-)
+HIST_KWARGS = dict(align="left", rwidth=0.8, stacked=True, ec="black", lw=0.5)
+ax.hist(data, bins=bins, color=age_colors, **HIST_KWARGS)
 
 # Adjust aesthetics
 ax.set_xticks(bins[:-1])
@@ -122,17 +120,17 @@ ax.grid(axis="y", which="minor", linewidth=0.5, color="gainsboro")
 ax.set_axisbelow(True)
 
 # Add legend
+PATCH_KWARGS = dict(linewidth=0.3)
 legend_handles = [
     plt.matplotlib.patches.Patch(
         edgecolor="black" if color == "white" else "none",
-        linewidth=0.3,
-        facecolor=color,
         label=label,
+        facecolor=color,
+        **PATCH_KWARGS,
     )
-    for label, color in zip(cut_labels_with_na, age_colors)
+    for label, color in zip(age_labels, age_colors)
 ]
-legend = ax.legend(
-    handles=legend_handles[::-1],
+LEGEND_KWARGS = dict(
     title="Reported age",
     loc="upper left",
     bbox_to_anchor=(0.27, 1),
@@ -141,6 +139,7 @@ legend = ax.legend(
     labelspacing=0.1,
     handletextpad=0.2,
 )
+legend = ax.legend(handles=legend_handles[::-1], **LEGEND_KWARGS)
 legend._legend_box.sep = 2  # Brings title up farther on top of handles/labels
 legend._legend_box.align = "left"
 
@@ -158,34 +157,30 @@ ax = fig.add_subplot(gs1[0])
 cax = fig.add_subplot(gs2[0])
 
 # Load the world geopandas data to get country geometries
-world = geopandas.read_file(
-    "https://naciscdn.org/naturalearth/110m/cultural/ne_110m_admin_0_countries.zip"
-)
+map_filepath = c.fetch_file("ne_110m_admin_0_countries.zip")
+world = geopandas.read_file(map_filepath)
 
-# Pop out the "unstated" country bc it's meaningless here
-unstated_n = country_counts.pop("unstated")
+# Pop out the "unreported" country bc it's meaningless here
+unreported_n = country_counts.pop(UNREPORTED_LABEL)
 
 # Add the country user counts to the world geodataframe
 myworld = world.merge(country_counts, left_on="ISO_A3", right_index=True, how="left")
 
 # Pick colormap info
+LOCATION_CMAP = cc.cm.bgy
 COLOR_MAX = 2000
-color_norm = plt.matplotlib.colors.LogNorm(vmin=1, vmax=COLOR_MAX)
 assert myworld["n_users"].max() <= COLOR_MAX, f"Data exceeds colormap upper limit of {COLOR_MAX}."
-location_cmap = cc.cm.bgy
+color_norm = plt.matplotlib.colors.LogNorm(vmin=1, vmax=COLOR_MAX)
 
-myworld.plot(
-    ax=ax,
-    cax=cax,
+WORLD_PLOT_KWARGS = dict(
     column="n_users",
     edgecolor="black",
     linewidth=0.3,
-    cmap=location_cmap,
-    norm=color_norm,
     legend=True,
     legend_kwds=dict(label=r"$n$ users", orientation="vertical"),
     missing_kwds=dict(facecolor="gainsboro", linewidth=0.1),
 )
+myworld.plot(ax=ax, cax=cax, cmap=LOCATION_CMAP, norm=color_norm, **WORLD_PLOT_KWARGS)
 
 ax.axis("off")
 

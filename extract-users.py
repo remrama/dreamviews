@@ -9,6 +9,7 @@ import json
 import re
 import zipfile
 
+import numpy as np
 import pandas as pd
 import pycountry
 from bs4 import BeautifulSoup
@@ -75,6 +76,7 @@ USER_ATTRIBUTES = [  # these all get lowercased and cleaned when turned into col
     "Points spend in Shop",
 ]
 
+# Replacements for country names that don't match lookup in pycountry
 COUNTRY_REPLACEMENTS = {
     "USA": "United States",
     "Vanutau": "Vanuatu",
@@ -176,8 +178,16 @@ def get_country_code(x):
 
 df["country"] = df["country_flag"].apply(get_country_code)
 df["gender"] = df["gender"].str.lower()
+df["age"] = df["age"].astype("Int64")
+
+# Bin age into categories for de-identification purposes
+AGE_BINS = [18, 25, 35, 45, 55, 65, np.inf]
+min_age = AGE_BINS[0]
+assert df["age"].dropna().ge(min_age).all(), f"Didn't expect any reported ages under {min_age}."
+age_labels = [f"[{left}, {right})" for left, right in zip(AGE_BINS[:-1], AGE_BINS[1:])]
+df["age"] = pd.cut(df["age"], bins=AGE_BINS, labels=age_labels, right=False, include_lowest=True)
 
 # Export
 df[KEEP_COLUMNS].to_csv(
-    export_path, encoding="ascii", index_label="user_id", na_rep="N/A", sep="\t"
+    export_path, encoding="ascii", index_label="user_id", na_rep="n/a", sep="\t"
 )
