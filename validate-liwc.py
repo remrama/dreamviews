@@ -64,6 +64,8 @@ GET_WORD_CONTRIBUTIONS = args.words
 # SETUP
 ################################################################################
 
+FLOAT_FORMAT = "%.5e"
+
 # Turn on pandas progress bar
 tqdm.pandas(desc="LIWCing words" if GET_WORD_CONTRIBUTIONS else "LIWCing posts")
 
@@ -127,7 +129,7 @@ if not GET_WORD_CONTRIBUTIONS:  # Not using this but leaving it to show the much
     df = df[category_names]  # Reorder according to the LIWC dic file, just for cleanliness
     df = df.sort_index()  # Also just bc it looks nice
     # Export
-    c.export_table(df, EXPORT_STEM, float_format="%.2f")
+    c.export_table(df, EXPORT_STEM, float_format=FLOAT_FORMAT)
 
 else:
     # The more complex case of wanting individual word frequencies
@@ -191,8 +193,8 @@ else:
     # Export the traditional LIWC results (i.e., total category counts)
     ######## I think - for the tokens - this is too much memory used at once
     ######## and the file is big so use sparse matrix instead
-    c.export_table(cats, EXPORT_STEM, float_format="%.2f")
-    # toks.to_csv(export_fname_toks, sep="\t", encoding="utf-8", index=True, float_format="%.2f")
+    c.export_table(cats, EXPORT_STEM, float_format=FLOAT_FORMAT)
+    # c.export_table(toks, f"{EXPORT_STEM}_tokens", float_format=FLOAT_FORMAT)
 
     # Export the word-level results
     M = sparse.csr_matrix(toks.values)
