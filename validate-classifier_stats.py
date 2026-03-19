@@ -26,7 +26,7 @@ cv_pred = data["predicted_labels"]
 # Get some classification performance measures for a table
 METRICS = ["accuracy", "f1", "precision", "recall", "roc_auc"]
 results = {m: [] for m in METRICS}
-for t, p in zip(cv_true, cv_pred):
+for t, p in zip(cv_true, cv_pred, strict=True):
     for m in METRICS:
         score = metrics.get_scorer(m)._score_func(t, p)
         results[m].append(score)

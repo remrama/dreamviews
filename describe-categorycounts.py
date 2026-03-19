@@ -80,11 +80,11 @@ def draw_venn_plot(ax, columns):
     n_users = [df.loc[s, "user_id"].nunique() for s in series_list]
 
     # Calculate the report:user fraction for each venn location
-    venn_sizes = [p / u for p, u in zip(n_posts, n_users)]
+    venn_sizes = [p / u for p, u in zip(n_posts, n_users, strict=True)]
 
     # Generate new text labels for each venn location
     venn_labels = []
-    for i, (p, u) in enumerate(zip(n_posts, n_users)):
+    for i, (p, u) in enumerate(zip(n_posts, n_users, strict=True)):
         if i == 0 and n_venns == 3:
             txt = r"$n_{posts}=$" + str(p) + "\n(" + r"$n_{users}=$" + str(u) + ")"
         else:
@@ -128,7 +128,7 @@ def draw_venn_plot(ax, columns):
         ven.get_label_by_id(setid).set_style("italic")
 
     # Adjust the inner text
-    for vlabel, txt in zip(ven.subset_labels, venn_labels):
+    for vlabel, txt in zip(ven.subset_labels, venn_labels, strict=True):
         vlabel.set_text(txt)
 
 

@@ -91,8 +91,10 @@ def convert2ascii(text, retain_whitespace_count=False):
     return text
 
 
-def lemmatize(doc, shuffle=False, pos_remove_list=["PROPN", "SMY"]):
+def lemmatize(doc, shuffle=False, pos_remove_list=None):
     """Convert a spaCy doc to space-separate string of shuffled lemmas."""
+    if pos_remove_list is None:
+        pos_remove_list = ["PROPN", "SMY"]
     token_list = []
     for token in doc:
         if (
@@ -150,7 +152,9 @@ for html_byt in tqdm(html_files, desc="Extracting posts"):
     ##
     ## There are some "continue" statements that will push into the next loop
     ## and prevent saving that data (in cases where the post fails inclusion)
-    for post, user, date, title in zip(page_posts, page_users, page_dates, page_titles):
+    for post, user, date, title in zip(
+        page_posts, page_users, page_dates, page_titles, strict=True
+    ):
         post_txt = post.text
         user_txt = user.text  # WARNING: Don't use strip here bc some usernames are just spaces
         date_txt = date.text
@@ -277,7 +281,7 @@ for html_byt in tqdm(html_files, desc="Extracting posts"):
         # if (("Tags:" in post_txt and len(components) != 3)
         #     or ("Tags:" not in post_txt and len(components) != 2)):
         #     continue
-        # # this is late to check, but want it after this continue section which will catch some of these assertion errors
+        # # this is late to check, but want it after this continue section which will catch some of these assertion errors  # noqa: E501
         # assert post_txt.count("Categories") == 1
         # assert post_txt.count("Tags:") in [0, 1]
 
@@ -324,18 +328,27 @@ for html_byt in tqdm(html_files, desc="Extracting posts"):
         # Example: Updated 12-08-2021 at 10:28 PM by 34880
         # Example: Updated 08-05-2017 at 01:09 PM by 93119 (Added Categories)
         # Example: Updated 04-20-2014 at 12:36 PM by 68865 (remembered another fragment)
-        updated_re = r" Updated [0-9]{2}-[0-9]{2}-[0-9]{4} at [0-9]{2}:[0-9]{2} [AP]M by [0-9]{1,5}( \(.*?\))?"
-        post_txt = re.sub(updated_re, "", post_txt)
+        UPDATED_PATTERN = r" Updated [0-9]{2}-[0-9]{2}-[0-9]{4} at [0-9]{2}:[0-9]{2} [AP]M by [0-9]{1,5}( \(.*?\))?"  # noqa: E501
+        UPDATED_REPLACEMENT = ""
+        post_txt = re.sub(UPDATED_PATTERN, UPDATED_REPLACEMENT, post_txt)
 
         # Redact emails
         # Anything after an "@" is already replaced with "@[email\xa0protected]"
         # They aren't always emails so just remove (rather than replace)
-        post_txt = re.sub(r"@\[email protected\]", "", post_txt)
-        post_txt = re.sub(r"\S*@\S*\s?", "", post_txt)  # Just in case
+        PROTECTED_EMAIL_PATTERN = r"@\[email protected\]"
+        EMAIL_PATTERN = r"\S*@\S*\s?"
+        EMAIL_REPLACEMENT = ""
+        post_txt = re.sub(PROTECTED_EMAIL_PATTERN, EMAIL_REPLACEMENT, post_txt)
+        post_txt = re.sub(EMAIL_PATTERN, EMAIL_REPLACEMENT, post_txt)  # Just in case
 
         # Redact URLS
-        post_txt = re.sub(r"https?://\S+", "[[URL]]", post_txt, flags=re.IGNORECASE)
-        post_txt = re.sub(r"www\.\S+", "[[URL]]", post_txt, flags=re.IGNORECASE)
+        URL_PATTERN_1 = r"https?://\S+"
+        URL_PATTERN_2 = r"www\.\S+"
+        URL_PATTERN_3 = r"\S+\.com\S*"
+        URL_REPLACEMENT = "[[URL]]"
+        post_txt = re.sub(URL_PATTERN_1, URL_REPLACEMENT, post_txt, flags=re.IGNORECASE)
+        post_txt = re.sub(URL_PATTERN_2, URL_REPLACEMENT, post_txt, flags=re.IGNORECASE)
+        post_txt = re.sub(URL_PATTERN_3, URL_REPLACEMENT, post_txt, flags=re.IGNORECASE)
 
         # Check for letters
         if re.search(r"[a-zA-Z]", post_txt) is None:

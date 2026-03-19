@@ -121,7 +121,7 @@ es_df = pd.concat(effectsize_results).rename_axis("token")
 token_rank_results = []
 for cat in LIWC_CATEGORIES:
     # generate an index of relevant tokens for this category
-    cat_index = es_df.index.map(lambda t: t in wordlists[cat])
+    cat_index = es_df.index.map(lambda t, _cat=cat: t in wordlists[_cat])
     # extract only rows in this category
     df_ = es_df.loc[cat_index]
     # # get direction of effect and remove rows not in line

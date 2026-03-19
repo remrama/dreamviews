@@ -128,7 +128,7 @@ ax2.spines["top"].set_visible(False)
 ax1.tick_params(bottom=False)
 
 # draw the slanted hatch lines
-D = 0.5  # proportion of vertical to horizontal extent of the slanted line (0 is flat and increasing rotates ccw)
+D = 0.5  # proportion vertical to horizontal extent of slanted line (0=flat, increasing rotates ccw)
 kwargs = dict(
     marker=[(-1, -D), (1, D)],
     markersize=8,
@@ -154,7 +154,7 @@ for ax in axes:
     ax.set_axisbelow(True)
 
 # draw significance markers
-for cat, xloc in zip(LIWC_CATS, xticks):
+for cat, xloc in zip(LIWC_CATS, xticks, strict=True):
     pval = stats.loc[cat, "p_val"]
     sigchars = "*" * sum([pval < cutoff for cutoff in (0.05, 0.01, 0.001)])
     yloc = descriptives.loc[cat, ["mean", "sem"]].sum(axis=1).max()

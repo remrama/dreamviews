@@ -26,12 +26,14 @@ with open(import_path, "rt", encoding="ascii") as f:
     user_mappings = json.load(f)
 user_list = list(user_mappings)
 
-with requests.Session() as session:
-    with zipfile.ZipFile(export_path, mode="x", compression=zipfile.ZIP_DEFLATED) as zf:
-        # Loop over all the users and try to grab each user profile, skipping failures
-        for user in tqdm(user_list, desc="Scraping users"):
-            url = f"{BASE_USER_URL}/{user}"
-            export_name = f"{user}.html"
-            response = session.get(url)
-            if response.ok and "This user has not registered" not in response.text:
-                zf.writestr(export_name, response.content)
+with (
+    requests.Session() as session,
+    zipfile.ZipFile(export_path, mode="x", compression=zipfile.ZIP_DEFLATED) as zf,
+):
+    # Loop over all the users and try to grab each user profile, skipping failures
+    for user in tqdm(user_list, desc="Scraping users"):
+        url = f"{BASE_USER_URL}/{user}"
+        export_name = f"{user}.html"
+        response = session.get(url)
+        if response.ok and "This user has not registered" not in response.text:
+            zf.writestr(export_name, response.content)

@@ -128,7 +128,7 @@ legend_handles = [
         facecolor=color,
         **PATCH_KWARGS,
     )
-    for label, color in zip(age_labels, age_colors)
+    for label, color in zip(age_labels, age_colors, strict=True)
 ]
 LEGEND_KWARGS = dict(
     title="Reported age",

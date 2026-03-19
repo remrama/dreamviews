@@ -129,7 +129,7 @@ bars = ax.barh(ylocs, xlocs, color=rgba_colors, **BAR_KWARGS)
 ax.axvline(0, linewidth=1, color="black")
 
 # Write words next to each bar
-for barx, bary, text in zip(xlocs, ylocs, labels):
+for barx, bary, text in zip(xlocs, ylocs, labels, strict=True):
     # If bar is to the right, place txt to the right (flush left),
     # otherwise reverse (left side flush right)
     horizontal_alignment = "left" if barx > 0 else "right"

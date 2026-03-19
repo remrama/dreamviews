@@ -93,7 +93,7 @@ if not NO_BIGRAMS:  # Sorry for the double negative
     phrase_model = Phrases(
         sentences, delimiter=delim, min_count=min_count, threshold=threshold, scoring="default"
     )
-    # phrase_model = Phrases(phrase_model[sentences], delimiter=delim, min_count=3, threshold=threshold, scoring=scoring)
+    # phrase_model = Phrases(phrase_model[sentences], delimiter=delim, min_count=3, threshold=threshold, scoring=scoring)  # noqa: E501
     phrase_model = Phraser(phrase_model)  # memory benefits?
 
     def _unigram2ngram(x):
@@ -140,7 +140,7 @@ def shift2df(shift, detail_level):
     if detail_level == 0:
         shift_scores = shift.get_shift_scores(details=False)
         shift_score_names = ["type2shift_score"]
-        score_dicts = {n: s for n, s in zip(shift_score_names, shift_scores)}
+        score_dicts = {n: s for n, s in zip(shift_score_names, shift_scores, strict=True)}
     elif detail_level == 1:
         shift_scores = shift.get_shift_scores(details=True)
         shift_score_names = [
@@ -150,10 +150,10 @@ def shift2df(shift, detail_level):
             "type2s_ref_diff",
             "type2shift_score",
         ]
-        score_dicts = {n: s for n, s in zip(shift_score_names, shift_scores)}
+        score_dicts = {n: s for n, s in zip(shift_score_names, shift_scores, strict=True)}
     elif detail_level == 2:
         score_dicts = {
-            k: shift.__getattribute__(k) for k in shift.__dict__.keys() if k.startswith("type2")
+            k: shift.__getattribute__(k) for k in shift.__dict__ if k.startswith("type2")
         }
     return pd.DataFrame(score_dicts).sort_index().rename_axis("ngram")
 

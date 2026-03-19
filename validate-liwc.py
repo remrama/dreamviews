@@ -117,7 +117,7 @@ if not GET_WORD_CONTRIBUTIONS:  # Not using this but leaving it to show the much
         """Return, for a single document, total frequencies of each LIWC category."""
         tokenized_doc = tokenize4liwc(doc)
         n_tokens = len(tokenized_doc)
-        # get the counts for each category and divide them by the number of tokens/words in the document
+        # get counts for each category and divide them by the number of tokens/words in the document
         counts = Counter(category for token in tokenized_doc for category in parse(token))
         freqs = {category: n / n_tokens for category, n in counts.items()}
         return freqs

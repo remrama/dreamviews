@@ -115,8 +115,11 @@ with zipfile.ZipFile(import_path_html, mode="r") as zf:
         # get the original username (raw ID)
         username = fn[:-5]  # remove ".html" off the end
         if username not in user_mapping:
-            print(f"Username {username} not in user mapping. Skipping.")
-            continue  # skip users who aren't in the posts sourcedata scrape
+            # Skip users who aren't in the user mapping, which means they are also not
+            # in the posts sourcedata. This shouldn't really happen, and only happens
+            # once because of some weirdness in the data collection process.
+            # The sourcedata users file was created with a few merges of prior scrapes.
+            continue
         # get the anonymized username (user ID)
         user_id = user_mapping[username]
         if user_id not in surviving_user_ids:
@@ -184,7 +187,7 @@ df["age"] = df["age"].astype("Int64")
 AGE_BINS = [18, 25, 35, 45, 55, 65, np.inf]
 min_age = AGE_BINS[0]
 assert df["age"].dropna().ge(min_age).all(), f"Didn't expect any reported ages under {min_age}."
-age_labels = [f"[{left}, {right})" for left, right in zip(AGE_BINS[:-1], AGE_BINS[1:])]
+age_labels = [f"[{left}, {right})" for left, right in zip(AGE_BINS[:-1], AGE_BINS[1:], strict=True)]
 df["age"] = pd.cut(df["age"], bins=AGE_BINS, labels=age_labels, right=False, include_lowest=True)
 
 # Export
