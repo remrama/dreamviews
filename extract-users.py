@@ -17,18 +17,19 @@ from tqdm import tqdm
 import config as c
 
 import_path_html = c.sourcedata_dir / "dreamviews-users.zip"
+import_path_posts = c.raw_dir / "dreamviews-posts.tsv"
 import_path_userkey = c.raw_dir / "dreamviews-users_key.json"
 export_path = c.raw_dir / "dreamviews-users.tsv"
 
 # Select which columns will be included in the output file
 # WARNING: Never include "biography" which sometimes has real names
-keep_columns = [
+KEEP_COLUMNS = [
     "gender",
     "age",
     "country",
 ]
 
-user_attributes = [  # these all get lowercased and cleaned when turned into columns
+USER_ATTRIBUTES = [  # these all get lowercased and cleaned when turned into columns
     "Join Date",
     "Last Activity",
     "Wiki Contributions",
@@ -74,6 +75,32 @@ user_attributes = [  # these all get lowercased and cleaned when turned into col
     "Points spend in Shop",
 ]
 
+COUNTRY_REPLACEMENTS = {
+    "USA": "United States",
+    "Vanutau": "Vanuatu",
+    "BosniaHerzegovina": "Bosnia and Herzegovina",
+    "UnitedStatesMinorOutlying": "United States Minor Outlying Islands",
+    "Catalonia": "Spain",
+    "BasqueCountry": "Spain",
+    "SouthKorea": "Korea, Republic of",
+    "NorthKorea": "Korea, Republic of",
+    "Aland": "Åland Islands",
+    "Reunion": "Réunion",
+    "Wales": "United Kingdom",
+    "TrinidadTobago": "Trinidad and Tobago",
+    "Norfolk": "United Kingdom",
+    "Taiwan": "Taiwan, Province of China",
+    "StKittsNevis": "Saint Kitts and Nevis",
+    "Indonezia": "Indonesia",
+    "HeardIslandandMcDonald": "Heard Island and McDonald Islands",
+    "Iran": "Iran, Islamic Republic of",
+    "Turkey": "Türkiye",
+}
+
+# Load extracted posts data to get the list of users who survived filtering
+df = c.load_dreamviews_posts()
+surviving_user_ids = df["user_id"].unique()
+
 # Load in key to get unique anonymous user IDs from the raw IDs
 with open(import_path_userkey, "rt", encoding="utf-8") as f:
     user_mapping = json.load(f)
@@ -83,11 +110,15 @@ data = {}
 with zipfile.ZipFile(import_path_html, mode="r") as zf:
     filenames = zf.namelist()
     for fn in tqdm(filenames, desc="Extracting users"):
-        # get the anonymized username
+        # get the original username (raw ID)
         username = fn[:-5]  # remove ".html" off the end
         if username not in user_mapping:
-            continue  # skip users whose posts didn't survive filtering
+            print(f"Username {username} not in user mapping. Skipping.")
+            continue  # skip users who aren't in the posts sourcedata scrape
+        # get the anonymized username (user ID)
         user_id = user_mapping[username]
+        if user_id not in surviving_user_ids:
+            continue  # skip users whose posts didn't survive filtering
         html = zf.read(fn)  # read in the html file
         soup = BeautifulSoup(html, "html.parser", from_encoding="windows-1252")
         ## All good info is within <dt> tags. But not all users have all <dt> tags,
@@ -98,7 +129,7 @@ with zipfile.ZipFile(import_path_html, mode="r") as zf:
         user_data = {}
         for dt_tag in all_dt_tags:
             header = dt_tag.get_text()
-            if header in user_attributes:
+            if header in USER_ATTRIBUTES:
                 response = dt_tag.find_next("dd").get_text(separator=" ", strip=True)
                 # Replace any numerical commas
                 if len(response.replace(",", "")) == sum([char.isdigit() for char in response]):
@@ -121,35 +152,12 @@ df["join_date"] = pd.to_datetime(df["join_date"], format="%m-%d-%Y").dt.strftime
 df = df.sort_values(["join_date", "last_activity"])
 
 # Get country codes
-country_replacements = {
-    "USA": "United States",
-    "Vanutau": "Vanuatu",
-    "BosniaHerzegovina": "Bosnia and Herzegovina",
-    "UnitedStatesMinorOutlying": "United States Minor Outlying Islands",
-    "Catalonia": "Spain",
-    "BasqueCountry": "Spain",
-    "SouthKorea": "Korea, Republic of",
-    "NorthKorea": "Korea, Republic of",
-    "Aland": "Åland Islands",
-    "Reunion": "Réunion",
-    "Wales": "United Kingdom",
-    "TrinidadTobago": "Trinidad and Tobago",
-    "Norfolk": "United Kingdom",
-    "Taiwan": "Taiwan, Province of China",
-    "StKittsNevis": "Saint Kitts and Nevis",
-    "Indonezia": "Indonesia",
-    "HeardIslandandMcDonald": "Heard Island and McDonald Islands",
-    "Iran": "Iran, Islamic Republic of",
-    "Turkey": "Türkiye",
-}
-
-
 def get_country_code(x):
     # Make minor adjustments before looking up in pycountry
     if pd.isna(x):
         return pd.NA
-    elif x in country_replacements:
-        x = country_replacements[x]
+    elif x in COUNTRY_REPLACEMENTS:
+        x = COUNTRY_REPLACEMENTS[x]
     else:
         # Add spaces to multiword countries
         x = re.sub(r"(\w)([A-Z])", r"\1 \2", x)
@@ -169,6 +177,6 @@ df["country"] = df["country_flag"].apply(get_country_code)
 df["gender"] = df["gender"].str.lower()
 
 # Export
-df[keep_columns].to_csv(
+df[KEEP_COLUMNS].to_csv(
     export_path, encoding="ascii", index_label="user_id", na_rep="N/A", sep="\t"
 )

@@ -47,8 +47,12 @@ import_path = c.sourcedata_dir / "dreamviews-posts.zip"
 export_path_posts = c.raw_dir / "dreamviews-posts.tsv"
 export_path_userkey = c.raw_dir / "dreamviews-users_key.json"
 
+# Set language detection seed for consistent language detection results
+langdetect.DetectorFactory.seed = 0
+
 # Load spaCy model (used for named entity recognition)
-nlp = spacy.load("en_core_web_lg")
+SPACY_MODEL = "en_core_web_lg"
+nlp = spacy.load(SPACY_MODEL)
 # # Speed up spaCy by disabling some unncessary stuff
 # SPACY_PIPE_DISABLES = ["tok2vec", "tagger", "parser", "attribute_ruler", "lemmatizer"]
 # nlp = spacy.load(SPACY_MODEL, disable=SPACY_PIPE_DISABLES)
@@ -411,12 +415,12 @@ df.insert(
 # Remove posts beyond predetermined amount
 df = df.query(f"nth_post <= {c.MAX_POSTCOUNT}")
 
-# Remove users who didn't survive exclusion from the user legend
-user_mapping = {
-    username: userid
-    for username, userid in user_mapping.items()
-    if userid in df["user_id"].unique()
-}
+# # Remove users who didn't survive exclusion from the user legend
+# user_mapping = {
+#     username: userid
+#     for username, userid in user_mapping.items()
+#     if userid in df["user_id"].unique()
+# }
 
 # Export posts as a tsv file
 df.to_csv(export_path_posts, encoding="ascii", index=True, index_label="post_id", sep="\t")
