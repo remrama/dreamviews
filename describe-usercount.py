@@ -73,4 +73,4 @@ ax.xaxis.set_minor_locator(plt.MultipleLocator(minor_tick_loc))
 ax.spines[["top", "right"]].set_visible(False)
 
 # Export
-c.save_and_close_fig(fig, EXPORT_STEM)
+c.export_fig(fig, EXPORT_STEM)

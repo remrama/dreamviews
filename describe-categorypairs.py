@@ -223,4 +223,4 @@ ax.text(1, 0.47, text_twenty, transform=ax.transAxes, ha="right", va="bottom")
 ################################################################################
 
 c.export_table(df_user, EXPORT_STEM)
-c.save_and_close_fig(fig, EXPORT_STEM)
+c.export_fig(fig, EXPORT_STEM)

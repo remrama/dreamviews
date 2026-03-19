@@ -145,7 +145,7 @@ legend._legend_box.sep = 2  # Brings title up farther on top of handles/labels
 legend._legend_box.align = "left"
 
 # Export
-c.save_and_close_fig(fig, EXPORT_STEM_AGEGENDER)
+c.export_fig(fig, EXPORT_STEM_AGEGENDER)
 
 ################################################################################
 # PLOT LOCATION DATA
@@ -190,4 +190,4 @@ myworld.plot(
 ax.axis("off")
 
 # Export
-c.save_and_close_fig(fig, EXPORT_STEM_LOCATION)
+c.export_fig(fig, EXPORT_STEM_LOCATION)

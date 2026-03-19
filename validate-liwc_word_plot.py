@@ -161,4 +161,4 @@ topax.text(
 ax.text(xloc_txt, 0.99, "Individual\nword effects", transform=ax.transAxes, ha=ha_align, va="top")
 
 # Export
-c.save_and_close_fig(fig, export_stem)
+c.export_fig(fig, export_stem)

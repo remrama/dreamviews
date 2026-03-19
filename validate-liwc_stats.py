@@ -185,4 +185,4 @@ legend = ax1.legend(
 )
 
 # Export
-c.save_and_close_fig(fig, export_stem_plot)
+c.export_fig(fig, export_stem_plot)

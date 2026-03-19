@@ -141,4 +141,4 @@ fig, ax = plt.subplots(figsize=figsize, gridspec_kw=gridspec_kwargs)
 draw_venn_plot(ax=ax, columns=venn_order)
 
 # Export
-c.save_and_close_fig(fig, EXPORT_STEM)
+c.export_fig(fig, EXPORT_STEM)

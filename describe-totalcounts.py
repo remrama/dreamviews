@@ -284,4 +284,4 @@ ser = pd.Series(
 
 c.export_table(ser, EXPORT_STEM, index=True)
 
-c.save_and_close_fig(fig, EXPORT_STEM)
+c.export_fig(fig, EXPORT_STEM)

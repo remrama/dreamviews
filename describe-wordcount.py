@@ -209,4 +209,4 @@ for i, export_stem_fig in enumerate(export_stem_plots):
     )
 
     # Export
-    c.save_and_close_fig(fig, export_stem_fig)
+    c.export_fig(fig, export_stem_fig)

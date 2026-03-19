@@ -57,6 +57,8 @@ COLUMN_NAME = "post_lemmas"
 TOP_N_PLOTS = 50
 TOP_N_TABLES = 100
 
+FLOAT_FORMAT = "%.6e"
+
 # Choose export locations
 EXPORT_STEM = "validate-wordshift"
 
@@ -235,7 +237,7 @@ plt.close()
 
 # Export scores
 out_df = shift2df(shift, detail_level=2)
-c.export_table(out_df, export_stem_fear_table)
+c.export_table(out_df, export_stem_fear_table, float_format=FLOAT_FORMAT)
 
 # JSD shift comparing lucids vs non-lucids #
 ############################################
@@ -272,7 +274,7 @@ plt.close()
 
 # Export scores
 out_df = shift2df(shift, detail_level=2)
-c.export_table(out_df, export_stem_jsd_table)
+c.export_table(out_df, export_stem_jsd_table, float_format=FLOAT_FORMAT)
 
 # Proportion shift comparing lucids vs non-lucids #
 ###################################################
@@ -305,5 +307,5 @@ top_1grams = grams1["type2p_diff"].sort_values(ascending=False)[:TOP_N_TABLES]
 top_2grams = grams2["type2p_diff"].sort_values(ascending=False)[:TOP_N_TABLES]
 
 # Export
-c.export_table(top_1grams, export_stem_top1grams)
-c.export_table(top_2grams, export_stem_top2grams)
+c.export_table(top_1grams, export_stem_top1grams, float_format=FLOAT_FORMAT)
+c.export_table(top_2grams, export_stem_top2grams, float_format=FLOAT_FORMAT)

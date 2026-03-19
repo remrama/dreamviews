@@ -168,4 +168,4 @@ cbar.ax.xaxis.set_minor_locator(minor_cticks)
 cbar.update_ticks()
 
 # Export
-c.save_and_close_fig(fig, export_stem)
+c.export_fig(fig, export_stem)
