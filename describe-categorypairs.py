@@ -124,21 +124,21 @@ ax_histx_twin = ax_histx.twinx()
 ax_histy_twin = ax_histy.twiny()
 
 hist_kwargs = dict(data=df_user, bins=bins)
-barhist_kwargs = dict(linewidth=0.5, edgecolor="black", alpha=0.8)
-linehist_kwargs = dict(linewidth=1, cumulative=True, histtype="step")
-barhist_kwargs.update(hist_kwargs)
-linehist_kwargs.update(hist_kwargs)
+BARHIST_KWARGS = dict(linewidth=0.5, edgecolor="black", alpha=0.8)
+LINEHIST_KWARGS = dict(linewidth=1, cumulative=True, histtype="step")
+BARHIST_KWARGS.update(hist_kwargs)
+LINEHIST_KWARGS.update(hist_kwargs)
 
 # Draw non-cumulative bar histograms on the regular axes
-n, bins, patches = ax_histx.hist(x_column, color=c.COLORS[X_VARIABLE], **barhist_kwargs)
+n, bins, patches = ax_histx.hist(x_column, color=c.COLORS[X_VARIABLE], **BARHIST_KWARGS)
 n, bins, patches = ax_histy.hist(
-    y_column, orientation="horizontal", color=c.COLORS[Y_VARIABLE], **barhist_kwargs
+    y_column, orientation="horizontal", color=c.COLORS[Y_VARIABLE], **BARHIST_KWARGS
 )
 
 # Draw cumulative line histograms on the twin/opposite axes
-n, bins, patches = ax_histx_twin.hist(x_column, color=c.COLORS[X_VARIABLE], **linehist_kwargs)
+n, bins, patches = ax_histx_twin.hist(x_column, color=c.COLORS[X_VARIABLE], **LINEHIST_KWARGS)
 n, bins, patches = ax_histy_twin.hist(
-    y_column, orientation="horizontal", color=c.COLORS[Y_VARIABLE], **linehist_kwargs
+    y_column, orientation="horizontal", color=c.COLORS[Y_VARIABLE], **LINEHIST_KWARGS
 )
 
 # Remove some tick labels
