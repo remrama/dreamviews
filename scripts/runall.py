@@ -4,6 +4,8 @@ import argparse
 import subprocess
 import sys
 
+from config import SPACY_MODEL
+
 
 def run(script, *args):
     result = subprocess.run([sys.executable, script, *args])
@@ -17,7 +19,7 @@ parser.add_argument("--extract", action="store_true", help="Extract data")
 args = parser.parse_args()
 
 # Setup
-subprocess.run([sys.executable, "-m", "spacy", "download", "en_core_web_lg"], check=True)
+subprocess.run([sys.executable, "-m", "spacy", "download", SPACY_MODEL], check=True)
 
 # Scrape
 if args.scrape:

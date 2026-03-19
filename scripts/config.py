@@ -4,17 +4,19 @@ import pandas as pd
 import pooch
 from matplotlib.pyplot import rcParams
 
-DATA_DIR = "../data"
+OUTPUT_DIR = "../output"
 
-data_dir = Path(DATA_DIR).expanduser()
+output_dir = Path(OUTPUT_DIR).expanduser()
 
-sourcedata_dir = data_dir / "sourcedata"
-raw_dir = data_dir / "raw"
-derivatives_dir = data_dir / "derivatives"
+sourcedata_dir = output_dir / "sourcedata"
+raw_dir = output_dir / "raw"
+derivatives_dir = output_dir / "derivatives"
 
 sourcedata_dir.mkdir(parents=True, exist_ok=True)
 raw_dir.mkdir(parents=True, exist_ok=True)
 derivatives_dir.mkdir(parents=True, exist_ok=True)
+
+SPACY_MODEL = "en_core_web_lg"
 
 MIN_WORDCOUNT = 50
 MAX_WORDCOUNT = 1000
@@ -31,10 +33,6 @@ COLORS = {
 }
 
 REGISTRY = {
-    "a_AgencyCommunion.dic": {
-        "url": "https://osf.io/62txv/download",
-        "known_hash": "md5:d2240a5eb36568d9eefaa428130a0577",
-    },
     "ne_110m_admin_0_countries.zip": {
         "url": "https://naciscdn.org/naturalearth/110m/cultural/ne_110m_admin_0_countries.zip",
         "known_hash": "md5:374f5381a2ff702d3d79d345a9e5f65c",

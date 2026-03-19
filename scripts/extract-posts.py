@@ -51,11 +51,10 @@ export_path_userkey = c.raw_dir / "dreamviews-users_key.json"
 langdetect.DetectorFactory.seed = 0
 
 # Load spaCy model (used for named entity recognition)
-SPACY_MODEL = "en_core_web_lg"
-nlp = spacy.load(SPACY_MODEL)
+nlp = spacy.load(c.SPACY_MODEL)
 # # Speed up spaCy by disabling some unncessary stuff
 # SPACY_PIPE_DISABLES = ["tok2vec", "tagger", "parser", "attribute_ruler", "lemmatizer"]
-# nlp = spacy.load(SPACY_MODEL, disable=SPACY_PIPE_DISABLES)
+# nlp = spacy.load(c.SPACY_MODEL, disable=SPACY_PIPE_DISABLES)
 nlp.add_pipe("merge_entities")  # So "John Paul" gets treated as a single entity
 
 # Create datetime objects to restrict posts
