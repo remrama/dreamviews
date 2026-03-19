@@ -7,3 +7,13 @@ This repository holds the code for scraping and analyzing the data (`scripts/`) 
 - `scripts/` - Data collection and analysis
 - `manuscript/` - Manuscript compiling
 - `output/` - Files exported from data analysis and used in manuscript compilation
+
+To go from nothing to manuscript:
+
+```bash
+cd scripts
+conda env create --file environment.yml
+python runall.py
+cd ../manuscript
+make
+```
