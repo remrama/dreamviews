@@ -17,7 +17,6 @@ parser.add_argument("--extract", action="store_true", help="Extract data")
 args = parser.parse_args()
 
 # Setup
-run("setup-data_dirs.py")
 subprocess.run([sys.executable, "-m", "spacy", "download", "en_core_web_lg"], check=True)
 
 # Scrape
