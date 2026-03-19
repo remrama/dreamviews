@@ -151,6 +151,7 @@ df["join_date"] = pd.to_datetime(df["join_date"], format="%m-%d-%Y").dt.strftime
 
 df = df.sort_values(["join_date", "last_activity"])
 
+
 # Get country codes
 def get_country_code(x):
     # Make minor adjustments before looking up in pycountry
