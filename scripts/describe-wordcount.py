@@ -26,7 +26,6 @@ c.load_matplotlib_settings()
 
 # Pick export locations
 EXPORT_STEM = "describe-wordcount"
-export_path_table = c.derivatives_dir / "describe-wordcount.tsv"
 export_stem_plots = [
     f"{EXPORT_STEM}_perpost",
     f"{EXPORT_STEM}_peruser",

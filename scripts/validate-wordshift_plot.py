@@ -34,7 +34,7 @@ TOP_N = 30  # Number of top ranking words to plot
 c.load_matplotlib_settings()
 
 # Pick filepaths
-import_path = c.derivatives_dir / f"validate-wordshift_{SHIFT_ID}-scores.tsv"
+import_path = c.tables_dir / f"validate-wordshift_{SHIFT_ID}-scores.tsv"
 export_stem = f"validate-wordshift_{SHIFT_ID}-custom"
 
 # Load shift scores

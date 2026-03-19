@@ -11,10 +11,14 @@ output_dir = Path(OUTPUT_DIR).expanduser()
 sourcedata_dir = output_dir / "sourcedata"
 raw_dir = output_dir / "raw"
 derivatives_dir = output_dir / "derivatives"
+tables_dir = output_dir / "tables"
+figures_dir = output_dir / "figures"
 
 sourcedata_dir.mkdir(parents=True, exist_ok=True)
 raw_dir.mkdir(parents=True, exist_ok=True)
 derivatives_dir.mkdir(parents=True, exist_ok=True)
+tables_dir.mkdir(parents=True, exist_ok=True)
+figures_dir.mkdir(parents=True, exist_ok=True)
 
 SPACY_MODEL = "en_core_web_lg"
 
@@ -78,7 +82,7 @@ def export_table(dataframe, filestem, **kwargs):
         suffix = ".csv"
     else:
         raise ValueError("Unsupported separator")
-    export_path = (derivatives_dir / filestem).with_suffix(suffix)
+    export_path = (tables_dir / filestem).with_suffix(suffix)
     dataframe.to_csv(export_path, **kwargs)
     return
 
@@ -89,7 +93,7 @@ def export_fig(fig, filestem, close=True, **kwargs):
     kwargs = {**default_kwargs, **kwargs}
     formats = ["png", "pdf"]
     for fmt in formats:
-        export_path = (derivatives_dir / filestem).with_suffix(f".{fmt}")
+        export_path = (figures_dir / filestem).with_suffix(f".{fmt}")
         fig.savefig(export_path, **kwargs)
     if close:
         fig.clf()

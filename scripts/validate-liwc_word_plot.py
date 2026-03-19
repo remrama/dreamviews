@@ -33,8 +33,8 @@ TOP_N = 10  # Top n contributing tokens/words for each category
 c.load_matplotlib_settings()
 
 # Pick path locations
-import_path = c.derivatives_dir / "validate-liwc_wordscores-stats.tsv"
-import_path_full_liwc = c.derivatives_dir / "validate-liwc_scores-stats.tsv"
+import_path = c.tables_dir / "validate-liwc_wordscores-stats.tsv"
+import_path_full_liwc = c.tables_dir / "validate-liwc_scores-stats.tsv"
 export_stem = f"validate-liwc_wordscores_{CATEGORY}-plot"
 
 # Load data

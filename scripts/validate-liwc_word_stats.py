@@ -47,8 +47,8 @@ TOP_N = 20  # Top n contributing tokens/words for each category
 
 # import_path_dict = c.fetch_file("a_AgencyCommunion.dic")
 import_path_dict = c.sourcedata_dir / "custom.dic"
-import_path_data = c.derivatives_dir / "validate-liwc_wordscores-data.npz"
-import_path_attr = c.derivatives_dir / "validate-liwc_wordscores-attr.npz"
+import_path_data = c.derivatives_dir / "validate-liwc_scores-data.npz"
+import_path_attr = c.derivatives_dir / "validate-liwc_scores-attr.npz"
 EXPORT_STEM = "validate-liwc_wordscores-stats"
 
 #### load in the original posts file to get attributes lucidity and user_id

@@ -1,0 +1,22 @@
+gender	age	count
+male	[18, 25)	43
+male	[25, 35)	282
+male	[35, 45)	43
+male	[45, 55)	19
+male	[55, 65)	4
+male	[65, inf)	3
+male	unreported	1889
+female	[18, 25)	22
+female	[25, 35)	103
+female	[35, 45)	21
+female	[45, 55)	5
+female	[55, 65)	1
+female	[65, inf)	1
+female	unreported	710
+trans	[25, 35)	3
+trans	unreported	20
+unreported	[18, 25)	2
+unreported	[25, 35)	18
+unreported	[35, 45)	5
+unreported	[45, 55)	2
+unreported	unreported	1836

@@ -1,8 +1,0 @@
-demographic_variable	n_reported	pct_reported
-gender	3170	63
-age	577	11
-country	3510	70
-gender+age	550	11
-gender+country	2521	50
-age+country	459	9
-gender+age+country	447	9

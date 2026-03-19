@@ -1,0 +1,5 @@
+category	lucidity	mean	std	sem	min	max
+agency	lucid	3.009	1.203	0.035	0.000	10.345
+agency	nonlucid	2.393	0.989	0.029	0.000	15.873
+insight	lucid	2.489	1.026	0.030	0.000	7.246
+insight	nonlucid	2.096	0.929	0.027	0.000	7.059

@@ -24,7 +24,7 @@ LIWC_CATS = ["insight", "agency"]
 LUCID_ORDER = ["nonlucid", "lucid"]
 
 EXPORT_STEM = "validate-liwc_scores"
-import_path_liwc = c.derivatives_dir / "validate-liwc_scores.tsv"
+import_path_liwc = c.tables_dir / "validate-liwc_scores.tsv"
 export_stem_descr = f"{EXPORT_STEM}-descr"
 export_stem_stats = f"{EXPORT_STEM}-stats"
 export_stem_plot = f"{EXPORT_STEM}-plot"

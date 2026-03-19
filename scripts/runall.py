@@ -4,6 +4,8 @@ import argparse
 import subprocess
 import sys
 
+import spacy
+
 from config import SPACY_MODEL
 
 
@@ -19,11 +21,13 @@ parser.add_argument("--extract", action="store_true", help="Extract data")
 args = parser.parse_args()
 
 # Setup
-subprocess.run([sys.executable, "-m", "spacy", "download", SPACY_MODEL], check=True)
+try:
+    spacy.load(SPACY_MODEL)
+except OSError:
+    subprocess.run([sys.executable, "-m", "spacy", "download", SPACY_MODEL], check=True)
 
 # Scrape
 if args.scrape:
-    print("Scraping and extracting data takes hours...")
     run("scrape-posts.py")
     run("extract-posts.py")
     run("scrape-users.py")
@@ -31,12 +35,10 @@ if args.scrape:
 # Extract
 if args.extract:
     if not args.scrape:
-        print("Extracting data takes hours...")
         run("extract-posts.py")
     run("extract-users.py")
 
 # Describe
-print("Descriptive analyses take a minute...")
 run("describe-totalcounts.py")
 run("describe-usercount.py")
 run("describe-toplabels.py")
@@ -46,14 +48,13 @@ run("describe-demographics.py")
 run("describe-wordcount.py")
 
 # Validate
-print("Validation analyses take a few minutes...")
 run("validate-classifier.py")
 run("validate-classifier_stats.py")
-run("validate-wordshift.py")
-run("validate-wordshift_plot.py", "--shift", "jsd")
-run("validate-wordshift_plot.py", "--shift", "fear")
 run("validate-liwc.py", "--words")
 run("validate-liwc_stats.py")
 run("validate-liwc_word_stats.py")
 run("validate-liwc_word_plot.py", "--category", "insight")
 run("validate-liwc_word_plot.py", "--category", "agency")
+run("validate-wordshift.py")
+run("validate-wordshift_plot.py", "--shift", "jsd")
+run("validate-wordshift_plot.py", "--shift", "fear")
