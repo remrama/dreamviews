@@ -129,7 +129,7 @@ Without sufficient data on lucid dreams, it is difficult to ``look'' at all. Qua
 The ubiquity of digital media in daily life has provided a major data source for psychologists~\cite{lazer2021,shah2015,kern2016,gosling2015,rafaeli2019,heng2018}. The ability to view online human behavior en masse has been hailed as social science's first true ``telescope''~\cite{jungherr2017}. Datasets curated from popular social media sites (e.g., Twitter, Reddit) are not only large, but also free from experimenter intervention or influence, a major methodological concern in psychological research that dream studies are not immune to~\cite{picard2021, schredl2002}. Thus, dream science could benefit as well from the use of digital trace data~\cite{bulkeley2017} and in recent years has~\cite{sanz2018, niederhoffer2017, elce2021}. While dream reports are harder to extract from mainstream social media sites, it is common practice for researchers to scrape specialized data from targeted forums~\cite{speckmann2021}. To build a large corpus of (lucid) dreams, we scraped DreamViews\footnote{https://www.dreamviews.com}, an online lucid dreaming journal active since 2010.
 
 \par
-The current paper presents the collection, characterization, and validation of this dataset. First, the process of data collection, cleaning, and user-generated label extraction (lucid, non-lucid, and nightmare) is described. Second, the general size and details of the final corpus are presented. Last, natural language processing tools~\cite{hirschberg2015,elce2021} are used to show that the lucid, non-lucid, and nightmare labels provided by users have criterion validity. That is, the content of lucid dreams and nightmares in the corpus show expected properties based on prior literature~\cite{voss2013,paquet2020}. This validation justifies the use of these labels for future studies. Code used to generate and analyze the entire corpus of $\sim$55k dream reports (10k lucid, 25k non-lucid, 2k nightmare) is freely available\footnote{https://github.com/remrama/dreamviews\_ds}.
+The current paper presents the collection, characterization, and validation of this dataset. First, the process of data collection, cleaning, and user-generated label extraction (lucid, non-lucid, and nightmare) is described. Second, the general size and details of the final corpus are presented. Last, natural language processing tools~\cite{hirschberg2015,elce2021} are used to show that the lucid, non-lucid, and nightmare labels provided by users have criterion validity. That is, the content of lucid dreams and nightmares in the corpus show expected properties based on prior literature~\cite{voss2013,paquet2020}. This validation justifies the use of these labels for future studies. Code used to generate and analyze the entire corpus of $\sim$55k dream reports and corresponding labels (10k lucid, 25k non-lucid, 2k nightmare) is freely available\footnote{https://github.com/remrama/dreamviews}.
 
 \section{Methods}
 \label{sec:methods}
@@ -186,7 +186,7 @@ The category labels attached to journal entries were used to identify the lucidi
         \small
         \begin{tabular}{rrl}
             \toprule
-            column & dtype & value \\
+            column & dtype & description \\
             \midrule
             post\_id & str & unique randomized post identifier \\
             user\_id & str & unique randomized user identifier \\
@@ -213,11 +213,11 @@ The category labels attached to journal entries were used to identify the lucidi
         \small
         \begin{tabular}{rrl}
             \toprule
-            column & dtype & value \\
+            column & dtype & description \\
             \midrule
             user\_id & str & unique randomized user identifier \\
             gender  & str & reported gender \\
-            age     & int & reported age \\
+            age     & str & reported age (binned) \\
             country & str & reported country (ISO 3166-1 alpha-3) \\
             \bottomrule
         \end{tabular}
@@ -227,7 +227,7 @@ The category labels attached to journal entries were used to identify the lucidi
 \begin{figure*}[t]
     \centering
     \includegraphics{describe-totalcounts.pdf}
-    \caption{Total corpus size. Left axis values correspond to bars and right axis values correspond to cumulative distribution lines. Note that the final cumulative distributions endpoints provide a rough visualization of total corpus counts. The top panel shows the number of unique users that posted each month, where repeat/gold users are those that also posted in a prior month. The bottom panel shows the amount of unique posts each month, where colors indicate the lucidity label of posts. Note that the popular lucid dreaming film \emph{Inception} saw releases in July and December of 2010.}
+    \caption{Total corpus size. Left axis values correspond to bars and right axis values correspond to cumulative distribution lines. Note that the final cumulative distributions endpoints provide a rough visualization of total corpus counts. The top panel shows the number of unique users that posted each month, where repeat/gold users are those that also posted in a prior month. The bottom panel shows the amount of unique posts each month, where colors indicate the lucidity label of posts. Note that the popular lucid dreaming film \emph{Inception} saw releases in July (USA theater) and December (USA home video) of 2010.}
     \label{fig:timecourse}
 \end{figure*}
 
@@ -275,7 +275,7 @@ The category labels attached to journal entries were used to identify the lucidi
         \small
         \begin{tabular}{rp{1cm}}
             \toprule
-            \bfseries category & \bfseries \makecell[rt]{n posts\\users}
+            \bfseries category & \bfseries \makecell[rt]{$n$ posts\\$n$ users}
             \DTLforeach*{topcategories}{\cat=category, \nposts=n_posts, \nusers=n_users}{
                 \DTLiffirstrow{\\\midrule}
                 \\\cat & \makecell[rt]{\num{\nposts}\\\num{\nusers}}
@@ -292,7 +292,7 @@ The category labels attached to journal entries were used to identify the lucidi
         % \begin{tabular}{@{} rp{1cm} @{}}
         \begin{tabular}{rp{1cm}}
             \toprule
-            \bfseries tag & \bfseries \makecell[rt]{n posts\\users}
+            \bfseries tag & \bfseries \makecell[rt]{$n$ posts\\$n$ users}
             \DTLforeach*{toptags}{\tag=tag, \nposts=n_posts, \nusers=n_users}{
                 \DTLiffirstrow{\\\midrule}
                 \\\tag & \makecell[rt]{\num{\nposts}\\\num{\nusers}}
