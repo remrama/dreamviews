@@ -63,15 +63,23 @@ c.export_table(descriptives, export_stem_descr, float_format="%.3f")
 #### (subjects were already averaged and such, in the I/O section)
 
 # loop over each LIWC category, running test and getting effect size at each
+COMPUTE_BOOTCI_KWARGS = dict(
+    paired=True,
+    func="cohen",
+    method="cper",
+    confidence=0.95,
+    n_boot=2000,
+    decimals=5,
+    seed=5,
+)
+
 wilcoxon_results = []
 for cat in tqdm(LIWC_CATS, desc="LIWC stats"):
     ld, nld = avgs[cat][["lucid", "nonlucid"]].T.values
     stats_ = pg.wilcoxon(ld, nld, alternative="two-sided")
     stats_.index = [cat]
     stats_["cohen-d"] = pg.compute_effsize(ld, nld, paired=True, eftype="cohen")
-    stats_["cohen-d_lo"], stats_["cohen-d_hi"] = pg.compute_bootci(
-        ld, nld, paired=True, func="cohen", method="cper", confidence=0.95, n_boot=2000, decimals=4
-    )
+    stats_["cohen-d_lo"], stats_["cohen-d_hi"] = pg.compute_bootci(ld, nld, **COMPUTE_BOOTCI_KWARGS)
     stats_["n"] = len(ld)  # should be the same every time
     wilcoxon_results.append(stats_)
 

@@ -103,14 +103,21 @@ avgs = (
 
 # We already have only relevant tokens, so get effect
 # sizes for all of them
+COMPUTE_BOOTCI_KWARGS = dict(
+    paired=True,
+    func="cohen",
+    method="cper",
+    confidence=0.95,
+    n_boot=2000,
+    decimals=5,
+    seed=6,
+)
 effectsize_results = []
 for tok in tqdm(relevant_tokens, desc="LIWC word stats"):
     ld, nld = avgs[tok][["lucid", "nonlucid"]].T.values
     stats = {}
     stats["cohen-d"] = pg.compute_effsize(ld, nld, paired=True, eftype="cohen")
-    stats["cohen-d_lo"], stats["cohen-d_hi"] = pg.compute_bootci(
-        ld, nld, paired=True, func="cohen", method="cper", confidence=0.95, n_boot=2000, decimals=4
-    )
+    stats["cohen-d_lo"], stats["cohen-d_hi"] = pg.compute_bootci(ld, nld, **COMPUTE_BOOTCI_KWARGS)
     effectsize_results.append(pd.DataFrame(stats, index=[tok]))
 
 es_df = pd.concat(effectsize_results).rename_axis("token")
