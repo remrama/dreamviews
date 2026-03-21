@@ -435,9 +435,8 @@ df = df.query(f"nth_post <= {c.MAX_POSTCOUNT}")
 # }
 
 # Export posts as a tsv file
-df.to_csv(
-    export_path_posts, encoding="ascii", index=True, index_label="post_id", sep="\t", na_rep="n/a"
-)
+TO_CSV_KWARGS = dict(encoding="ascii", sep="\t", index=True, index_label="post_id", na_rep="n/a")
+df.to_csv(export_path_posts, **TO_CSV_KWARGS)
 
 # Export username legend as a json file
 with open(export_path_userkey, "wt", encoding="ascii") as f:
