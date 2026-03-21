@@ -70,7 +70,7 @@
 \DTLloaddb{topcategories}{../output/tables/describe-topcategories.tsv}
 \DTLloaddb{demop}{../output/tables/describe-demographics_provided.tsv}
 \DTLloaddb{clf}{../output/tables/validate-classifier_avg.tsv}
-\DTLloaddb{liwcstats}{../output/tables/validate-liwc_scores-stats.tsv}
+\DTLloaddb{liwcstats}{../output/tables/validate-liwc_stats.tsv}
 
 \DTLassignfirstmatch{totals}{total}{posts}{\totalposts=count}
 \DTLassignfirstmatch{totals}{total}{users}{\totalusers=count}
@@ -408,14 +408,14 @@ Lucid and non-lucid posts were easily distinguishable under this ``out-of-the-bo
 
 \begin{figure}[t]
     \centering
-    \includegraphics{validate-wordshift_jsd-custom.pdf}
+    \includegraphics{validate-wordshift_jsd.pdf}
     \caption{Lucidity JSD word shift. Words and phrases that most distinguish user-labeled lucid and non-lucid dream reports are consistent with known lucidity characteristics. These results offer concurrent validity for user-generated lucidity labels.}
     \label{fig:wordshift-jsd}
 \end{figure}
 
 \begin{figure}[t]
     \centering
-    \includegraphics{validate-wordshift_fear-custom.pdf}
+    \includegraphics{validate-wordshift_fear.pdf}
     \caption{Nightmare fear word shift. Words and phrases that most distinguish user-labeled nightmares from all other dream reports are consistent with known nightmare characteristics. These results offer concurrent validity for user-generated nightmare labels.}
     \label{fig:wordshift-fear}
 \end{figure}
@@ -423,21 +423,21 @@ Lucid and non-lucid posts were easily distinguishable under this ``out-of-the-bo
 \begin{figure*}[t]
     \begin{subfigure}[t]{0.3\textwidth}
         \centering
-        \includegraphics{validate-liwc_scores-plot.pdf}
+        \includegraphics{validate-liwc.pdf}
         \caption{LIWC insight and agency language differences between user-labeled lucid and non-lucid dream reports. Lucid dream reports contained higher rates of both insight and agency than non-lucid dream reports. Error bars represent SEM, ***$p<.001$}
         \label{fig:liwc-categories}
     \end{subfigure}
     \hfill
     \begin{subfigure}[t]{0.3\textwidth}
         \centering
-        \includegraphics{validate-liwc_wordscores_insight-plot.pdf}
+        \includegraphics{validate-liwc_insight.pdf}
         \caption{Word-level differences of insight language between user-labeled lucid and non-lucid dream reports. Insight was quantified as the percentage of words from LIWC's insight dictionary in each dream report. Error bars represent bootstrapped 95\% confidence intervals. Asterisks indicate wildcard patterns.}
         \label{fig:liwc-words-insight}
     \end{subfigure}
     \hfill
     \begin{subfigure}[t]{0.3\textwidth}
         \centering
-        \includegraphics{validate-liwc_wordscores_agency-plot.pdf}
+        \includegraphics{validate-liwc_agency.pdf}
         \caption{Word-level differences of agency language between user-labeled lucid and non-lucid dream reports. Agency was quantified as the percentage of words from LIWC's agency dictionary in each dream report. Error bars represent bootstrapped 95\% confidence intervals. Asterisks indicate wildcard patterns.}
         \label{fig:liwc-words-agency}
     \end{subfigure}

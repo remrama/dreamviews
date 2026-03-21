@@ -61,16 +61,15 @@ FLOAT_FORMAT = "%.6e"
 # Choose export locations
 EXPORT_STEM = "validate-wordshift"
 
-export_stem_jsd = f"{EXPORT_STEM}_jsd-scores"
-export_stem_fear = f"{EXPORT_STEM}_fear-scores"
-export_stem_prop = f"{EXPORT_STEM}_proportion"
-export_stem_top1grams = f"{EXPORT_STEM}_proportion-ld1grams"
-export_stem_top2grams = f"{EXPORT_STEM}_proportion-ld2grams"
+export_stem_jsd = f"{EXPORT_STEM}_jsd"
+export_stem_fear = f"{EXPORT_STEM}_fear"
+export_stem_top1grams = f"{EXPORT_STEM}_ld1grams"
+export_stem_top2grams = f"{EXPORT_STEM}_ld2grams"
 
 # Need to export these with full paths for the shifterator plotting function
-export_path_jsd_plot = (c.figures_dir / export_stem_jsd).with_suffix(".png")
-export_path_fear_plot = (c.figures_dir / export_stem_fear).with_suffix(".png")
-export_path_prop_plot = (c.figures_dir / export_stem_top1grams).with_suffix(".png")
+export_path_prop_plot = (c.figures_dir / f"{EXPORT_STEM}_src").with_suffix(".png")
+export_path_jsd_plot = (c.figures_dir / f"{export_stem_jsd}_src").with_suffix(".png")
+export_path_fear_plot = (c.figures_dir / f"{export_stem_fear}_src").with_suffix(".png")
 
 # Load data
 df = c.load_dreamviews_posts()

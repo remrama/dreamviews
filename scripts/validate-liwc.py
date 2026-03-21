@@ -4,7 +4,7 @@ Run custom LIWC analysis.
 IMPORTS
 =======
     - non-lemmatized posts, dreamviews-posts.tsv
-    - LIWC dictionary,      custom.dic
+    - LIWC dictionary,      InsightAgency.dic
 EXPORTS
 =======
     - traditional (ie, total) LIWC scores for each dream report, validate-liwc_scores.tsv
@@ -71,11 +71,11 @@ tqdm.pandas(desc="LIWCing words" if GET_WORD_CONTRIBUTIONS else "LIWCing posts")
 
 # Select filenames
 # dict_fname = c.fetch_file("a_AgencyCommunion.dic")
-dict_fname = c.sourcedata_dir / "custom.dic"
-EXPORT_STEM = "validate-liwc_scores"
+dict_fname = c.sourcedata_dir / "InsightAgency.dic"
+EXPORT_STEM = "validate-liwc"
 if GET_WORD_CONTRIBUTIONS:
-    export_fname_data = c.derivatives_dir / f"{EXPORT_STEM}-data.npz"
-    export_fname_attr = c.derivatives_dir / f"{EXPORT_STEM}-attr.npz"
+    export_fname_data = c.derivatives_dir / f"{EXPORT_STEM}_data.npz"
+    export_fname_attr = c.derivatives_dir / f"{EXPORT_STEM}_attr.npz"
 
 # Load data
 df = c.load_dreamviews_posts()

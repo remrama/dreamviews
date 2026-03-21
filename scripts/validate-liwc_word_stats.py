@@ -5,7 +5,7 @@ IMPORTS
 =======
     - original post info,     dreamviews-posts.tsv
     - word-level LIWC scores, validate-liwc_wordscores.tsv
-    - LIWC dictionary,        custom.dic
+    - LIWC dictionary,        InsightAgency.dic
 EXPORTS
 =======
     - effect sizes (d) for top words from each category, validate-liwc_wordscores-stats.tsv
@@ -46,10 +46,10 @@ LIWC_CATEGORIES = ["insight", "agency"]
 TOP_N = 20  # Top n contributing tokens/words for each category
 
 # import_path_dict = c.fetch_file("a_AgencyCommunion.dic")
-import_path_dict = c.sourcedata_dir / "custom.dic"
-import_path_data = c.derivatives_dir / "validate-liwc_scores-data.npz"
-import_path_attr = c.derivatives_dir / "validate-liwc_scores-attr.npz"
-EXPORT_STEM = "validate-liwc_wordscores-stats"
+import_path_dict = c.sourcedata_dir / "InsightAgency.dic"
+import_path_data = c.derivatives_dir / "validate-liwc_data.npz"
+import_path_attr = c.derivatives_dir / "validate-liwc_attr.npz"
+EXPORT_STEM = "validate-liwc_words"
 
 #### load in the original posts file to get attributes lucidity and user_id
 # and drop un-labeled posts
@@ -149,4 +149,4 @@ out = pd.concat(token_rank_results)
 out["rank"] = out["rank"].astype("Int64")
 
 # Export
-c.export_table(out, EXPORT_STEM, float_format="%.4f")
+c.export_table(out, EXPORT_STEM, float_format="%.5f")

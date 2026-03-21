@@ -33,16 +33,17 @@ TOP_N = 10  # Top n contributing tokens/words for each category
 c.load_matplotlib_settings()
 
 # Pick path locations
-import_path = c.tables_dir / "validate-liwc_wordscores-stats.tsv"
-import_path_full_liwc = c.tables_dir / "validate-liwc_scores-stats.tsv"
-export_stem = f"validate-liwc_wordscores_{CATEGORY}-plot"
+EXPORT_STEM = "validate-liwc"
+import_path = c.tables_dir / f"{EXPORT_STEM}_words.tsv"
+import_path_liwc_stats = c.tables_dir / f"{EXPORT_STEM}_stats.tsv"
+export_stem = f"validate-liwc_{CATEGORY}"
 
 # Load data
 df = pd.read_csv(import_path, sep="\t", encoding="utf-8", index_col="category")
 
 # Load full category LIWC results (to draw on top row)
 liwccats = pd.read_csv(
-    import_path_full_liwc,
+    import_path_liwc_stats,
     sep="\t",
     encoding="utf-8",
     index_col="category",

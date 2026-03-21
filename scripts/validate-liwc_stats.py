@@ -23,11 +23,10 @@ c.load_matplotlib_settings()
 LIWC_CATS = ["insight", "agency"]
 LUCID_ORDER = ["nonlucid", "lucid"]
 
-EXPORT_STEM = "validate-liwc_scores"
-import_path_liwc = c.tables_dir / "validate-liwc_scores.tsv"
-export_stem_descr = f"{EXPORT_STEM}-descr"
-export_stem_stats = f"{EXPORT_STEM}-stats"
-export_stem_plot = f"{EXPORT_STEM}-plot"
+EXPORT_STEM = "validate-liwc"
+import_path_liwc = c.tables_dir / f"{EXPORT_STEM}.tsv"
+export_stem_descr = f"{EXPORT_STEM}_descr"
+export_stem_stats = f"{EXPORT_STEM}_stats"
 
 ########################## I/O
 
@@ -193,4 +192,4 @@ legend = ax1.legend(
 )
 
 # Export
-c.export_fig(fig, export_stem_plot)
+c.export_fig(fig, EXPORT_STEM)
