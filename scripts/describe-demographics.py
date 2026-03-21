@@ -19,9 +19,9 @@ import pandas as pd
 
 import config as c
 
-################################################################################
+########################################################################################
 # SETUP
-################################################################################
+########################################################################################
 
 # Load custom matplotlib preferences
 c.load_matplotlib_settings()
@@ -34,9 +34,9 @@ EXPORT_STEM_AGEGENDER = "describe-demographics_agegender"
 EXPORT_STEM_LOCATION = "describe-demographics_location"
 EXPORT_STEM_PROVIDED = "describe-demographics_provided"
 
-################################################################################
+########################################################################################
 # GET FREQUENCIES
-################################################################################
+########################################################################################
 
 # Count how many participants provided demographic info
 reported_bool = df[["gender", "age", "country"]].notnull()
@@ -79,9 +79,9 @@ country_counts = (
 # Export (before dropping the unreported and converting to log values)
 c.export_table(country_counts, EXPORT_STEM_LOCATION)
 
-################################################################################
+########################################################################################
 # PLOT AGE AND GENDER DATA
-################################################################################
+########################################################################################
 
 # Open figure
 fig, ax = plt.subplots(figsize=(2, 2), constrained_layout=True)
@@ -146,9 +146,9 @@ legend._legend_box.align = "left"
 # Export
 c.export_fig(fig, EXPORT_STEM_AGEGENDER)
 
-################################################################################
+########################################################################################
 # PLOT LOCATION DATA
-################################################################################
+########################################################################################
 
 fig = plt.figure(figsize=(3.2, 1.4), constrained_layout=False)
 gs1 = fig.add_gridspec(1, 1, bottom=0, top=1, left=0, right=0.85)

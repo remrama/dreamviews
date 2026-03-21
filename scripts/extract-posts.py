@@ -67,9 +67,9 @@ end_datetime = datetime.datetime.strptime(END_DATE, "%Y-%m-%d")
 with zipfile.ZipFile(import_path, mode="r") as zf:
     html_files = [zf.read(fn) for fn in zf.namelist()]
 
-################################################################################
+########################################################################################
 # PREPROCESSING FUNCTIONS
-################################################################################
+########################################################################################
 
 
 def convert2ascii(text, retain_whitespace_count=False):
@@ -128,9 +128,9 @@ def generate_id(content: str, n_chars: int, existing_ids: set) -> str:
     raise RuntimeError(f"Could not generate unique ID for: {content[:50]}...")
 
 
-################################################################################
+########################################################################################
 # CLEANING LOOP
-################################################################################
+########################################################################################
 
 # Initialize empty dictionaries to store content that survives exclusion
 data = {}  # To hold key, value pairs of post_id, post_data
@@ -159,11 +159,10 @@ for html_byt in tqdm(html_files, desc="Extracting posts"):
         date_txt = date.text
         title_txt = title.text
 
-        ########################################################################
+        ################################################################################
         # CLEAN/ANONYMIZE USER
-        ########################################################################
-        # WARNING: Do this first so each user gets a unique ID even if they
-        #          don't get included
+        ################################################################################
+        # WARNING: Do this first so each user gets a unique ID even if they don't get included
 
         ## Convert to printable ASCII
         # Using a little more caution with replacing whitespace here because the
@@ -187,9 +186,9 @@ for html_byt in tqdm(html_files, desc="Extracting posts"):
                 user_txt, n_chars=4, existing_ids=set(user_mapping.values())
             )
 
-        ########################################################################
+        ################################################################################
         # CLEAN/PARSE DATE
-        ########################################################################
+        ################################################################################
 
         # Remove user info from date_txt
         date_txt = date_txt.strip().split(", ", 1)[1]
@@ -213,9 +212,9 @@ for html_byt in tqdm(html_files, desc="Extracting posts"):
         if blogdatetime < start_datetime or blogdatetime > end_datetime:
             continue
 
-        ########################################################################
+        ################################################################################
         # EXTRACT TAGS AND CATEGORIES
-        ########################################################################
+        ################################################################################
         # WARNING: Do prior to text cleaning, otherwise it messes with parsing
         #          The post text has more than just the dream report. At the end
         #          it will ALWAYS have a "Categories" section, even if just the
@@ -280,13 +279,14 @@ for html_byt in tqdm(html_files, desc="Extracting posts"):
         # if (("Tags:" in post_txt and len(components) != 3)
         #     or ("Tags:" not in post_txt and len(components) != 2)):
         #     continue
-        # # this is late to check, but want it after this continue section which will catch some of these assertion errors  # noqa: E501
+        # # this is late to check, but want it after this continue section which will
+        # # catch some of these assertion errors
         # assert post_txt.count("Categories") == 1
         # assert post_txt.count("Tags:") in [0, 1]
 
-        ########################################################################
+        ################################################################################
         # CLEAN POSTS
-        ########################################################################
+        ################################################################################
 
         # Convert to printable ASCII
         post_txt = convert2ascii(post_txt)
@@ -379,16 +379,16 @@ for html_byt in tqdm(html_files, desc="Extracting posts"):
         # Lemmatize and shuffle
         lemmatized_text = lemmatize(doc, shuffle=True)
 
-        ########################################################################
+        ################################################################################
         # CLEAN TITLE
-        ########################################################################
+        ################################################################################
 
         # Convert to printable ASCII
         title_txt = convert2ascii(title_txt)
 
-        ########################################################################
+        ################################################################################
         # UPDATE DICTIONARIES
-        ########################################################################
+        ################################################################################
 
         # Generate deterministic post ID from username + date + title
         unique_user_id = user_mapping[user_txt]
@@ -408,9 +408,9 @@ for html_byt in tqdm(html_files, desc="Extracting posts"):
             "post_lemmas": lemmatized_text,
         }
 
-################################################################################
+########################################################################################
 # EXPORTING
-################################################################################
+########################################################################################
 
 # Generate a dataframe from all the posts
 df = pd.DataFrame.from_dict(data, orient="index")
@@ -426,13 +426,6 @@ df.insert(
 
 # Remove posts beyond predetermined amount
 df = df.query(f"nth_post <= {c.MAX_POSTCOUNT}")
-
-# # Remove users who didn't survive exclusion from the user legend
-# user_mapping = {
-#     username: userid
-#     for username, userid in user_mapping.items()
-#     if userid in df["user_id"].unique()
-# }
 
 # Export posts as a tsv file
 TO_CSV_KWARGS = dict(encoding="ascii", sep="\t", index=True, index_label="post_id", na_rep="n/a")
