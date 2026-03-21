@@ -98,8 +98,15 @@ XMAX = pd.to_datetime("2021-01-01")
 post_ymax_cumulative = POST_YMAX_MONTHLY * RIGHT_AX_MULT_FACTOR
 user_ymax_cumulative = USER_YMAX_MONTHLY * RIGHT_AX_MULT_FACTOR
 
-post_ymax = dict(monthly=POST_YMAX_MONTHLY, cumulative=POST_YMAX_MONTHLY * RIGHT_AX_MULT_FACTOR)
-user_ymax = dict(monthly=USER_YMAX_MONTHLY, cumulative=USER_YMAX_MONTHLY * RIGHT_AX_MULT_FACTOR)
+# post_ymax = dict(monthly=POST_YMAX_MONTHLY, cumulative=POST_YMAX_MONTHLY * RIGHT_AX_MULT_FACTOR)
+# user_ymax = dict(monthly=USER_YMAX_MONTHLY, cumulative=USER_YMAX_MONTHLY * RIGHT_AX_MULT_FACTOR)
+
+assert df.groupby(["year", "month"]).size().max() < POST_YMAX_MONTHLY, "Data exceeds axis limit."
+assert monthly_users.groupby(["year", "month"]).size().max() < USER_YMAX_MONTHLY, "Data too high."
+assert df.shape[0] < post_ymax_cumulative, "Cumulative post count exceeds axis limit."
+assert monthly_users.shape[0] < user_ymax_cumulative, "Cumulative user count exceeds axis limit."
+assert df["timestamp"].min() > XMIN, "Data starts before x-axis minimum."
+assert df["timestamp"].max() < XMAX, "Data ends after x-axis maximum."
 
 major_tick_loc_left = USER_YMAX_MONTHLY
 major_tick_loc_right = major_tick_loc_left * RIGHT_AX_MULT_FACTOR

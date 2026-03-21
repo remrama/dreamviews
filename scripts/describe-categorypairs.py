@@ -130,14 +130,14 @@ BARHIST_KWARGS.update(hist_kwargs)
 LINEHIST_KWARGS.update(hist_kwargs)
 
 # Draw non-cumulative bar histograms on the regular axes
-n, bins, patches = ax_histx.hist(x_column, color=c.COLORS[X_VARIABLE], **BARHIST_KWARGS)
-n, bins, patches = ax_histy.hist(
+nx, _, _ = ax_histx.hist(x_column, color=c.COLORS[X_VARIABLE], **BARHIST_KWARGS)
+ny, _, _ = ax_histy.hist(
     y_column, orientation="horizontal", color=c.COLORS[Y_VARIABLE], **BARHIST_KWARGS
 )
 
 # Draw cumulative line histograms on the twin/opposite axes
-n, bins, patches = ax_histx_twin.hist(x_column, color=c.COLORS[X_VARIABLE], **LINEHIST_KWARGS)
-n, bins, patches = ax_histy_twin.hist(
+nxtwin, _, _ = ax_histx_twin.hist(x_column, color=c.COLORS[X_VARIABLE], **LINEHIST_KWARGS)
+nytwin, _, _ = ax_histy_twin.hist(
     y_column, orientation="horizontal", color=c.COLORS[Y_VARIABLE], **LINEHIST_KWARGS
 )
 
@@ -149,6 +149,10 @@ ax_histy_twin.tick_params(labeltop=False)
 # Set marginal axes limits
 MARGINAL_YMAX_TWIN = 4000
 marginal_ymax = MARGINAL_YMAX_TWIN // 2
+assert nx.max() <= marginal_ymax, "Data should not exceed upper limit of axis"
+assert ny.max() <= marginal_ymax, "Data should not exceed upper limit of axis"
+assert nxtwin.max() <= MARGINAL_YMAX_TWIN, "Data should not exceed upper limit of axis"
+assert nytwin.max() <= MARGINAL_YMAX_TWIN, "Data should not exceed upper limit of axis"
 ax_histx.set_ybound(upper=marginal_ymax)
 ax_histy.set_xbound(upper=marginal_ymax)
 ax_histx_twin.set_ybound(upper=MARGINAL_YMAX_TWIN)

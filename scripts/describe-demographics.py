@@ -105,14 +105,17 @@ age_colors = ["white" if i == n_ages - 1 else AGE_CMAP(i / (n_ages - 2)) for i i
 
 # Draw histogram
 HIST_KWARGS = dict(align="left", rwidth=0.8, stacked=True, ec="black", lw=0.5)
-ax.hist(data, bins=bins, color=age_colors, **HIST_KWARGS)
+n, _, _ = ax.hist(data, bins=bins, color=age_colors, **HIST_KWARGS)
+
+YMAX = 2500
+assert n.max() <= YMAX, f"Data exceeds y-axis upper limit of {YMAX}."
 
 # Adjust aesthetics
 ax.set_xticks(bins[:-1])
 ax.set_xticklabels(GENDER_ORDER)
 ax.set_xlabel("Reported gender", labelpad=1)
 ax.set_ylabel(r"$n$ users", labelpad=2)
-ax.set_ybound(lower=0, upper=2500)
+ax.set_ybound(lower=0, upper=YMAX)
 ax.yaxis.set(major_locator=plt.LinearLocator(5 + 1), minor_locator=plt.LinearLocator(5 * 5 + 1))
 ax.tick_params(axis="y", which="both", direction="inout", pad=2)
 ax.grid(axis="y", which="major", linewidth=1, color="gainsboro")
