@@ -120,9 +120,9 @@ def generate_id(content: str, n_chars: int, existing_ids: set) -> str:
     """
     for attempt in range(1000):
         key = content if attempt == 0 else f"{content}|_collision_{attempt}"
-        h = hashlib.sha256(key.encode()).hexdigest()[:n_chars]
+        h = hashlib.sha256(key.encode()).hexdigest()
         if h[0].isalpha():
-            h = h.upper()
+            h = h[:n_chars].upper()
             if h not in existing_ids:
                 return h
     raise RuntimeError(f"Could not generate unique ID for: {content[:50]}...")
