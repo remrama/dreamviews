@@ -49,34 +49,35 @@ args = parser.parse_args()
 NO_BIGRAMS = args.nobigrams
 NO_NORMING = args.nonorm
 
-################################################################################
+########################################################################################
 # SETUP
-################################################################################
+########################################################################################
 
 COLUMN_NAME = "post_lemmas"
 TOP_N_PLOTS = 50
 TOP_N_TABLES = 100
-
 FLOAT_FORMAT = "%.6e"
 
 # Choose export locations
 EXPORT_STEM = "validate-wordshift"
 
-export_stem_jsd_table = f"{EXPORT_STEM}_jsd-scores.tsv"
-export_stem_fear_table = f"{EXPORT_STEM}_fear-scores.tsv"
-export_stem_top1grams = f"{EXPORT_STEM}_proportion-ld1grams.tsv"
-export_stem_top2grams = f"{EXPORT_STEM}_proportion-ld2grams.tsv"
+export_stem_jsd = f"{EXPORT_STEM}_jsd-scores"
+export_stem_fear = f"{EXPORT_STEM}_fear-scores"
+export_stem_prop = f"{EXPORT_STEM}_proportion"
+export_stem_top1grams = f"{EXPORT_STEM}_proportion-ld1grams"
+export_stem_top2grams = f"{EXPORT_STEM}_proportion-ld2grams"
 
-export_path_jsd_plot = c.derivatives_dir / f"{EXPORT_STEM}_jsd-plot.png"
-export_path_fear_plot = c.derivatives_dir / f"{EXPORT_STEM}_fear-plot.png"
-export_path_prop_plot = c.derivatives_dir / f"{EXPORT_STEM}_proportion-plot.png"
+# Need to export these with full paths for the shifterator plotting function
+export_path_jsd_plot = (c.figures_dir / export_stem_jsd).with_suffix(".png")
+export_path_fear_plot = (c.figures_dir / export_stem_fear).with_suffix(".png")
+export_path_prop_plot = (c.figures_dir / export_stem_top1grams).with_suffix(".png")
 
 # Load data
 df = c.load_dreamviews_posts()
 
-################################################################################
+########################################################################################
 # CONNECT BIGRAMS
-################################################################################
+########################################################################################
 
 # # remove stopwords from text column
 # replace_regex = r"(?<=\b)(" + r"|".join(stops) + r")(?=\b)"
@@ -112,9 +113,9 @@ if not NO_BIGRAMS:  # Sorry for the double negative
 # reduce user bias
 # df = df.groupby("user_id").sample(n=1, replace=False)
 
-################################################################################
+########################################################################################
 # EXTRACT DATA SUBSETS
-################################################################################
+########################################################################################
 
 # Extract lucidity Series for JSD and proportion shifts
 ld_ser = df.query("lucidity.str.contains('lucid')", engine="python").set_index(
@@ -125,9 +126,9 @@ ld_ser = df.query("lucidity.str.contains('lucid')", engine="python").set_index(
 df["nightmare"] = df["nightmare"].map({True: "nightmare", False: "nonnightmare"})
 nm_ser = df.set_index(["nightmare", "user_id"])[COLUMN_NAME]
 
-################################################################################
+########################################################################################
 # NORMALIZATION FUNCTIONS
-################################################################################
+########################################################################################
 
 
 def shift2df(shift, detail_level):
@@ -201,9 +202,9 @@ def get_normed_freqs(series, group1, group2):
     return ngram2freq_1, ngram2freq_2
 
 
-################################################################################
+########################################################################################
 # CALCULATE AND PLOT WORDSHIFTS
-################################################################################
+########################################################################################
 
 # NRC-fear shift comparing nightmares vs non-nightmares #
 #########################################################
@@ -222,7 +223,7 @@ shift = sh.WeightedAvgShift(
     type2freq_2=ngram2freq_2,
     type2score_1="NRC-emotion_fear_English",
     normalization="variation",
-    stop_lens=[(0.3, 0.7)],
+    stop_lens=[c.NIGHTMARE_SHIFT_STOPS],
 )
 
 # Draw/export plot
@@ -237,7 +238,7 @@ plt.close()
 
 # Export scores
 out_df = shift2df(shift, detail_level=2)
-c.export_table(out_df, export_stem_fear_table, float_format=FLOAT_FORMAT)
+c.export_table(out_df, export_stem_fear, float_format=FLOAT_FORMAT)
 
 # JSD shift comparing lucids vs non-lucids #
 ############################################
@@ -274,7 +275,7 @@ plt.close()
 
 # Export scores
 out_df = shift2df(shift, detail_level=2)
-c.export_table(out_df, export_stem_jsd_table, float_format=FLOAT_FORMAT)
+c.export_table(out_df, export_stem_jsd, float_format=FLOAT_FORMAT)
 
 # Proportion shift comparing lucids vs non-lucids #
 ###################################################

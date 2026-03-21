@@ -24,9 +24,9 @@ args = parser.parse_args()
 
 SHIFT_ID = args.shift
 
-################################################################################
+########################################################################################
 # SETUP
-################################################################################
+########################################################################################
 
 TOP_N = 30  # Number of top ranking words to plot
 
@@ -40,9 +40,9 @@ export_stem = f"validate-wordshift_{SHIFT_ID}-custom"
 # Load shift scores
 df = pd.read_csv(import_path, index_col="ngram", sep="\t", encoding="utf-8")
 
-################################################################################
+########################################################################################
 # PLOTTING SETUP
-################################################################################
+########################################################################################
 
 # Setup some arguments common to both panels
 BAR_KWARGS = dict(linewidth=0.5, height=0.8, edgecolor="black")
@@ -64,9 +64,7 @@ CLABELS = {
     "fear": r"low  $\leftarrow$ fear intensity $\rightarrow$ high",
 }
 
-# !!!! IMPORTANT that these match up with what was passed to stop_lens in the wordshift script
-NRC_FEAR_STOPS = (0.3, 0.7)  # Like inner bounds, needs to match what was used
-# for fear shift in validate-wordshift_run.py
+NRC_FEAR_STOPS = c.NIGHTMARE_SHIFT_STOPS  # Like inner bounds, see validate-wordshift.py
 NRC_FEAR_BOUNDS = (0, 1)  # Minimum and maximum scores for fear ratings in shifterator
 # Also assumes later that the ref differences scores are this range
 # but centered around 0
@@ -113,9 +111,9 @@ normed_alphas = alpha_normer(alphas)  # Puts alphas between 0 and 1 for set_alph
 rgba_colors = cmap(normed_colors)
 # rgba_colors[:, 3] = normed_alphas  # Adjust alphas
 
-################################################################################
+########################################################################################
 # PLOTTING
-################################################################################
+########################################################################################
 
 # Open a figure
 figsize = (2.2, TOP_N / 7)
