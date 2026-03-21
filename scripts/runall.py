@@ -6,18 +6,19 @@ import sys
 
 import spacy
 
-from config import SPACY_MODEL
+from config import SPACY_MODEL, manuscript_dir
 
 
-def run(script, *args):
-    result = subprocess.run([sys.executable, script, *args])
+def run(script, *args, **kwargs):
+    result = subprocess.run([sys.executable, script, *args], **kwargs)
     if result.returncode != 0:
         sys.exit(result.returncode)
 
 
 parser = argparse.ArgumentParser(description="Run all steps")
-parser.add_argument("--scrape", action="store_true", help="Scrape data")
-parser.add_argument("--extract", action="store_true", help="Extract data")
+parser.add_argument("--scrape", action="store_true", help="Scrape data.")
+parser.add_argument("--extract", action="store_true", help="Extract data.")
+parser.add_argument("--compile", action="store_true", help="Compile manuscript.")
 args = parser.parse_args()
 
 # Setup
@@ -58,3 +59,7 @@ run("validate-liwc_word_plot.py", "--category", "agency")
 run("validate-wordshift.py")
 run("validate-wordshift_plot.py", "--shift", "jsd")
 run("validate-wordshift_plot.py", "--shift", "fear")
+
+# Compile
+if args.compile:
+    subprocess.run(["make"], check=True, cwd=manuscript_dir)

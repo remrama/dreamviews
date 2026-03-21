@@ -5,8 +5,10 @@ import pooch
 from matplotlib.pyplot import rcParams
 
 OUTPUT_DIR = "../output"
+MANUSCRIPT_DIR = "../manuscript"
 
 output_dir = Path(OUTPUT_DIR).expanduser()
+manuscript_dir = Path(MANUSCRIPT_DIR).expanduser()
 
 sourcedata_dir = output_dir / "sourcedata"
 raw_dir = output_dir / "raw"
