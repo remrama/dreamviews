@@ -158,11 +158,6 @@ All public DreamViews dream journal entries between years 2010 and 2020 (inclusi
 \textbf{Cleaning.}
 Text was minimally cleaned with the aims of standardization, removing non-dream content, and removing potentially private or identifying information. Consecutive whitespaces were replaced with a single space, ampersands were replaced with text (\texttt{and}), common contractions were expanded, and sequences of four or more repeated characters~\cite{gray2020} were reduced to a single character. A regex pattern was used to replace emails and URLs with \texttt{[[URL]]}, and named entity recognition was used to identify and replace names with \texttt{[[NAME]]}. Named entity recognition was implemented using \emph{spaCy}\footnote{https://spacy.io}, which typically outperforms related software~\cite{shelar2020,jiang2016}. Visual inspection revealed non-dream character sequences that were frequent and reliable across multiple posts, and these were removed using custom regex patterns (see online code for specifics).
 
-\smallskip
-\noindent
-\textbf{Lemmatization.}
-Cleaned posts were further reduced and lemmatized to produce text more suitable for most language analyses while also providing an additional precautionary layer of privacy protection. Cleaned text was tokenized using \emph{spaCy}. A token was removed if it contained a non-alphabetic character, was shorter than three characters, was a stop word or proper noun (as identified by \emph{spaCy}), or had a low probability of being in \emph{spaCy}'s vocabulary (to estimate mispellings or otherwise uncommon character sequences). All retained tokens were lemmatized with \emph{spaCy} and lowercased, and token order was shuffled.
-
 \subsection{Data exclusion}
 \label{sec:data-exclusion}
 
@@ -196,8 +191,7 @@ The category labels attached to journal entries were used to identify the lucidi
             lucidity & str & derived lucid label \\
             nightmare & bool & derived nightmare label \\
             wordcount & int & number of words in post \\
-            post\_clean & str & cleaned post \\
-            post\_lemmas & str & lemmatized post \\
+            post\_text & str & cleaned post text \\
             \bottomrule
         \end{tabular}
     \end{subtable}
@@ -399,7 +393,10 @@ This goal of this analysis was to determine whether lucid and non-lucid posts ha
 
 \smallskip
 \noindent
-\textbf{Methods.} Classification was implemented using \emph{scikit-learn}\footnote{https://scikit-learn.org}~\cite{pedregosa2011}. Each lemmatized post was transformed into a word-frequency vector. Very frequent (appearing in $>$75\% of posts) or infrequent (appearing in $<$100 posts) words were removed, after which the top 5k words were kept as features. A linear support vector machine classifier was used with a regularization parameter of 1. To avoid user-specific biases, a single post per user was randomly selected (irrespective of lucidity label) and then the more frequent class was downsampled to match the size of the smaller class. A stratified-shuffle-split cross-validation scheme was implemented, with the classifier trained on 70\% of posts and tested on the other 30\% at each of 5 folds. Note that performance was not optimized in any way (e.g., with hyperparameter tuning).
+\textbf{Methods.} Post texts were lemmatized using \emph{spaCy}. After tokenization, a token was removed if it contained a non-alphabetic character, was shorter than three characters, was a stop word or proper noun (as identified by \emph{spaCy}), or had a low probability of being in \emph{spaCy}'s vocabulary (to estimate mispellings or otherwise uncommon character sequences). All retained tokens were lemmatized with \emph{spaCy} and lowercased.
+
+\par
+Classification was implemented using \emph{scikit-learn}\footnote{https://scikit-learn.org}~\cite{pedregosa2011}. Each lemmatized post was transformed into a word-frequency vector. Very frequent (appearing in $>$75\% of posts) or infrequent (appearing in $<$100 posts) words were removed, after which the top 5k words were kept as features. A linear support vector machine classifier was used with a regularization parameter of 1. To avoid user-specific biases, a single post per user was randomly selected (irrespective of lucidity label) and then the more frequent class was downsampled to match the size of the smaller class. A stratified-shuffle-split cross-validation scheme was implemented, with the classifier trained on 70\% of posts and tested on the other 30\% at each of 5 folds. Note that performance was not optimized in any way (e.g., with hyperparameter tuning).
 
 \smallskip
 \noindent
@@ -453,7 +450,7 @@ The goal of this step was to validate labels by examining fine-grained differenc
 \smallskip
 \noindent
 \textbf{Methods.}
-Word shift analyses were run on lemmatized posts using \emph{Shifterator}\footnote{https://github.com/ryanjgallagher/shifterator}~\cite{gallagher2021} with common co-occuring unigrams first converted to bigrams using \emph{Gensim}\footnote{https://radimrehurek.com/gensim}~\cite{rehurek2010}. A detailed presentation of word shift methods are available elsewhere~\cite{gallagher2021}. The only additional step performed here was a normalization during initial calculation of word frequencies. Rather than summing word frequencies across all posts, user dependencies were accounted for by first dividing the word frequencies of each user by that user's number of posts (all within each corpus).
+Word shift analyses were run on lemmatized posts (see Section~\ref{sec:classifier}) using \emph{Shifterator}\footnote{https://github.com/ryanjgallagher/shifterator}~\cite{gallagher2021} with common co-occuring unigrams first converted to bigrams using \emph{Gensim}\footnote{https://radimrehurek.com/gensim}~\cite{rehurek2010}. A detailed presentation of word shift methods are available elsewhere~\cite{gallagher2021}. The only additional step performed here was a normalization during initial calculation of word frequencies. Rather than summing word frequencies across all posts, user dependencies were accounted for by first dividing the word frequencies of each user by that user's number of posts (all within each corpus).
 
 \par
 To identify words that most distinguish lucid from non-lucid posts, frequency differences were weighted by a word's relative Jensen-Shannon divergence (JSD), a measure of entropy (i.e., rarity or ``surprisal'')~\cite{lin1991}. Entropy has been shown to be useful in comparing texts, and was additionally chosen here based on the expectation that lucid posts would contain a higher frequency of words that are otherwise rare in other contexts. When identifying top words, the overall JSD word shift score (and thus rank) is determined by three factors: frequency difference between lucid and non-lucid posts, entropy differences between lucid and non-lucid posts, and entropy relative to the entire corpus.

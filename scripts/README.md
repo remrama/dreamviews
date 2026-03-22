@@ -66,6 +66,8 @@ python describe-wordcount.py                #=> derivatives/describe-wordcount.t
 ### Validate certain aspects of the dataset with statistical tests
 
 ```shell
+# Generate lemmas
+python validate-lemmas.py                   #=> derivatives/validate-lemmas.tsv
 # Train/test a classifier on the lucidity of a post
 python validate-classifier.py               #=> derivatives/validate-classifier.npz
 python validate-classifier_stats.py         #=> derivatives/validate-classifier_cv.tsv

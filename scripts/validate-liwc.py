@@ -79,7 +79,7 @@ if GET_WORD_CONTRIBUTIONS:
 
 # Load data
 df = c.load_dreamviews_posts()
-ser = df.set_index("post_id")["post_clean"]
+ser = df.set_index("post_id")["post_text"]
 
 # Load LIWC parser, which takes a single token and finds all LIWC categories it's a part of
 parse, category_names = liwc.load_token_parser(dict_fname)

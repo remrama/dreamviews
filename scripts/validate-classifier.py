@@ -47,7 +47,7 @@ clf = SVC(kernel="linear", C=1.0)
 cv = StratifiedShuffleSplit(n_splits=N_SPLITS, train_size=TRAIN_SIZE, random_state=2)
 
 # Load data
-df = c.load_dreamviews_posts()
+df = c.load_dreamviews_posts(lemmas=True)
 usecols = ["post_id", "user_id", "lucidity", COLUMN_NAME]
 df = df[usecols].set_index("post_id")
 # Drop non-lucid data

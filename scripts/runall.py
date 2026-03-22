@@ -49,6 +49,7 @@ run("describe-demographics.py")
 run("describe-wordcount.py")
 
 # Validate
+run("validate-lemmas.py")
 run("validate-classifier.py")
 run("validate-classifier_stats.py")
 run("validate-liwc.py", "--words")

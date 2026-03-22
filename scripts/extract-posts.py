@@ -28,7 +28,6 @@ analyzed that is later tossed out. Not that worried about it.
 import datetime
 import hashlib
 import json
-import random
 import re
 import zipfile
 
@@ -51,10 +50,11 @@ export_path_userkey = c.raw_dir / "dreamviews-users_key.json"
 langdetect.DetectorFactory.seed = 0
 
 # Load spaCy model (used for named entity recognition)
-nlp = spacy.load(c.SPACY_MODEL)
+# nlp = spacy.load(c.SPACY_MODEL)
 # # Speed up spaCy by disabling some unncessary stuff
 # SPACY_PIPE_DISABLES = ["tok2vec", "tagger", "parser", "attribute_ruler", "lemmatizer"]
-# nlp = spacy.load(c.SPACY_MODEL, disable=SPACY_PIPE_DISABLES)
+SPACY_PIPE_DISABLES = ["lemmatizer"]
+nlp = spacy.load(c.SPACY_MODEL, disable=SPACY_PIPE_DISABLES)
 nlp.add_pipe("merge_entities")  # So "John Paul" gets treated as a single entity
 
 # Create datetime objects to restrict posts
@@ -88,29 +88,6 @@ def convert2ascii(text, retain_whitespace_count=False):
         text = text.strip()
     assert text.isascii() and text.isprintable()
     return text
-
-
-def lemmatize(doc, shuffle=False, pos_remove_list=None):
-    """Convert a spaCy doc to space-separate string of shuffled lemmas."""
-    if pos_remove_list is None:
-        pos_remove_list = ["PROPN", "SMY"]
-    token_list = []
-    for token in doc:
-        if (
-            (token.is_alpha)
-            and (len(token) >= 3)
-            and (not token.like_email)
-            and (not token.like_url)
-            and (not token.like_num)
-            and (not token.is_stop)
-            and (not token.is_oov)
-            and (token.pos_ not in pos_remove_list)
-        ):
-            token_list.append(token.lemma_.lower())
-    if shuffle:
-        token_list = random.sample(token_list, len(token_list))
-    if token_list:
-        return " ".join(token_list)
 
 
 def generate_id(content: str, n_chars: int, existing_ids: set) -> str:
@@ -376,8 +353,8 @@ for html_byt in tqdm(html_files, desc="Extracting posts"):
                     post_txt[: ent.start_char] + "[[" + ent.label_ + "]]" + post_txt[ent.end_char :]
                 )
 
-        # Lemmatize and shuffle
-        lemmatized_text = lemmatize(doc, shuffle=True)
+        # # Lemmatize and shuffle
+        # lemmatized_text = lemmatize(doc, shuffle=True)
 
         ################################################################################
         # CLEAN TITLE
@@ -404,8 +381,7 @@ for html_byt in tqdm(html_files, desc="Extracting posts"):
             "lucidity": post_lucidity,
             "nightmare": post_was_nightmare,
             "wordcount": n_words,
-            "post_clean": post_txt,
-            "post_lemmas": lemmatized_text,
+            "post_text": post_txt,
         }
 
 ########################################################################################
@@ -416,7 +392,7 @@ for html_byt in tqdm(html_files, desc="Extracting posts"):
 df = pd.DataFrame.from_dict(data, orient="index")
 
 # Remove any duplicated reports
-df = df.drop_duplicates(subset="post_clean", keep="first")
+df = df.drop_duplicates(subset="post_text", keep="first")
 
 # Add a column that identifies the post # in sequence for a given user
 df = df.sort_values(["user_id", "timestamp"])

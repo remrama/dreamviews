@@ -65,9 +65,13 @@ def load_dreamviews_users():
     return users
 
 
-def load_dreamviews_posts():
-    posts_fname = raw_dir / "dreamviews-posts.tsv"
-    posts = pd.read_csv(posts_fname, sep="\t", encoding="ascii", parse_dates=["timestamp"])
+def load_dreamviews_posts(lemmas=False):
+    posts_fpath = raw_dir / "dreamviews-posts.tsv"
+    lemmas_fpath = derivatives_dir / "validate-lemmas.tsv"
+    posts = pd.read_csv(posts_fpath, sep="\t", encoding="ascii", parse_dates=["timestamp"])
+    if lemmas:
+        lemmas = pd.read_csv(lemmas_fpath, sep="\t", encoding="ascii")
+        posts = posts.merge(lemmas, on="post_id", how="inner", validate="one_to_one")
     return posts
 
 

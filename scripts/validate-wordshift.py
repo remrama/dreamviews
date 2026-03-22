@@ -72,7 +72,7 @@ export_path_jsd_plot = (c.figures_dir / f"{export_stem_jsd}_src").with_suffix(".
 export_path_fear_plot = (c.figures_dir / f"{export_stem_fear}_src").with_suffix(".png")
 
 # Load data
-df = c.load_dreamviews_posts()
+df = c.load_dreamviews_posts(lemmas=True)
 
 ########################################################################################
 # CONNECT BIGRAMS
