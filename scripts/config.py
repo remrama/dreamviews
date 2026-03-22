@@ -55,8 +55,8 @@ RAW_REGISTRY = {
     "v1": {
         "doi": "10.5281/zenodo.19161758",
         "files": {
-            "dreamviews-posts.tsv": "md5:b66dd9eb5303e02d30db4d6853275a98",
-            "dreamviews-users.tsv": "md5:a80671978f1c082efef27ba1543a5519",
+            "dreamviews-posts.tsv": "md5:84c2f6e6454a879d22deea1c5c227c1e",
+            "dreamviews-users.tsv": "md5:3824a274b927165d20be4c79cf0f905a",
         },
     },
 }
@@ -79,6 +79,7 @@ def fetch_deriv_file(filename):
         base_url="",
         registry={k: v["known_hash"] for k, v in DERIVATIVES_REGISTRY.items()},
         urls={k: v["url"] for k, v in DERIVATIVES_REGISTRY.items()},
+        allow_updates=False,
     )
     return Path(fetcher.fetch(filename))
 
@@ -95,7 +96,7 @@ def fetch_raw_file(filename, version):
     registry = RAW_REGISTRY[version]["files"]
     doi = RAW_REGISTRY[version]["doi"]
     base_url = _zenodo_doi_to_pooch_url(doi, as_doi_url=True)
-    fetcher = pooch.create(path=raw_dir, base_url=base_url, registry=registry)
+    fetcher = pooch.create(path=raw_dir, base_url=base_url, registry=registry, allow_updates=False)
     return Path(fetcher.fetch(filename))
 
 
@@ -110,7 +111,9 @@ def fetch_source_file(filename, version):
     record_id = doi[-8:]
     api_url = f"https://zenodo.org/api/records/{record_id}/files/{{filename}}/content"
     urls = {filename: api_url.format(filename=filename) for filename in registry}
-    fetcher = pooch.create(path=sourcedata_dir, base_url="", registry=registry, urls=urls)
+    fetcher = pooch.create(
+        path=sourcedata_dir, base_url="", registry=registry, urls=urls, allow_updates=False
+    )
     # Create authorized downloader
     token = os.environ.get("ZENODO_TOKEN")
     downloader = pooch.HTTPDownloader(headers={"Authorization": f"Bearer {token}"})
