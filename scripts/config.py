@@ -1,3 +1,4 @@
+import os
 from pathlib import Path
 
 import pandas as pd
@@ -40,36 +41,81 @@ COLORS = {
     "repeat-user": "goldenrod",
 }
 
-REGISTRY = {
+DERIVATIVES_REGISTRY = {
     "ne_110m_admin_0_countries.zip": {
         "url": "https://naciscdn.org/naturalearth/110m/cultural/ne_110m_admin_0_countries.zip",
         "known_hash": "md5:374f5381a2ff702d3d79d345a9e5f65c",
     },
 }
 
-fetcher = pooch.create(
-    path=raw_dir,
-    base_url="",
-    registry={k: v["known_hash"] for k, v in REGISTRY.items()},
-    urls={k: v["url"] for k, v in REGISTRY.items()},
-)
+RAW_REGISTRY = {
+    "v1": {
+        "doi": "10.5281/zenodo.12345678",
+        "files": {
+            "dreamviews-posts.tsv": "md5:b66dd9eb5303e02d30db4d6853275a98",
+            "dreamviews-users.tsv": "md5:a80671978f1c082efef27ba1543a5519",
+        },
+    },
+}
+
+SOURCE_REGISTRY = {
+    "v1": {
+        "doi": "10.5281/zenodo.19040637",
+        "files": {
+            "dreamviews-posts.zip": "md5:84c2f6e6454a879d22deea1c5c227c1e",
+            "dreamviews-users.zip": "md5:3824a274b927165d20be4c79cf0f905a",
+            "InsightAgency.dic": "md5:8ed19dfe5ee57db694b97e7b2eacdf66",
+        },
+    },
+}
 
 
-def fetch_file(filename):
+def fetch_deriv_file(filename):
+    fetcher = pooch.create(
+        path=derivatives_dir,
+        base_url="",
+        registry={k: v["known_hash"] for k, v in DERIVATIVES_REGISTRY.items()},
+        urls={k: v["url"] for k, v in DERIVATIVES_REGISTRY.items()},
+    )
     return Path(fetcher.fetch(filename))
 
 
-def load_dreamviews_users():
-    users_fname = raw_dir / "dreamviews-users.tsv"
-    users = pd.read_csv(users_fname, sep="\t", encoding="ascii")
+def _zenodo_doi_to_pooch_url(doi):
+    return f"doi:{doi}"
+    # return f"https://zenodo.org/record/{doi[-8:]}/files/"
+
+
+def fetch_raw_file(filename, version):
+    assert version in RAW_REGISTRY, f"Version {version} not found in RAW_REGISTRY"
+    doi = RAW_REGISTRY[version]["doi"]
+    registry = RAW_REGISTRY[version]["files"]
+    base_url = _zenodo_doi_to_pooch_url(doi)
+    fetcher = pooch.create(path=raw_dir, base_url=base_url, registry=registry)
+    return Path(fetcher.fetch(filename))
+
+
+def fetch_source_file(filename, version):
+    assert version in SOURCE_REGISTRY, f"Version {version} not found in SOURCE_REGISTRY"
+    token = os.environ.get("ZENODO_TOKEN")
+    downloader = pooch.HTTPDownloader(params={"access_token": token})
+    doi = SOURCE_REGISTRY[version]["doi"]
+    registry = SOURCE_REGISTRY[version]["files"]
+    base_url = _zenodo_doi_to_pooch_url(doi)
+    fetcher = pooch.create(path=sourcedata_dir, base_url=base_url, registry=registry)
+    return Path(fetcher.fetch(filename, downloader=downloader))
+
+
+def load_dreamviews_users(version="v1"):
+    filepath = fetch_raw_file("dreamviews-users.tsv", version)
+    users = pd.read_csv(filepath, sep="\t", encoding="ascii")
     return users
 
 
-def load_dreamviews_posts(lemmas=False):
-    posts_fpath = raw_dir / "dreamviews-posts.tsv"
-    lemmas_fpath = derivatives_dir / "validate-lemmas.tsv"
-    posts = pd.read_csv(posts_fpath, sep="\t", encoding="ascii", parse_dates=["timestamp"])
+def load_dreamviews_posts(lemmas=False, version="v1"):
+    filepath = fetch_raw_file("dreamviews-posts.tsv", version)
+    posts = pd.read_csv(filepath, sep="\t", encoding="ascii", parse_dates=["timestamp"])
     if lemmas:
+        lemmas_fpath = derivatives_dir / "validate-lemmas.tsv"
         lemmas = pd.read_csv(lemmas_fpath, sep="\t", encoding="ascii")
         posts = posts.merge(lemmas, on="post_id", how="inner", validate="one_to_one")
     return posts

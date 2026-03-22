@@ -160,7 +160,7 @@ ax = fig.add_subplot(gs1[0])
 cax = fig.add_subplot(gs2[0])
 
 # Load the world geopandas data to get country geometries
-map_filepath = c.fetch_file("ne_110m_admin_0_countries.zip")
+map_filepath = c.fetch_deriv_file("ne_110m_admin_0_countries.zip")
 world = geopandas.read_file(map_filepath)
 
 # Pop out the "unreported" country bc it's meaningless here
