@@ -6,3 +6,4 @@ manuscript/out/
 output/sourcedata/
 output/raw/
 output/derivatives/
+output/figures/*.pdf

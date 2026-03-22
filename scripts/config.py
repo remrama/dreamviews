@@ -143,7 +143,7 @@ def export_table(dataframe, filestem, **kwargs):
 
 def export_fig(fig, filestem, close=True, **kwargs):
     assert "format" not in kwargs, "format should not be specified in kwargs"
-    default_kwargs = {"dpi": 600}
+    default_kwargs = {"dpi": 600, "metadata": dict(CreationDate=None)}
     kwargs = {**default_kwargs, **kwargs}
     formats = ["png", "pdf"]
     for fmt in formats:
