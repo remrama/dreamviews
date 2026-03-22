@@ -2,6 +2,7 @@
 Export a 2-column tsv of post_id and lemmatized post text
 for subsequent analysis/validation steps (classifier and wordshift).
 """
+
 import random
 
 import spacy
