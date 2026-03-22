@@ -44,7 +44,7 @@ import config as c
 # Identify filepaths
 import_path = c.sourcedata_dir / "dreamviews-posts.zip"
 export_path_posts = c.raw_dir / "dreamviews-posts.tsv"
-export_path_userkey = c.raw_dir / "dreamviews-users_key.json"
+export_path_userkey = c.derivatives_dir / "dreamviews-users.json"
 
 # Set language detection seed for consistent language detection results
 langdetect.DetectorFactory.seed = 0

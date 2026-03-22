@@ -23,7 +23,7 @@ python scrape-posts.py                      #=> sourcedata/dreamviews-posts.zip
 
 # Convert raw html posts into a cleaned tsv file (exclusion criteria applied)
 python extract-posts.py                     #=> raw/dreamviews-posts.tsv
-                                            #=> raw/dreamviews-users_key.json
+                                            #=> derivatives/dreamviews-users.json
 
 # Collect the relevant user profiles and clean them
 python scrape-users.py                      #=> sourcedata/dreamviews-users.zip
