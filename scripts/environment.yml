@@ -22,6 +22,7 @@ dependencies:
   - spacy               # natural language processing
   - python-levenshtein  # natural language processing - silence gensim warning
   - pooch               # data management - fetching remote files
+  - python-dotenv       # data management - environment variables for access tokens
   - make                # manuscript compilation
   - pip
   - pip:

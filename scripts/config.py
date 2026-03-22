@@ -3,7 +3,10 @@ from pathlib import Path
 
 import pandas as pd
 import pooch
+from dotenv import load_dotenv
 from matplotlib.pyplot import rcParams
+
+load_dotenv()
 
 OUTPUT_DIR = "../output"
 MANUSCRIPT_DIR = "../manuscript"
@@ -50,7 +53,7 @@ DERIVATIVES_REGISTRY = {
 
 RAW_REGISTRY = {
     "v1": {
-        "doi": "10.5281/zenodo.12345678",
+        "doi": "10.5281/zenodo.19161758",
         "files": {
             "dreamviews-posts.tsv": "md5:b66dd9eb5303e02d30db4d6853275a98",
             "dreamviews-users.tsv": "md5:a80671978f1c082efef27ba1543a5519",
@@ -80,28 +83,37 @@ def fetch_deriv_file(filename):
     return Path(fetcher.fetch(filename))
 
 
-def _zenodo_doi_to_pooch_url(doi):
-    return f"doi:{doi}"
-    # return f"https://zenodo.org/record/{doi[-8:]}/files/"
+def _zenodo_doi_to_pooch_url(doi, as_doi_url=False):
+    if as_doi_url:
+        return f"doi:{doi}"
+    record_id = doi[-8:]
+    return f"https://zenodo.org/api/records/{record_id}/files"
 
 
 def fetch_raw_file(filename, version):
     assert version in RAW_REGISTRY, f"Version {version} not found in RAW_REGISTRY"
-    doi = RAW_REGISTRY[version]["doi"]
     registry = RAW_REGISTRY[version]["files"]
-    base_url = _zenodo_doi_to_pooch_url(doi)
+    doi = RAW_REGISTRY[version]["doi"]
+    base_url = _zenodo_doi_to_pooch_url(doi, as_doi_url=True)
     fetcher = pooch.create(path=raw_dir, base_url=base_url, registry=registry)
     return Path(fetcher.fetch(filename))
 
 
 def fetch_source_file(filename, version):
     assert version in SOURCE_REGISTRY, f"Version {version} not found in SOURCE_REGISTRY"
-    token = os.environ.get("ZENODO_TOKEN")
-    downloader = pooch.HTTPDownloader(params={"access_token": token})
-    doi = SOURCE_REGISTRY[version]["doi"]
     registry = SOURCE_REGISTRY[version]["files"]
-    base_url = _zenodo_doi_to_pooch_url(doi)
-    fetcher = pooch.create(path=sourcedata_dir, base_url=base_url, registry=registry)
+    doi = SOURCE_REGISTRY[version]["doi"]
+    # Accessing restricted files requires using the API with an access token.
+    # The URL for fetching a specific file is different and has a suffix after the filename
+    # so we can't use the standard pooch base_url since it appends filenames at the end.
+    # Construct each URL manually instead.
+    record_id = doi[-8:]
+    api_url = f"https://zenodo.org/api/records/{record_id}/files/{{filename}}/content"
+    urls = {filename: api_url.format(filename=filename) for filename in registry}
+    fetcher = pooch.create(path=sourcedata_dir, base_url="", registry=registry, urls=urls)
+    # Create authorized downloader
+    token = os.environ.get("ZENODO_TOKEN")
+    downloader = pooch.HTTPDownloader(headers={"Authorization": f"Bearer {token}"})
     return Path(fetcher.fetch(filename, downloader=downloader))
 
 
