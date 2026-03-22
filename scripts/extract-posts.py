@@ -321,7 +321,7 @@ for html_byt in tqdm(html_files, desc="Extracting posts"):
         URL_PATTERN_1 = r"https?://\S+"
         URL_PATTERN_2 = r"www\.\S+"
         URL_PATTERN_3 = r"\S+\.com\S*"
-        URL_REPLACEMENT = "[[URL]]"
+        URL_REPLACEMENT = "<URL>"
         post_txt = re.sub(URL_PATTERN_1, URL_REPLACEMENT, post_txt, flags=re.IGNORECASE)
         post_txt = re.sub(URL_PATTERN_2, URL_REPLACEMENT, post_txt, flags=re.IGNORECASE)
         post_txt = re.sub(URL_PATTERN_3, URL_REPLACEMENT, post_txt, flags=re.IGNORECASE)
@@ -345,12 +345,12 @@ for html_byt in tqdm(html_files, desc="Extracting posts"):
         if not (c.MIN_WORDCOUNT <= n_words <= c.MAX_WORDCOUNT):
             continue
 
-        # Redact names, replacing with [[PERSON]]
+        # Redact names, replacing with <PERSON>
         # Loop over entities in reverse so indices still work after replacements
         for ent in reversed(doc.ents):
             if ent.label_ == "PERSON":
                 post_txt = (
-                    post_txt[: ent.start_char] + "[[" + ent.label_ + "]]" + post_txt[ent.end_char :]
+                    post_txt[: ent.start_char] + "<" + ent.label_ + ">" + post_txt[ent.end_char :]
                 )
 
         # # Lemmatize and shuffle
