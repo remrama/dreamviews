@@ -53,6 +53,7 @@
 \usepackage{graphicx}
 \usepackage{subcaption}
 \graphicspath{{./images/}{../output/figures/}}
+\newcommand{\figext}{pdf}
 % \usepackage{makecell}
 % \renewcommand\cellalign{lt}
 \usepackage[font=small,labelfont=bf,labelsep=period,singlelinecheck=false]{caption}
@@ -216,14 +217,14 @@ The category labels attached to journal entries were used to identify the lucidi
 
 \begin{figure*}[t]
     \centering
-    \includegraphics{describe-totalcounts.pdf}
+    \includegraphics{describe-totalcounts.\figext}
     \caption{Total corpus size. Left axis values correspond to bars and right axis values correspond to cumulative distribution lines. Note that the final cumulative distributions endpoints provide a rough visualization of total corpus counts. The top panel shows the number of unique users that posted each month, where repeat/gold users are those that also posted in a prior month. The bottom panel shows the amount of unique posts each month, where colors indicate the lucidity label of posts. Note that the popular lucid dreaming film \emph{Inception} saw releases in July (USA theater) and December (USA home video) of 2010.}
     \label{fig:timecourse}
 \end{figure*}
 
 \begin{figure}[t]
     \centering
-    \includegraphics{describe-usercount.pdf}
+    \includegraphics{describe-usercount.\figext}
     \caption{Number of posts per user.}
     \label{fig:usercount}
 \end{figure}
@@ -231,21 +232,21 @@ The category labels attached to journal entries were used to identify the lucidi
 \begin{figure*}
     \begin{subfigure}[t]{0.3\textwidth}
         \centering
-        \includegraphics{describe-wordcount_perpost.pdf}
+        \includegraphics{describe-wordcount_perpost.\figext}
         \caption{Word count per post. This histogram treats each dream report with equal weight, not accounting for repeated measurements within users.}
         \label{fig:wordcount1}
     \end{subfigure}
     \hfill
     \begin{subfigure}[t]{0.3\textwidth}
         \centering
-        \includegraphics{describe-wordcount_peruser.pdf}
+        \includegraphics{describe-wordcount_peruser.\figext}
         \caption{Word count per post, per user. Data in this histogram was first averaged to get a single word count per post for each individual user.}
         \label{fig:wordcount2}
     \end{subfigure}
     \hfill
     \begin{subfigure}[t]{0.3\textwidth}
         \centering
-        \includegraphics{describe-wordcount_lucidity.pdf}
+        \includegraphics{describe-wordcount_lucidity.\figext}
         \caption{Word count per post, per user, by lucidity. Data in this histogram was first averaged to get a single word count per post for each individual user. Then lucid and non-lucid posts were plotted separately. Lucid dream reports contained a higher word count than non-lucid dream reports.}
         \label{fig:wordcount3}
     \end{subfigure}
@@ -295,14 +296,14 @@ The category labels attached to journal entries were used to identify the lucidi
 
 \begin{figure}[t]
     \centering
-    \includegraphics{describe-demographics_location.pdf}
+    \includegraphics{describe-demographics_location.\figext}
     \caption{Reported user locations.}
     \label{fig:demographics-location}
 \end{figure}
 
 \begin{figure}[t]
     \centering
-    \includegraphics{describe-demographics_agegender.pdf}
+    \includegraphics{describe-demographics_agegender.\figext}
     \caption{Reported user age and gender.}
     \label{fig:demographics-agegender}
 \end{figure}
@@ -360,14 +361,14 @@ Word count is a critical consideration when quantifying text and especially impo
 
 \begin{figure}[t]
     \centering
-    \includegraphics{describe-categorycounts.pdf}
+    \includegraphics{describe-categorycounts.\figext}
     \caption{User-generated label frequencies, per post and per user. Within each section, the top number represents the number of posts and the bottom number represents the number of unique users that contribute to the post count. Non-lucid labels occur the most frequently, lucid labels second, and nightmare labels least. Venn sets are sized proportionally to user-normalized post frequencies.}
     \label{fig:categorycounts}
 \end{figure}
 
 \begin{figure}[t]
     \centering
-    \includegraphics{describe-categorypairs.pdf}
+    \includegraphics{describe-categorypairs.\figext}
     \caption{The frequency of users contributing lucid and non-lucid posts. The center panel highlights the number of users at each lucid and non-lucid post frequency. The dashed lines close a box around all post frequencies that include $\geq$1 lucid and $\geq$1 non-lucid, and the inner text provides the total number of users this is true for. The dotted lines close a box around all post frequencies that includes $\geq$20 lucid and $\geq$20 non-lucid, motivated by the finding that 20 dream reports provides a stable estimate of dream content within individuals~\cite{schredl1998}.
     Distributions in the marginal panels indicate the raw and cumulative number of users who contribute to either lucid or non-lucid post frequencies.}
     \label{fig:categorypairs}
@@ -405,14 +406,14 @@ Lucid and non-lucid posts were easily distinguishable under this ``out-of-the-bo
 
 \begin{figure}[t]
     \centering
-    \includegraphics{validate-wordshift_jsd.pdf}
+    \includegraphics{validate-wordshift_jsd.\figext}
     \caption{Lucidity JSD word shift. Words and phrases that most distinguish user-labeled lucid and non-lucid dream reports are consistent with known lucidity characteristics. These results offer concurrent validity for user-generated lucidity labels.}
     \label{fig:wordshift-jsd}
 \end{figure}
 
 \begin{figure}[t]
     \centering
-    \includegraphics{validate-wordshift_fear.pdf}
+    \includegraphics{validate-wordshift_fear.\figext}
     \caption{Nightmare fear word shift. Words and phrases that most distinguish user-labeled nightmares from all other dream reports are consistent with known nightmare characteristics. These results offer concurrent validity for user-generated nightmare labels.}
     \label{fig:wordshift-fear}
 \end{figure}
@@ -420,21 +421,21 @@ Lucid and non-lucid posts were easily distinguishable under this ``out-of-the-bo
 \begin{figure*}[t]
     \begin{subfigure}[t]{0.3\textwidth}
         \centering
-        \includegraphics{validate-liwc.pdf}
+        \includegraphics{validate-liwc.\figext}
         \caption{LIWC insight and agency language differences between user-labeled lucid and non-lucid dream reports. Lucid dream reports contained higher rates of both insight and agency than non-lucid dream reports. Error bars represent SEM, ***$p<.001$}
         \label{fig:liwc-categories}
     \end{subfigure}
     \hfill
     \begin{subfigure}[t]{0.3\textwidth}
         \centering
-        \includegraphics{validate-liwc_insight.pdf}
+        \includegraphics{validate-liwc_insight.\figext}
         \caption{Word-level differences of insight language between user-labeled lucid and non-lucid dream reports. Insight was quantified as the percentage of words from LIWC's insight dictionary in each dream report. Error bars represent bootstrapped 95\% confidence intervals. Asterisks indicate wildcard patterns.}
         \label{fig:liwc-words-insight}
     \end{subfigure}
     \hfill
     \begin{subfigure}[t]{0.3\textwidth}
         \centering
-        \includegraphics{validate-liwc_agency.pdf}
+        \includegraphics{validate-liwc_agency.\figext}
         \caption{Word-level differences of agency language between user-labeled lucid and non-lucid dream reports. Agency was quantified as the percentage of words from LIWC's agency dictionary in each dream report. Error bars represent bootstrapped 95\% confidence intervals. Asterisks indicate wildcard patterns.}
         \label{fig:liwc-words-agency}
     \end{subfigure}
