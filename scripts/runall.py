@@ -46,10 +46,10 @@ run("describe-toplabels.py")
 run("describe-categorycounts.py")
 run("describe-categorypairs.py")
 run("describe-demographics.py")
+run("generate-lemmas.py")  # Lemmas needed for wordcount, classifier, and wordshift
 run("describe-wordcount.py")
 
 # Validate
-run("validate-lemmas.py")
 run("validate-classifier.py")
 run("validate-classifier_stats.py")
 run("validate-liwc.py", "--words")

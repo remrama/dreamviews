@@ -130,7 +130,7 @@ def load_dreamviews_posts(lemmas=False, version="v1"):
     filepath = fetch_raw_file("dreamviews-posts.tsv", version)
     posts = pd.read_csv(filepath, sep="\t", encoding="ascii", parse_dates=["timestamp"])
     if lemmas:
-        lemmas_fpath = derivatives_dir / "validate-lemmas.tsv"
+        lemmas_fpath = derivatives_dir / "lemmas.tsv"
         lemmas = pd.read_csv(lemmas_fpath, sep="\t", encoding="ascii")
         posts = posts.merge(lemmas, on="post_id", how="inner", validate="one_to_one")
     return posts

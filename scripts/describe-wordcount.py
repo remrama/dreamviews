@@ -33,7 +33,7 @@ export_stem_plots = [
 ]
 
 # Load data
-df = c.load_dreamviews_posts()
+df = c.load_dreamviews_posts(lemmas=True)
 
 ########################################################################################
 # GET FREQUENCIES

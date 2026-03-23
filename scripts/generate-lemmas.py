@@ -1,6 +1,6 @@
 """
 Export a 2-column tsv of post_id and lemmatized post text
-for subsequent analysis/validation steps (classifier and wordshift).
+for subsequent descriptive (wordcount) and validation steps (classifier and wordshift).
 """
 
 import random
@@ -12,7 +12,7 @@ import config as c
 
 random.seed(91)
 
-EXPORT_STEM = "validate-lemmas"
+EXPORT_STEM = "lemmas"
 export_path = c.derivatives_dir / f"{EXPORT_STEM}.tsv"
 
 df = c.load_dreamviews_posts()
