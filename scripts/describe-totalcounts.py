@@ -225,12 +225,12 @@ if not WHITE:
 
 # Unique to bottom axis
 ax1a.set_xlabel("Year")
-ax1a.set_ylabel(r"$n$ posts, monthly")
+ax1a.set_ylabel(r"$n$ posts")
 ax1a.set_ybound(upper=POST_YMAX_MONTHLY)
 ax1b.set_ybound(upper=post_ymax_cumulative)
 
 # Unique to top axis
-ax2a.set_ylabel(r"$n$" + " users,\nmonthly")
+ax2a.set_ylabel(r"$n$ users")
 ax2a.set_ybound(upper=USER_YMAX_MONTHLY)
 ax2b.set_ybound(upper=user_ymax_cumulative)
 ax2a.xaxis.set(
@@ -270,6 +270,10 @@ ax2b.yaxis.set(
     major_locator=plt.MultipleLocator(major_tick_loc_right),
     minor_locator=plt.MultipleLocator(minor_tick_loc_right),
 )
+
+# Align ylabels to same vertical position across both axes
+fig.align_ylabels([ax1a, ax2a])
+fig.align_ylabels([ax1b, ax2b])
 
 # Draw total counts
 n_total_posts = df.shape[0]
