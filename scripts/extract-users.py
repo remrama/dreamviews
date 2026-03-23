@@ -199,6 +199,4 @@ if missing_user_ids:
     df = pd.concat([df, missing_df], axis=0)
 
 # Export
-df.to_csv(
-    export_path, encoding="ascii", index_label="user_id", na_rep="n/a", sep="\t"
-)
+df.to_csv(export_path, encoding="ascii", index_label="user_id", na_rep="n/a", sep="\t")
