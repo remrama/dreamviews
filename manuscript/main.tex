@@ -81,8 +81,8 @@
 \DTLassignfirstmatch{demop}{demographic_variable}{country}{\ncountry=n_reported,\pctcountry=pct_reported}
 \DTLassignfirstmatch{demop}{demographic_variable}{gender+age+country}{\nall=n_reported,\pctall=pct_reported}
 
-\DTLassignfirstmatch{clf}{scorer}{accuracy}{\clfaccm=CV mean,\clfaccsd=CV std}
-\DTLassignfirstmatch{clf}{scorer}{f1}{\clffonem=CV mean,\clffonesd=CV std}
+\DTLassignfirstmatch{clf}{scorer}{accuracy}{\clfaccm=cv_mean,\clfaccsd=cv_std}
+\DTLassignfirstmatch{clf}{scorer}{f1}{\clffonem=cv_mean,\clffonesd=cv_std}
 
 \DTLassignfirstmatch{liwcstats}{category}{insight}{\insightW=W_val,\insightP=p_val,\insightD=cohen-d,\insightCLES=CLES}
 \DTLassignfirstmatch{liwcstats}{category}{agency}{\agencyW=W_val,\agencyP=p_val,\agencyD=cohen-d,\agencyCLES=CLES}

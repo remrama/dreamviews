@@ -75,7 +75,7 @@ descriptives = pd.concat([total_descr, lucid_descr], axis=0)
 
 # Export
 descriptives = descriptives.convert_dtypes()
-c.export_table(descriptives, EXPORT_STEM, float_format="%.1f")
+c.export_table(descriptives, EXPORT_STEM)
 
 ########################################################################################
 # PLOTTING

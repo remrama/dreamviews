@@ -56,7 +56,7 @@ NO_NORMING = args.nonorm
 COLUMN_NAME = "post_lemmas"
 TOP_N_PLOTS = 50
 TOP_N_TABLES = 100
-FLOAT_FORMAT = "%.6e"
+FLOAT_FORMAT = "%.5e"
 
 # Choose export locations
 EXPORT_STEM = "validate-wordshift"

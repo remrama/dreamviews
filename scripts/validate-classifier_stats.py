@@ -35,10 +35,10 @@ df.index += 1
 
 # Average over cross-validations for results table
 avg = df.agg(["mean", "std"]).T.rename_axis("scorer")
-avg.columns = avg.columns.map(lambda x: "CV " + x)
+avg.columns = avg.columns.map(lambda x: "cv_" + x)
 
 # Export
 export_stem_cv = f"{EXPORT_STEM}_cv"
 export_stem_avg = f"{EXPORT_STEM}_avg"
-c.export_table(df, export_stem_cv, float_format="%.4f")
-c.export_table(avg, export_stem_avg, float_format="%.4f")
+c.export_table(df, export_stem_cv)
+c.export_table(avg, export_stem_avg)

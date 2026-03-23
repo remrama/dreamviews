@@ -55,7 +55,7 @@ avgs = (
 descriptives = avgs.agg(["mean", "std", "sem", "min", "max"]).T
 
 # export
-c.export_table(descriptives, export_stem_descr, float_format="%.3f")
+c.export_table(descriptives, export_stem_descr)
 
 ########################## run statistics
 #### Repeated-measures test
@@ -85,8 +85,12 @@ for cat in tqdm(LIWC_CATS, desc="LIWC stats"):
 # combine into one dataframe
 stats = pd.concat(wilcoxon_results).rename_axis("category").drop(columns="alternative")
 
+# Apply column-specific float formatting
+stats_formatted = stats.copy()
+stats_formatted["p_val"] = stats_formatted["p_val"].apply(lambda x: f"{x:.5e}")
+
 # export
-c.export_table(stats, export_stem_stats)
+c.export_table(stats_formatted, export_stem_stats)
 
 ########################## plot visualization
 #### Barplot,
