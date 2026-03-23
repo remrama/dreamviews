@@ -131,6 +131,11 @@ The current paper presents the collection, characterization, and validation of t
 \section{Methods}
 \label{sec:methods}
 
+This research was deemed exempt from IRB approval by the Northwestern IRB Review Board. This corpus is derived exclusively from publicly available data, and no Terms of Service or electronic prevention methods were breached during data collection~\cite{boegershausen2021,krotov2018,krotov2020,gold2017}. Best-practice community standards were followed at all stages of work~\cite{rivers2014,zook2017,franzke2020}, such as making no attempt to gather additional information not already public, making no attempt to de-anonymize users, and being transparent with the data collection method.
+
+\par
+The released corpus is a heavily-processed derivative of the publicly available data (see Section~\ref{sec:data-collection}). Additional safeguards were applied to the released corpus to further protect against potential future de-anonymization efforts, including the removal of non-essential data (e.g., user biographies), smoothing of demographic data (e.g., binning reported age), the redaction of true usernames, and the redaction of all names, emails, and URLs identified in posts (see Section~\ref{sec:text-preprocessing}).
+
 \subsection{Data source}
 \label{sec:data-source}
 
@@ -154,9 +159,6 @@ All public DreamViews dream journal entries between years 2010 and 2020 (inclusi
 \subsection{Text processing}
 \label{sec:text-preprocessing}
 
-\smallskip
-\noindent
-\textbf{Cleaning.}
 Text was minimally cleaned with the aims of standardization, removing non-dream content, and removing potentially private or identifying information. Consecutive whitespaces were replaced with a single space, ampersands were replaced with text (\texttt{and}), common contractions were expanded, and sequences of four or more repeated characters~\cite{gray2020} were reduced to a single character. A regex pattern was used to replace emails and URLs with \texttt{<URL>}, and named entity recognition was used to identify and replace names with \texttt{<PERSON>}. Named entity recognition was implemented using \emph{spaCy}\footnote{https://spacy.io}, which typically outperforms related software~\cite{shelar2020,jiang2016}. Visual inspection revealed non-dream character sequences that were frequent and reliable across multiple posts, and these were removed using custom regex patterns (see online code for specifics).
 
 \subsection{Data exclusion}
@@ -311,20 +313,18 @@ The category labels attached to journal entries were used to identify the lucidi
 \subsection{Availability of materials}
 \label{sec:availability}
 
-All code used to generate and analyze the current corpus is publicly available. The final corpus is available on Zenodo and abides by the modern FAIR principles of data management and stewardship~\cite{wilkinson2016}. The two tab-separated value files that make up the corpus are ASCII-encoded with missing values as ``n/a'' (detailed in Table~\ref{table:datafiles}).
-% The publicly released and doi-stamped dataset released with this paper consists of \emph{lemmatized} posts of the entire corpus (see Section~\ref{sec:data-files}). Full \emph{cleaned} posts, post attributes (e.g., title), and demographic information are available upon request or by utilizing the code referenced in the previous paragraph. For reasoning, see Sections~\ref{ethical-considerations} and~\ref{sec:extended-ethics}. The public release of this dataset abides by the modern FAIR principles of data management and stewardship~\cite{wilkinson2016fair}. The data are Findable through a persistent doi, Accessible through multiple formats (doi, self-generation, request), Interoperable in that the \texttt{tsv} file format is universal and readable by most modern software, and Reusable in that it retains a CC license and this current paper is dedicated to describing its features and value. As for the subsetted data release, slight adjustments and re-considerations from the original FAIR proposal are warranted with digital trace data~\cite{boeckhout2018fair, mons2017cloudy}.
+All code used to generate and analyze the current corpus is publicly available on GitHub\footnote{https://github.com/remrama/dreamviews}. The final corpus is available on Zenodo\footnote{https://doi.org/10.5281/zenodo.19161758} and abides by the modern FAIR principles of data management and stewardship~\cite{wilkinson2016}.
 
-\subsection{Ethical considerations}
-\label{sec:ethical-considerations}
+% The data are Findable through a persistent DOI, Accessible in that the archive requires no authentication, Interoperable in that the \texttt{tsv} file format is universal and readable by most modern software, and Reusable in that it retains a \emph{CC BY-NC 4.0} license and this current paper is dedicated to describing its features and value. The two tab-separated value files that make up the corpus are ASCII-encoded with missing values as ``n/a'' (detailed in Table~\ref{table:datafiles}).
 
-This research was deemed exempt from IRB approval by the Northwestern IRB Review Board. Best-practice community standards were followed at all stages of work~\cite{rivers2014,zook2017,franzke2020}, such as making no attempt to gather additional information not already public, making no attempt to de-anonymize users, and being transparent with the data collection method. This corpus is derived exclusively from publicly available data, and no Terms of Service or electronic prevention methods were breached during data collection~\cite{boegershausen2021,krotov2018,krotov2020,gold2017}.
-% The ethics of social media or digital trace data is an ongoing debate~\cite{zwitter2014big, ferretti2021ethics, metcalf2016human, lazer2020computational, lazer2021, shah2015}, which can be loosely split into the ethics of analyzing versus sharing such data. In the analysis of such data and presenting it in aggregated form... Due to situational nuance, I opted to take a mixed approach of precaution an openness~\cite{boeckhout2018fair, weller2016manifesto, meyer2018practical, towse2021opening}. As described in Sections~\ref{sec:data-collection} and~\ref{sec:text-preprocessing}, additional steps were taken to ensure potential efforts of de-anonymization, including the removal of any non-essential data (e.g., entry titles, usernames), removal of any URLs, emails, names, and proper nouns, heavy text processing (e.g., lemmatization), and the shuffling of words to prevent any sensible sentence structure or actual reading of the text. See Section~\ref{sec:extended-ethics} for a lengthy discussion on this topic.
+% \subsection{Ethical considerations}
+% \label{sec:ethical-considerations}
+
+% As for the subsetted data release, slight adjustments and re-considerations from the original FAIR proposal are warranted with digital trace data~\cite{boeckhout2018,mons2017,weller2016manifesto,meyer2018practical,towse2021opening}.
+% The ethics of social media or digital trace data is an ongoing debate~\cite{zwitter2014big, ferretti2021ethics, metcalf2016human, lazer2020computational, lazer2021, shah2015}, which can be loosely split into the ethics of analyzing versus sharing such data.
 
 \section{Data description}
 \label{sec:description}
-
-% The released dataset consists of a single file, \texttt{dreamviews-posts-superanon.tsv}, with all the same rows/posts but slightly reduced column information (see Section~\ref{sec:availability}).
-% The final released dataset consists of a single tab-separated value file, \texttt{dreamviews-posts-superanon.tsv}, with \texttt{utf-8} encoding. Tab-separated values files are similar to comma-separated files but cause less complications universally and with text data (here, all post tabs were replaced with single spaces, see Section~\ref{text-preprocessing}). Missing values were coded as \texttt{NA}. The file consists of five columns, explained in Table~\ref{table:posts-columns}.
 
 \subsection{General characterization}
 \label{sec:general-characterization}
@@ -394,7 +394,7 @@ This goal of this analysis was to determine whether lucid and non-lucid posts ha
 
 \smallskip
 \noindent
-\textbf{Methods.} Post texts were lemmatized using \emph{spaCy}. After tokenization, a token was removed if it contained a non-alphabetic character, was shorter than three characters, was a stop word or proper noun (as identified by \emph{spaCy}), or had a low probability of being in \emph{spaCy}'s vocabulary (to estimate mispellings or otherwise uncommon character sequences). All retained tokens were lemmatized with \emph{spaCy} and lowercased.
+\textbf{Methods.} Post texts were tokenized, lemmatized, and lowercased using \emph{spaCy}. A token was removed if it contained a non-alphabetic character, was shorter than three characters, was a stop word or proper noun, or had a low probability of being in \emph{spaCy}'s vocabulary (to estimate mispellings or otherwise uncommon character sequences).
 
 \par
 Classification was implemented using \emph{scikit-learn}\footnote{https://scikit-learn.org}~\cite{pedregosa2011}. Each lemmatized post was transformed into a word-frequency vector. Very frequent (appearing in $>$75\% of posts) or infrequent (appearing in $<$100 posts) words were removed, after which the top 5k words were kept as features. A linear support vector machine classifier was used with a regularization parameter of 1. To avoid user-specific biases, a single post per user was randomly selected (irrespective of lucidity label) and then the more frequent class was downsampled to match the size of the smaller class. A stratified-shuffle-split cross-validation scheme was implemented, with the classifier trained on 70\% of posts and tested on the other 30\% at each of 5 folds. Note that performance was not optimized in any way (e.g., with hyperparameter tuning).
@@ -402,7 +402,7 @@ Classification was implemented using \emph{scikit-learn}\footnote{https://scikit
 \smallskip
 \noindent
 \textbf{Results.}
-Lucid and non-lucid posts were easily distinguishable under this ``out-of-the-box'' classification model. Across cross-validation folds, classifier accuracy was \num[round-mode=places,round-precision=2]{\clfaccm}$\pm$\num[round-mode=places,round-precision=2]{\clfaccsd}\% (M$\pm$SD, chance 50\%). Similar results were obtained with F1-score (\num[round-mode=places,round-precision=2]{\clffonem}$\pm$\num[round-mode=places,round-precision=2]{\clffonesd}\%). This suggests that there are indeed meaningful language differences between the lucid and non-lucid posts in this corpus. Future work might optimize the present classification model and test its generalizability to novel and lab-based lucid dream reports.
+Lucid and non-lucid posts were easily distinguishable under this ``out-of-the-box'' classification model. Across cross-validation folds, classifier accuracy was \num[round-mode=places,round-precision=2]{\clfaccm}$\pm$\num[round-mode=places,round-precision=2]{\clfaccsd} (M$\pm$SD, chance \num{0.50}). Similar results were obtained with F1-score (\num[round-mode=places,round-precision=2]{\clffonem}$\pm$\num[round-mode=places,round-precision=2]{\clffonesd}). This suggests that there are indeed meaningful language differences between the lucid and non-lucid posts in this corpus. Future work might optimize the present classification model and test its generalizability to novel and lab-based lucid dream reports.
 
 \begin{figure}[t]
     \centering
