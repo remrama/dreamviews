@@ -55,8 +55,8 @@ RAW_REGISTRY = {
     "v1": {
         "doi": "10.5281/zenodo.19161758",
         "files": {
-            "dreamviews-posts.tsv": "md5:84c2f6e6454a879d22deea1c5c227c1e",
-            "dreamviews-users.tsv": "md5:3824a274b927165d20be4c79cf0f905a",
+            "dreamviews-posts.tsv": "md5:d78a499937e063add677a3ed28393d36",
+            "dreamviews-users.tsv": "md5:2dd38e4ba29d910ffafb718072dec8ba",
         },
     },
 }
