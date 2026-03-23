@@ -84,7 +84,7 @@ c.export_table(country_counts, EXPORT_STEM_LOCATION)
 ########################################################################################
 
 # Open figure
-fig, ax = plt.subplots(figsize=(2, 2), constrained_layout=True)
+fig, ax = plt.subplots(figsize=(2.1, 2), constrained_layout=True)
 
 # Add gender integer values for plotting order
 df["gender_int"] = df["gender"].cat.codes
