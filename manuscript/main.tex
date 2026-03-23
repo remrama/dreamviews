@@ -12,12 +12,12 @@
 \usepackage[utf8]{inputenc}
 \usepackage[T1]{fontenc}
 \usepackage[english]{babel}
-\usepackage{newtxtext,newtxmath} % access Times New Roman
-\usepackage{microtype} % prettifies typesetting and prevents some overfulls
+\usepackage{newtxtext,newtxmath}
+\usepackage{microtype}
 
 % Citation/reference management
 \usepackage[citestyle=numeric-comp,bibstyle=numeric-comp,sorting=none,url=false,doi=false,useprefix=true,uniquename=false,uniquelist=false,giveninits=true,maxnames=2,natbib=true,backend=biber,]{biblatex}
-\usepackage{csquotes} % prevents some warnings
+\usepackage{csquotes}
 \addbibresource{references.bib}
 \renewbibmacro{in:}{}
 \renewcommand{\bibopenparen}{\addcomma\addspace}
@@ -60,9 +60,9 @@
 
 \usepackage{siunitx}
 \sisetup{group-digits=integer,group-separator={,},group-minimum-digits={3}}
-%% see this important post about interaction between datatools and siunitx https://tex.stackexchange.com/a/23460
+% see this important post about interaction between datatools and siunitx https://tex.stackexchange.com/a/23460
 
-% Load data.
+% Load data
 \usepackage{datatool}
 \DTLsettabseparator
 
@@ -86,15 +86,10 @@
 
 \DTLassignfirstmatch{liwcstats}{category}{insight}{\insightW=W_val,\insightP=p_val,\insightD=cohen-d,\insightCLES=CLES}
 \DTLassignfirstmatch{liwcstats}{category}{agency}{\agencyW=W_val,\agencyP=p_val,\agencyD=cohen-d,\agencyCLES=CLES}
-% \xDTLassignfirstmatch{liwcstats}{category}{agency}{\agencyW=W-val,\agencyP=p-val}
 
-%%%%%%%%%% Unused but useful for other times.
-% \usepackage{indentfirst} % indents first paragraphs of sections, following headings
-% \usepackage{endfloat} % kick all floats to the end, useful while drafting
-
-% Title page info
 \title{\bf A large corpus of lucid and non-lucid dream reports}
-\author{Remington Mallett \\
+\author{
+    Remington Mallett \\
     Department of Psychology \\
     Northwestern University \\
     \texttt{remington.mallett@u.northwestern.edu}
@@ -104,9 +99,6 @@
 \begin{document}
 
 \maketitle
-
-%%%%% Uncomment to print column width in Points (pt), 1/72.27 of an inch.
-% The column width is: \the\columnwidth
 
 \section*{Abstract}
 All varieties of dreaming remain a mystery. Lucid dreams in particular, or those characterized by awareness of the dream, are notoriously difficult to study. Their scarce prevalence and resistance to artificial induction make it difficult to obtain a sizeable corpus of lucid dream reports. The consequent lack of clarity around lucid dream phenomenology has left the many purported applications of lucidity under-realized. Here, a large dataset of 10k lucid and 25k non-lucid dream reports from 5k contributors is curated, described, and validated for future lucid and non-lucid dream studies. Ten years of publicly available dream reports were scraped from an online forum where users share anonymous dream journals. Importantly, users could optionally identify their dream as lucid or non-lucid, offering a user-generated labeling system for research. After characterizing the dataset with descriptive statistics and visualizations, these lucidity labels are validated by showing that language patterns in lucid-labeled reports are consistent with known characteristics of lucid dreams. While the entire corpus has broad value for dream studies, the labeled subset is particularly powerful for new discoveries in lucid dream research.
@@ -189,8 +181,6 @@ The category labels attached to journal entries were used to identify the lucidi
             title & str & post title \\
             tags & str & tag labels of post \\
             categories & str & category labels of post \\
-            % lucidity & str & \makecell{derived lucid label  \\ \texttt{lucid}, \texttt{nonlucid}, \\ \texttt{unspecified}, or \texttt{ambiguous}} \\
-            % nightmare & bool & \makecell{\texttt{True} if post was identified \\ as a nightmare else \texttt{False}} \\
             lucidity & str & derived lucid label \\
             nightmare & bool & derived nightmare label \\
             wordcount & int & number of words in post \\
@@ -210,7 +200,7 @@ The category labels attached to journal entries were used to identify the lucidi
             \midrule
             user\_id & str & unique randomized user identifier \\
             gender  & str & reported gender \\
-            age     & str & reported age (binned) \\
+            age     & str & reported age bin \\
             country & str & reported country (ISO 3166-1 alpha-3) \\
             \bottomrule
         \end{tabular}
@@ -315,14 +305,6 @@ The category labels attached to journal entries were used to identify the lucidi
 
 All code used to generate and analyze the current corpus is publicly available on GitHub\footnote{https://github.com/remrama/dreamviews}. The final corpus is available on Zenodo\footnote{https://doi.org/10.5281/zenodo.19161758} and abides by the modern FAIR principles of data management and stewardship~\cite{wilkinson2016}.
 
-% The data are Findable through a persistent DOI, Accessible in that the archive requires no authentication, Interoperable in that the \texttt{tsv} file format is universal and readable by most modern software, and Reusable in that it retains a \emph{CC BY-NC 4.0} license and this current paper is dedicated to describing its features and value. The two tab-separated value files that make up the corpus are ASCII-encoded with missing values as ``n/a'' (detailed in Table~\ref{table:datafiles}).
-
-% \subsection{Ethical considerations}
-% \label{sec:ethical-considerations}
-
-% As for the subsetted data release, slight adjustments and re-considerations from the original FAIR proposal are warranted with digital trace data~\cite{boeckhout2018,mons2017,weller2016manifesto,meyer2018practical,towse2021opening}.
-% The ethics of social media or digital trace data is an ongoing debate~\cite{zwitter2014big, ferretti2021ethics, metcalf2016human, lazer2020computational, lazer2021, shah2015}, which can be loosely split into the ethics of analyzing versus sharing such data.
-
 \section{Data description}
 \label{sec:description}
 
@@ -340,24 +322,6 @@ A variable amount of demographic information was self-reported in the public use
 \label{sec:word-count}
 
 Word count is a critical consideration when quantifying text and especially important when evaluating dream reports~\cite{urbina1981,schredl1999,schredl2011,rover2017,rosenlicht1994,antrobus1983}. Counts are presented in Figure~\ref{fig:wordcount} as the number of words per cleaned post rather than lemmatized post (see Section~\ref{sec:text-preprocessing}). Word counts are presented in a few ways, emphasizing the importance of accounting for user dependencies and showing the difference between lucid and non-lucid posts.
-
-% \begin{table}[t]
-%     \caption{Word/lemma summary statistics for lucid and non-lucid posts. Counts were first averaged within user.}
-%     \label{table:wordcount}
-%     \small
-%     \begin{tabular}{rrrrr}
-%         \toprule
-%             {} & \multicolumn{2}{l}{word} & \multicolumn{2}{l}{lemma} \\
-%             {} & non-lucid & lucid & non-lucid & lucid \\
-%         \midrule
-%             mean   &       318 &   366 &       114 &   132 \\
-%             std    &       178 &   197 &        65 &    72 \\
-%             min    &        50 &    50 &        15 &    13 \\
-%             median &       284 &   334 &       103 &   121 \\
-%             max    &      1000 &   997 &       417 &   379 \\
-%         \bottomrule
-%     \end{tabular}
-% \end{table}
 
 \begin{figure}[t]
     \centering
@@ -467,8 +431,6 @@ The JSD entropy word shift comparing lucid and non-lucid posts is presented in F
 \par
 The fear intensity word shift comparing nightmare and non-nightmare (i.e., unlabeled) posts is presented in Figure~\ref{fig:wordshift-fear}. Nightmare posts have a clear bias towards intense fear words. Words that appear more frequently in nightmare posts are also higher in fear intensity, including ``kill,'' ``scream,'' ``monster,'' and ``panic.'' In contrast, words low on fear intensity like ``swim'' and ``case'' occur less frequently in nightmare posts. The few fear words that \emph{do} appear more in non-nightmare posts -- ``fight'' and ``shoot'' -- are lower in fear intensity and consistent with the high rates of daily activities in dream content (e.g., sports or social quarrels)~\cite{schredl2010}.
 
-% \vfill % Temporary while it improves the current layout.
-
 \subsection{Cognitive language markers}
 \label{sec:liwc}
 
@@ -541,22 +503,13 @@ This paper presented a new ``digital trace'' corpus of 55k dream reports collect
 \section*{Declarations}
 
 \textbf{Acknowledgements.}
-Shoutout Ashwini Ashokkumar.
+RM would like to thank Ashwini Ashokkumar.
 
-% \smallskip
-% \\
-% \textbf{Conflict.}
-% No potential conflicts of interest are declared.
+\smallskip
+\noindent
+\textbf{Conflict.} None declared.
 
-% \section*{Temporary SI}
-% \subsection*{Word shift token normalization}
-% Raw token frequencies were first counted for each user $\upsilon$, token $\tau$, and corpus $i$, $f_{\tau,\upsilon}^{(i)}$. Summing across users and tokens within each corpus would recover a standard frequency count for a corpus, $f_{\tau}^{(i)}$, which is typically input to word shifts, as when there are no dependency concerns. Here, instead, before summing, each frequency $f_{\tau,\upsilon}^{(i)}$ was first divided by the number of posts $p$ contributed to the corpus by this user, which is no longer a frequency but now the rate $r_{\tau,\upsilon}^{(i)}$ at which this token appears per post for this user and corpus. Summing across all $\mathcal{U}$ users for each token now provides a single token rate for each corpus, $r_{\tau}^{(i)} = \sum_{\upsilon' \in \mathcal{U}} \frac{f_{\tau,\upsilon}^{(i)}}{f_{\upsilon}^{(i)}}$. This rate, or frequency, was then submitted to \emph{Shifterator} in place of the frequency denoted $f_{\tau}^{(i)}$ in the original publication~\cite{gallagher2021}. An initial normalization step in \emph{Shifterator} will convert this frequency to $p_{\tau }^{(i)} = r_{\tau }^{(i)} / \sum_{\tau ' \in \mathcal{T}} r_{ \tau '}^{(i)}$ to represent the proportion from each token, and the rest of the steps can be found in the original work~\cite{gallagher2021}.
-
-% \clearpage
-\raggedbottom % Don't force references to touch the bottom of the page.
-              % LaTeX typesetting usually tries to ensure all pages
-              % end on the same line, but it is tough for Reference
-              % sections and overfull vbox warnings get triggered.
+\raggedbottom
 \printbibliography
 
 \end{document}
