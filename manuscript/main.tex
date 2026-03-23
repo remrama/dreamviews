@@ -60,7 +60,19 @@
 
 \usepackage{siunitx}
 \sisetup{group-digits=integer,group-separator={,},group-minimum-digits={3}}
+% \sisetup{separate-uncertainty=true, uncertainty-separator={}}
+% \sisetup{quantity-product={}}
+\DeclareSIUnit[quantity-product={}]{\percent}{\%}
 % see this important post about interaction between datatools and siunitx https://tex.stackexchange.com/a/23460
+\newcommand{\meansd}[3][2]{%
+    $\num[round-mode=places,round-precision=#1]{#2} \pm %
+    \num[round-mode=places,round-precision=#1]{#3}$%
+}
+\newcommand{\wilcoxon}[3]{%
+    $W=\num[round-mode=places,round-precision=0,group-digits=none]{#1}$, %
+    $p=\num[round-mode=places,round-precision=1,output-exponent-marker=e]{#2}$, %
+    $\text{CLES}=\num[round-mode=places,round-precision=2]{#3}$%
+}
 
 % Load data
 \usepackage{datatool}
@@ -156,7 +168,7 @@ Text was minimally cleaned with the aims of standardization, removing non-dream 
 \subsection{Data exclusion}
 \label{sec:data-exclusion}
 
-Posts were removed if estimated as non-English\footnote{https://github.com/Mimino666/langdetect}, or containing $<$50 or $>$1k words (counted from cleaned text). In an effort to reduce single-user biases within the corpus, only the first 1k posts from a given user (that passed prior criteria) were kept. Visual inspection revealed, on minor occasion, systematic features of posts that indicated there was no dream content present (see online code for specifics). Such posts were removed.
+Posts were removed if estimated as non-English\footnote{https://github.com/Mimino666/langdetect}, or containing \num{< 50} or $>$1k words (counted from cleaned text). In an effort to reduce single-user biases within the corpus, only the first 1k posts from a given user (that passed prior criteria) were kept. Visual inspection revealed, on minor occasion, systematic features of posts that indicated there was no dream content present (see online code for specifics). Such posts were removed.
 
 \subsection{User-generated labels}
 \label{sec:automated-labeling}
@@ -316,7 +328,7 @@ The final corpus contains \num{\totalposts} dream reports from \num{\totalusers}
 \subsection{Demographics}
 \label{sec:demographics}
 
-A variable amount of demographic information was self-reported in the public user profiles. Reported age and gender are presented in Figure~\ref{fig:demographics-agegender} and reported location in Figure~\ref{fig:demographics-location}. Of users in the final corpus, \num{\ngender} (\num{\pctgender}\%) provided a gender, \num{\nage} (\num{\pctage}\%) reported an age, \num{\ncountry} (\num{\pctcountry}\%) reported a location, \num{\nall} (\num{\pctall}\%) users reported all three. Profiles suggest that users lean towards males in early adulthood from the United States. Non-English posts were removed before aggregation, which might have influenced location results.
+A variable amount of demographic information was self-reported in the public user profiles. Reported age and gender are presented in Figure~\ref{fig:demographics-agegender} and reported location in Figure~\ref{fig:demographics-location}. Of users in the final corpus, \num{\ngender} (\qty{\pctgender}{\percent}) provided a gender, \num{\nage} (\qty{\pctage}{\percent}) reported an age, \num{\ncountry} (\qty{\pctcountry}{\percent}) reported a location, \num{\nall} (\qty{\pctall}{\percent}) users reported all three. Profiles suggest that users lean towards males in early adulthood from the United States. Non-English posts were removed before aggregation, which might have influenced location results.
 
 \subsection{Word count}
 \label{sec:word-count}
@@ -333,7 +345,7 @@ Word count is a critical consideration when quantifying text and especially impo
 \begin{figure}[t]
     \centering
     \includegraphics{describe-categorypairs.\figext}
-    \caption{The frequency of users contributing lucid and non-lucid posts. The center panel highlights the number of users at each lucid and non-lucid post frequency. The dashed lines close a box around all post frequencies that include $\geq$1 lucid and $\geq$1 non-lucid, and the inner text provides the total number of users this is true for. The dotted lines close a box around all post frequencies that includes $\geq$20 lucid and $\geq$20 non-lucid, motivated by the finding that 20 dream reports provides a stable estimate of dream content within individuals~\cite{schredl1998}.
+    \caption{The frequency of users contributing lucid and non-lucid posts. The center panel highlights the number of users at each lucid and non-lucid post frequency. The dashed lines close a box around all post frequencies that include \num{>= 1} lucid and \num{>= 1} non-lucid, and the inner text provides the total number of users this is true for. The dotted lines close a box around all post frequencies that includes \num{>= 20} lucid and \num{>= 20} non-lucid, motivated by the finding that \num{20} dream reports provides a stable estimate of dream content within individuals~\cite{schredl1998}.
     Distributions in the marginal panels indicate the raw and cumulative number of users who contribute to either lucid or non-lucid post frequencies.}
     \label{fig:categorypairs}
 \end{figure}
@@ -361,12 +373,12 @@ This goal of this analysis was to determine whether lucid and non-lucid posts ha
 \textbf{Methods.} Post texts were tokenized, lemmatized, and lowercased using \emph{spaCy}. A token was removed if it contained a non-alphabetic character, was shorter than three characters, was a stop word or proper noun, or had a low probability of being in \emph{spaCy}'s vocabulary (to estimate mispellings or otherwise uncommon character sequences).
 
 \par
-Classification was implemented using \emph{scikit-learn}\footnote{https://scikit-learn.org}~\cite{pedregosa2011}. Each lemmatized post was transformed into a word-frequency vector. Very frequent (appearing in $>$75\% of posts) or infrequent (appearing in $<$100 posts) words were removed, after which the top 5k words were kept as features. A linear support vector machine classifier was used with a regularization parameter of 1. To avoid user-specific biases, a single post per user was randomly selected (irrespective of lucidity label) and then the more frequent class was downsampled to match the size of the smaller class. A stratified-shuffle-split cross-validation scheme was implemented, with the classifier trained on 70\% of posts and tested on the other 30\% at each of 5 folds. Note that performance was not optimized in any way (e.g., with hyperparameter tuning).
+Classification was implemented using \emph{scikit-learn}\footnote{https://scikit-learn.org}~\cite{pedregosa2011}. Each lemmatized post was transformed into a word-frequency vector. Very frequent (appearing in \qty{> 75}{\percent} of posts) or infrequent (appearing in \num{< 100} posts) words were removed, after which the top 5k words were kept as features. A linear support vector machine classifier was used with a regularization parameter of \num{1}. To avoid user-specific biases, a single post per user was randomly selected (irrespective of lucidity label) and then the more frequent class was downsampled to match the size of the smaller class. A stratified-shuffle-split cross-validation scheme was implemented, with the classifier trained on \qty{70}{\percent} of posts and tested on the other \qty{30}{\percent} at each of \num{5} folds. Note that performance was not optimized in any way (e.g., with hyperparameter tuning).
 
 \smallskip
 \noindent
 \textbf{Results.}
-Lucid and non-lucid posts were easily distinguishable under this ``out-of-the-box'' classification model. Across cross-validation folds, classifier accuracy was \num[round-mode=places,round-precision=2]{\clfaccm}$\pm$\num[round-mode=places,round-precision=2]{\clfaccsd} (M$\pm$SD, chance \num{0.50}). Similar results were obtained with F1-score (\num[round-mode=places,round-precision=2]{\clffonem}$\pm$\num[round-mode=places,round-precision=2]{\clffonesd}). This suggests that there are indeed meaningful language differences between the lucid and non-lucid posts in this corpus. Future work might optimize the present classification model and test its generalizability to novel and lab-based lucid dream reports.
+Lucid and non-lucid posts were easily distinguishable under this ``out-of-the-box'' classification model. \clfaccsd Across cross-validation folds, classifier accuracy was \meansd{\clfaccm}{\clfaccsd} (M$\pm$SD, $\text{chance}=\num{0.50}$). Similar results were obtained with F1-score (\meansd{\clffonem}{\clffonesd}). This suggests that there are indeed meaningful language differences between the lucid and non-lucid posts in this corpus. Future work might optimize the present classification model and test its generalizability to novel and lab-based lucid dream reports.
 
 \begin{figure}[t]
     \centering
@@ -393,14 +405,14 @@ Lucid and non-lucid posts were easily distinguishable under this ``out-of-the-bo
     \begin{subfigure}[t]{0.3\textwidth}
         \centering
         \includegraphics{validate-liwc_insight.\figext}
-        \caption{Word-level differences of insight language between user-labeled lucid and non-lucid dream reports. Insight was quantified as the percentage of words from LIWC's insight dictionary in each dream report. Error bars represent bootstrapped 95\% confidence intervals. Asterisks indicate wildcard patterns.}
+        \caption{Word-level differences of insight language between user-labeled lucid and non-lucid dream reports. Insight was quantified as the percentage of words from LIWC's insight dictionary in each dream report. Error bars represent bootstrapped \qty{95}{\percent} confidence intervals. Asterisks indicate wildcard patterns.}
         \label{fig:liwc-words-insight}
     \end{subfigure}
     \hfill
     \begin{subfigure}[t]{0.3\textwidth}
         \centering
         \includegraphics{validate-liwc_agency.\figext}
-        \caption{Word-level differences of agency language between user-labeled lucid and non-lucid dream reports. Agency was quantified as the percentage of words from LIWC's agency dictionary in each dream report. Error bars represent bootstrapped 95\% confidence intervals. Asterisks indicate wildcard patterns.}
+        \caption{Word-level differences of agency language between user-labeled lucid and non-lucid dream reports. Agency was quantified as the percentage of words from LIWC's agency dictionary in each dream report. Error bars represent bootstrapped \qty{95}{\percent} confidence intervals. Asterisks indicate wildcard patterns.}
         \label{fig:liwc-words-agency}
     \end{subfigure}
     \caption{LIWC validation results. Dream reports labeled as lucid by the user contain a higher percentage of insight and agency dictionary words than those labeled as non-lucid dream reports. These results offer construct validity for the user-labeled dream reports.}
@@ -439,12 +451,12 @@ As a final validation step, lucid posts were tested for an increased presence of
 \smallskip
 \noindent
 \textbf{Methods.}
-To capture the amount of insight and agency in language, validated word categories representative of each construct were used to generate word frequencies~\cite{tausczik2010}. This dictionary-based approach to text analysis has been applied extensively to dreams~\cite{bulkeley2018,hawkins2017,elce2021} and performs comparably with traditional dream content rating systems~\cite{zheng2021}. Dream insight was quantified in each post as the percentage of words that overlap with the \emph{insight} category from the LIWC2015 dictionary\footnote{https://liwc.app}~\cite{pennebaker2015} (ex: ``think,'' ``know''). Dream agency was quantified similarly but instead using the \emph{agency} category from the Big Two dictionary\footnote{https://osf.io/p7fzb}~\cite{pietraszkiewicz2019} (ex: ``doing,'' ``making,'' ``mastery,'' ``overcome,'' ``success,'' ``fail''). Note that agency here is not intended to capture successful agency or dream control, but a sense of it. The language of failed attempts (e.g., ``fail'') would be expected to be higher when a sense of agency is present. Category-level and word-level percentages were calculated for each post using custom code and \emph{liwc-python}\footnote{https://github.com/chbrown/liwc-python}. Percentages were averaged within user, and only users with $\geq$1 lucid posts and $\geq$1 non-lucid posts were included (see dashed enclosing in Figure~\ref{fig:categorypairs}). LIWC insight and agency scores were compared between lucid and non-lucid dream reports. A Wilcoxon signed-rank test was used to compare total insight and total agency between lucid and non-lucid posts. Effect sizes (Cohen's $d$) between post types and their bootstrapped \num{95}\% confidence intervals (\num{2000} iterations) were calculated for overall insight and agency as well as each individual dictionary word. All statistics were run using \emph{Pingouin}\footnote{https://pingouin-stats.org}~\cite{vallat2018}.
+To capture the amount of insight and agency in language, validated word categories representative of each construct were used to generate word frequencies~\cite{tausczik2010}. This dictionary-based approach to text analysis has been applied extensively to dreams~\cite{bulkeley2018,hawkins2017,elce2021} and performs comparably with traditional dream content rating systems~\cite{zheng2021}. Dream insight was quantified in each post as the percentage of words that overlap with the \emph{insight} category from the LIWC2015 dictionary\footnote{https://liwc.app}~\cite{pennebaker2015} (ex: ``think,'' ``know''). Dream agency was quantified similarly but instead using the \emph{agency} category from the Big Two dictionary\footnote{https://osf.io/p7fzb}~\cite{pietraszkiewicz2019} (ex: ``doing,'' ``making,'' ``mastery,'' ``overcome,'' ``success,'' ``fail''). Note that agency here is not intended to capture successful agency or dream control, but a sense of it. The language of failed attempts (e.g., ``fail'') would be expected to be higher when a sense of agency is present. Category-level and word-level percentages were calculated for each post using custom code and \emph{liwc-python}\footnote{https://github.com/chbrown/liwc-python}. Percentages were averaged within user, and only users with \num{>= 1} lucid posts and \num{>= 1} non-lucid posts were included (see dashed enclosing in Figure~\ref{fig:categorypairs}). LIWC insight and agency scores were compared between lucid and non-lucid dream reports. A Wilcoxon signed-rank test was used to compare total insight and total agency between lucid and non-lucid posts. Effect sizes (Cohen's $d$) between post types and their bootstrapped \qty{95}{\percent} confidence intervals (\num{2000} iterations) were calculated for overall insight and agency as well as each individual dictionary word. All statistics were run using \emph{Pingouin}\footnote{https://pingouin-stats.org}~\cite{vallat2018}.
 
 \smallskip
 \noindent
 \textbf{Results.}
-Category-level differences between lucid and non-lucid posts, for insight and agency, are presented in Figure~\ref{fig:liwc-categories}. Lucid posts contained far more insight ($W=\num[round-mode=places,round-precision=0,group-separator=\ ]{\insightW}$, $p=\num[round-mode=places,round-precision=0,output-exponent-marker=e]{\insightP}$, $CLES=\num[round-mode=places,round-precision=2]{\insightCLES}$) and agency ($W=\num[round-mode=places,round-precision=0,group-separator=\ ]{\agencyW}$, $p=\num[round-mode=places,round-precision=0,output-exponent-marker=e]{\agencyP}$, $CLES=\num[round-mode=places,round-precision=2]{\agencyCLES}$) words than non-lucid posts. These results suggest that lucid posts in this corpus have increased dream insight and agency, in line with prior reports of lucid dreams~\cite{windt2007,baird2019,voss2013,mallett2021}.
+Category-level differences between lucid and non-lucid posts, for insight and agency, are presented in Figure~\ref{fig:liwc-categories}. Lucid posts contained far more insight (\wilcoxon{\insightW}{\insightP}{\insightCLES}) and agency (\wilcoxon{\agencyW}{\agencyP}{\agencyCLES}) words than non-lucid posts. These results suggest that lucid posts in this corpus have increased dream insight and agency, in line with prior reports of lucid dreams~\cite{windt2007,baird2019,voss2013,mallett2021}.
 
 \par
 Word-level effects comparing the individual words within insight and agency dictionaries are presented in Figures~\ref{fig:liwc-words-insight} and~\ref{fig:liwc-words-agency}. This analysis reveals the individual words that drive category-level differences between lucid and non-lucid posts for insight and agency. Ranked by absolute effect size, $d$, these results support the prior category-level findings in a few ways. First, they reveal that neither insight nor agency scores were driven by a small subset of words. With just one exception -- ``takes'' -- the top \num{10} words of each category are all in the expected direction, and with fairly even contributions. Second, they suggest that both categories are indeed picking up on the intended cognitive constructs of dream insight and agency. The largest insight effects seem very representative of lucid insight while dreaming (e.g., ``realize,'' ``aware'') and easily fit into phrases describing the initial moment of lucidity while dreaming (e.g., I \emph{became} lucid; I \emph{thought} I was dreaming). Similarly, the strongest agency effects seem indicative of dream control (e.g., ``tried,'' ``goals,'' ``success,'' I \emph{tried} to fly but \emph{failed}; I \emph{thought} about the \emph{goal} I set before bed). Together, these results serve as a strong validation of the lucidity labeling process, in that posts identified as lucid are consistent with known lucid dream phenomenology.
