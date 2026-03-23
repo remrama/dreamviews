@@ -190,12 +190,15 @@ assert df["age"].dropna().ge(min_age).all(), f"Didn't expect any reported ages u
 age_labels = [f"[{left}, {right})" for left, right in zip(AGE_BINS[:-1], AGE_BINS[1:], strict=True)]
 df["age"] = pd.cut(df["age"], bins=AGE_BINS, labels=age_labels, right=False, include_lowest=True)
 
+df = df.reindex(columns=KEEP_COLUMNS)
+
 # Add empty rows for users who survived filtering but had no extracted info
-missing_user_ids = set(surviving_user_ids) - set(df.index)
+missing_user_ids = sorted(set(surviving_user_ids) - set(df.index))
 if missing_user_ids:
-    df.loc[missing_user_ids] = pd.NA
+    missing_df = pd.DataFrame(index=missing_user_ids, columns=df.columns)
+    df = pd.concat([df, missing_df], axis=0)
 
 # Export
-df[KEEP_COLUMNS].to_csv(
+df.to_csv(
     export_path, encoding="ascii", index_label="user_id", na_rep="n/a", sep="\t"
 )
