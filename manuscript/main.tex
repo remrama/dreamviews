@@ -113,10 +113,10 @@
 \maketitle
 
 \section*{Abstract}
-All varieties of dreaming remain a mystery. Lucid dreams in particular, or those characterized by awareness of the dream, are notoriously difficult to study. Their scarce prevalence and resistance to artificial induction make it difficult to obtain a sizeable corpus of lucid dream reports. The consequent lack of clarity around lucid dream phenomenology has left the many purported applications of lucidity under-realized. Here, a large dataset of 10k lucid and 25k non-lucid dream reports from 5k contributors is curated, described, and validated for future lucid and non-lucid dream studies. Ten years of publicly available dream reports were scraped from an online forum where users share anonymous dream journals. Importantly, users could optionally identify their dream as lucid or non-lucid, offering a user-generated labeling system for research. After characterizing the dataset with descriptive statistics and visualizations, these lucidity labels are validated by showing that language patterns in lucid-labeled reports are consistent with known characteristics of lucid dreams. While the entire corpus has broad value for dream studies, the labeled subset is particularly powerful for new discoveries in lucid dream research.
+All varieties of dreaming remain a mystery. Lucid dreams in particular, or those characterized by awareness of the dream, are notoriously difficult to study. Their scarce prevalence and resistance to deliberate induction make it difficult to obtain a sizeable corpus of lucid dream reports. The consequent lack of clarity around lucid dream phenomenology has left the many purported applications of lucidity under-realized. Here, a large corpus of 55k dream reports from 5k contributors is curated, described, and validated for future research. Ten years of publicly available dream reports were scraped from an online forum where users share anonymous dream journals. Importantly, users optionally categorize their dream as lucid, non-lucid, or a nightmare, offering a user-provided labeling system that includes 10k lucid and 25k non-lucid, and 2k nightmare labels. After characterizing the corpus with descriptive statistics and visualizations, validation shows that language patterns in lucid-labeled reports are consistent with known characteristics of lucid dreams. While the entire corpus has broad value for dream science, the labeled subset is particularly powerful for new discoveries in lucid dream studies.
 
 \bigskip
-\noindent {\bf Keywords:} \emph{sleep}, \emph{dreaming}, \emph{big data}, \emph{text mining}, \emph{nlp}
+\noindent {\bf Keywords:} \emph{sleep}, \emph{dreaming}, \emph{natural language processing}
 
 \section{Introduction}\label{sec:introduction}
 
@@ -126,24 +126,21 @@ Lucid dreams are those that include awareness of the dream while dreaming~\cite{
 Without sufficient data on lucid dreams, it is difficult to ``look'' at all. Quantitative studies of lucid dreaming are often hindered by low sample sizes. Lucid dream occurrence is relatively rare in nature~\cite{saunders2016} and they are difficult to induce reliably~\cite{stumbrys2012}, making it difficult to accumulate enough data for strong conclusions. To overcome this limitation, I looked to a rising trend in computational social science, the use of digital trace data to accumulate large and naturalistic datasets~\cite{lazer2021}.
 
 \par
-The ubiquity of digital media in daily life has provided a major data source for psychologists~\cite{lazer2021,shah2015,kern2016,gosling2015,rafaeli2019,heng2018}. The ability to view online human behavior en masse has been hailed as social science's first true ``telescope''~\cite{jungherr2017}. Datasets curated from popular social media sites (e.g., Twitter, Reddit) are not only large, but also free from experimenter intervention or influence, a major methodological concern in psychological research that dream studies are not immune to~\cite{picard2021, schredl2002}. Thus, dream science could benefit as well from the use of digital trace data~\cite{bulkeley2017} and in recent years has~\cite{sanz2018, niederhoffer2017, elce2021}. While dream reports are harder to extract from mainstream social media sites, it is common practice for researchers to scrape specialized data from targeted forums~\cite{speckmann2021}. To build a large corpus of (lucid) dreams, we scraped DreamViews\footnote{https://www.dreamviews.com}, an online lucid dreaming journal active since 2010.
+The ubiquity of digital media in daily life has provided a major data source for psychologists~\cite{lazer2021,shah2015,kern2016,gosling2015,rafaeli2019,heng2018}. The ability to view online human behavior en masse has been hailed as social science's first true ``telescope''~\cite{jungherr2017}. Datasets curated from popular social media sites (e.g., Twitter, Reddit) are not only large, but also free from experimenter intervention or influence, a major methodological concern in psychological research that dream studies are not immune to~\cite{picard2021, schredl2002}. Thus, dream science could benefit as well from the use of digital trace data~\cite{bulkeley2017} and in recent years has~\cite{sanz2018, niederhoffer2017, elce2021}. While dream reports are harder to extract from mainstream social media sites, it is common practice for researchers to scrape specialized data from targeted forums~\cite{speckmann2021}. Here, this approach was taken to build a large corpus of (lucid) dreams from DreamViews\footnote{https://www.dreamviews.com}, an online lucid dreaming journal active since 2010.
 
 \par
-The current paper presents the collection, characterization, and validation of this dataset. First, the process of data collection, cleaning, and user-generated label extraction (lucid, non-lucid, and nightmare) is described. Second, the general size and details of the final corpus are presented. Last, natural language processing tools~\cite{hirschberg2015,elce2021} are used to show that the lucid, non-lucid, and nightmare labels provided by users have criterion validity. That is, the content of lucid dreams and nightmares in the corpus show expected properties based on prior literature~\cite{voss2013,paquet2020}. This validation justifies the use of these labels for future studies. Code used to generate and analyze the entire corpus of $\sim$55k dream reports and corresponding labels (10k lucid, 25k non-lucid, 2k nightmare) is freely available.
+The current paper presents the curation, characterization, and validation of the DreamViews corpus. First, the process of data collection, cleaning, and label extraction (lucid, non-lucid, and nightmare) is described. Second, the general size and details of the final corpus are presented. Last, natural language processing tools~\cite{hirschberg2015,elce2021} are used to show that the lucid, non-lucid, and nightmare labels provided by users have criterion validity. That is, the content of lucid dreams and nightmares in the corpus show expected properties based on prior literature~\cite{voss2013,paquet2020} and justify the use of these labels in future work. The corpus, associated metadata, and code used to generate and analyze it are freely available.
 
 \section{Methods}\label{sec:methods}
 
-This research was deemed exempt from IRB approval by the Northwestern IRB Review Board. This corpus is derived exclusively from publicly available data, and no Terms of Service or electronic prevention methods were breached during data collection~\cite{boegershausen2021,krotov2018,krotov2020,gold2017}. Best-practice community standards were followed at all stages of work~\cite{rivers2014,zook2017,franzke2020}, such as making no attempt to gather additional information not already public, making no attempt to de-anonymize users, and being transparent with the data collection method.
-
-\par
-The released corpus is a heavily-processed derivative of the publicly available data (see Section~\ref{sec:data-collection}). Additional safeguards were applied to the released corpus to further protect against potential future de-anonymization efforts, including the removal of non-essential data (e.g., user biographies), smoothing of demographic data (e.g., binning reported age), the redaction of true usernames, and the redaction of all names, emails, and URLs identified in posts (see Section~\ref{sec:text-preprocessing}).
+This research was deemed exempt from review by the Northwestern IRB. This corpus is derived exclusively from publicly available data, and no terms of service or electronic prevention methods were breached during data collection~\cite{boegershausen2021,krotov2018,krotov2020,gold2017}. Best-practice community standards were followed at all stages of work~\cite{rivers2014,zook2017,franzke2020}, such as making no attempt to gather additional information not already public, making no attempt to de-anonymize users, and being transparent with the data collection method. The released corpus is a heavily-processed derivative of the public HTML. Additional safeguards were applied to the released corpus to protect against future de-anonymization efforts, including the removal of non-essential data (e.g., user biographies), smoothing of demographic data (e.g., age binning), redaction of usernames, and redaction of names, emails, and URLs identified in posts.
 
 \subsection{Data source}\label{sec:data-source}
 
 DreamViews is a public and anonymous online forum dedicated to lucid dreaming. In addition to the discussion threads and user profiles typical of most forums, users can also share a public dream journal. An example dream journal entry is offered in Figure~\ref{fig:journal-entry}. Each journal entry includes a dream report (hereafter, ``post''), a title, and the option to attach ``category'' and ``tag'' labels that help identify features of the dream.
 
 \par
-The DreamViews label system plays a major role in the curation of this dataset because it allows for the isolation of certain types of dreams for study and comparison (similar to its online function of viewing dreams by label). When a user adds one or more category labels to their dream journal entry, their options are restricted to a small subset of terms provided by DreamViews (e.g., \emph{lucid}, \emph{non-lucid}, \emph{memorable}). In contrast, tag labels are unconstrained and thus consist of far variety across participants (e.g., a barista who dreams about work a lot might be the only user with a \emph{coffee} tag), as well as varied spellings (e.g., \emph{non-lucid}, \emph{nonlucid}, and \emph{nld}). Only category labels were used to derive lucidity and nightmare labels, whereas future work might take advantage of the varied tag labels available in this dataset.
+The DreamViews label system plays a major role in the curation of this corpus because it allows for the isolation of certain types of dreams for study and comparison (similar to its online function of viewing dreams by label). When a user adds one or more category labels to their dream journal entry, their options are restricted to a small subset of terms provided by DreamViews (e.g., \emph{lucid}, \emph{non-lucid}, \emph{memorable}). In contrast, tag labels are unconstrained and thus consist of far variety across participants (e.g., a barista who dreams about work a lot might be the only user with a \emph{coffee} tag), as well as varied spellings (e.g., \emph{non-lucid}, \emph{nonlucid}, and \emph{nld}). Only category labels were used to derive lucidity and nightmare labels, whereas future work might take advantage of the varied tag labels available in this corpus.
 
 \begin{figure}[t]
     \centering
@@ -168,7 +165,7 @@ Posts were removed if estimated as non-English\footnote{https://github.com/Mimin
 The category labels attached to journal entries were used to identify the lucidity level of a post (\emph{lucid} or \emph{non-lucid}) and if the post was a \emph{nightmare} (see Figure~\ref{fig:journal-entry} and Section~\ref{sec:data-source}). For each journal entry where the user attached category labels, they were searched for relevant terms. To identify lucidity, terms ``lucid'' and ``non-lucid'' were searched; a post was identified as \emph{unspecified} if neither label was provided, \emph{ambiguous} if both labels were provided, and either \emph{lucid} or \emph{non-lucid} if one was provided without the other. Similarly, the term ``nightmare'' was searched, and a post was identified as a \emph{nightmare} if the term was present and \emph{non-nightmare} otherwise.
 
 \begin{table}[t]
-    \caption{Description of datafiles.}\label{table:datafiles}
+    \caption{Description of data files.}\label{table:datafiles}
     \begin{subtable}[t]{.48\textwidth}
         \caption{Columns of \texttt{dreamviews-posts.tsv}.}\label{table:datafile-posts}
         \small
@@ -179,7 +176,7 @@ The category labels attached to journal entries were used to identify the lucidi
             post\_id & str & unique randomized post identifier \\
             user\_id & str & unique randomized user identifier \\
             timestamp  & str & date and time of post (ISO 8601) \\
-            nth\_post & int & user's nth post in dataset \\
+            nth\_post & int & user's nth post in corpus \\
             title & str & post title \\
             tags & str & tag labels of post \\
             categories & str & category labels of post \\
@@ -330,7 +327,7 @@ Because the user-generated labeling of lucidity was not available for every post
 The purpose of this section is to validate the user-generated labeling process described throughout prior sections. Before the labels can be used to make novel observations, they first need to be shown that they accurately represent the known features of the dream type they are supposed to represent (i.e., criterion validity). Posts identified as lucid should ``look'' lucid~\cite{stumbrys2014,motarolim2013,bulkeley2018,voss2013,mallett2021}, and posts identified as a nightmare should look like nightmares~\cite{standards2010,bulkeley2018}.
 
 \par
-The validation steps proceed with increasing specificity in the following order. First, Section~\ref{sec:classifier} uses a classification approach to evaluate whether the language of lucid and non-lucid posts are different in a general sense. Next, Section~\ref{sec:wordshift} uses frequency-weighted measures to visualize word-level differences between lucid and non-lucid posts and assess their alignment with known lucid features (similarly for nightmares). Last, Section~\ref{sec:liwc} tests specific hypotheses about which psychological constructs appear more in lucid posts (namely insight and agency).
+The validation steps proceed with increasing specificity in the following order. First, Section~\ref{sec:classifier} uses a classification approach to evaluate whether the language of lucid and non-lucid posts differ in a general sense. Next, Section~\ref{sec:wordshift} uses frequency-weighted measures to visualize word-level differences between lucid and non-lucid posts and assess their alignment with known lucid features (also for nightmares). Last, Section~\ref{sec:liwc} tests specific hypotheses about which psychological constructs appear more in lucid posts.
 
 \subsection{General distinction}\label{sec:classifier}
 
@@ -454,7 +451,7 @@ The labeling system here offers only a binary categorization of lucidity (i.e., 
 \smallskip
 \noindent
 \textbf{Data bias and quality.}
-Though digital trace data offers major benefits, they are not without cost~\cite{ruths2014,heng2018,rafaeli2019,lazer2020,boegershausen2021}. Considering the following limitations, any conclusions drawn about lucid dreaming from this dataset would be much stronger after replication in a separate dataset, either from another online source or a laboratory experiment~\cite{ruths2014}.
+Though digital trace data offers major benefits, they are not without cost~\cite{ruths2014,heng2018,rafaeli2019,lazer2020,boegershausen2021}. Considering the following limitations, any conclusions drawn about lucid dreaming from this corpus would be much stronger after replication in a separate corpus, either from another online source or a laboratory experiment~\cite{ruths2014}.
 
 \par
 First, as with laboratory studies, internet reports are not necessarily representative of truly ``natural'' or unbiased human behavior~\cite{ruths2014}. Context is likely to influence which dreams one selects for sharing, the extent of detail they choose to share, and the degree of confabulation. There might be a specific set of cultural and acceptable norms on DreamViews that impacts reporting and sharing~\cite{khalid2020,silva2009,ruths2014}.
@@ -472,11 +469,11 @@ This paper presented a new ``digital trace'' corpus of 55k dream reports collect
 \section*{Declarations}
 
 \textbf{Acknowledgements.}
-RM would like to thank Ashwini Ashokkumar.
+RM would like to thank Ashwini Ashokkumar for invaluable support at all stages of this work.
 
 \smallskip
 \noindent
-\textbf{Conflict.} None declared.
+\textbf{Conflict of interest.} None declared.
 
 \raggedbottom
 \printbibliography
