@@ -53,7 +53,7 @@ DERIVATIVES_REGISTRY = {
 
 RAW_REGISTRY = {
     "v1": {
-        "doi": "10.5281/zenodo.19161758",
+        "doi": "10.5281/zenodo.19161757",
         "files": {
             "dreamviews-posts.tsv": "md5:d78a499937e063add677a3ed28393d36",
             "dreamviews-users.tsv": "md5:2dd38e4ba29d910ffafb718072dec8ba",
