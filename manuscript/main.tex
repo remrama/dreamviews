@@ -118,8 +118,7 @@ All varieties of dreaming remain a mystery. Lucid dreams in particular, or those
 \bigskip
 \noindent {\bf Keywords:} \emph{sleep}, \emph{dreaming}, \emph{big data}, \emph{text mining}, \emph{nlp}
 
-\section{Introduction}
-\label{sec:introduction}
+\section{Introduction}\label{sec:introduction}
 
 Lucid dreams are those that include awareness of the dream while dreaming~\cite{baird2019}. They are often associated with control over dream content~\cite{lemyre2020}, which is commonly used to experience fun and impossible behaviors while sleeping~\cite{stumbrys2014}. Despite early promise of lucid dreaming applications in therapy~\cite{demacedo2019} and research~\cite{konkoly2021}, the variety and detail of what it is \emph{like} to be lucid while dreaming is still unclear~\cite{mallett2021}. This conflict, of application endorsement on the one hand and limited scientific understanding on the other, has raised concerns about whether some lucid dreaming practices are being implemented too soon~\cite{vallat2019,soffer2020}. Are we ``leaping before we look'' with respect to lucid dreaming applications?
 
@@ -132,16 +131,14 @@ The ubiquity of digital media in daily life has provided a major data source for
 \par
 The current paper presents the collection, characterization, and validation of this dataset. First, the process of data collection, cleaning, and user-generated label extraction (lucid, non-lucid, and nightmare) is described. Second, the general size and details of the final corpus are presented. Last, natural language processing tools~\cite{hirschberg2015,elce2021} are used to show that the lucid, non-lucid, and nightmare labels provided by users have criterion validity. That is, the content of lucid dreams and nightmares in the corpus show expected properties based on prior literature~\cite{voss2013,paquet2020}. This validation justifies the use of these labels for future studies. Code used to generate and analyze the entire corpus of $\sim$55k dream reports and corresponding labels (10k lucid, 25k non-lucid, 2k nightmare) is freely available.
 
-\section{Methods}
-\label{sec:methods}
+\section{Methods}\label{sec:methods}
 
 This research was deemed exempt from IRB approval by the Northwestern IRB Review Board. This corpus is derived exclusively from publicly available data, and no Terms of Service or electronic prevention methods were breached during data collection~\cite{boegershausen2021,krotov2018,krotov2020,gold2017}. Best-practice community standards were followed at all stages of work~\cite{rivers2014,zook2017,franzke2020}, such as making no attempt to gather additional information not already public, making no attempt to de-anonymize users, and being transparent with the data collection method.
 
 \par
 The released corpus is a heavily-processed derivative of the publicly available data (see Section~\ref{sec:data-collection}). Additional safeguards were applied to the released corpus to further protect against potential future de-anonymization efforts, including the removal of non-essential data (e.g., user biographies), smoothing of demographic data (e.g., binning reported age), the redaction of true usernames, and the redaction of all names, emails, and URLs identified in posts (see Section~\ref{sec:text-preprocessing}).
 
-\subsection{Data source}
-\label{sec:data-source}
+\subsection{Data source}\label{sec:data-source}
 
 DreamViews is a public and anonymous online forum dedicated to lucid dreaming. In addition to the discussion threads and user profiles typical of most forums, users can also share a public dream journal. An example dream journal entry is offered in Figure~\ref{fig:journal-entry}. Each journal entry includes a dream report (hereafter, ``post''), a title, and the option to attach ``category'' and ``tag'' labels that help identify features of the dream.
 
@@ -151,36 +148,29 @@ The DreamViews label system plays a major role in the curation of this dataset b
 \begin{figure}[t]
     \centering
     \includegraphics[width=\columnwidth]{post.png}
-    \caption{Example DreamViews dream journal entry. The Categories labeling system, seen at the bottom, was used to extract labels for the corpus. This entry is from the author's journal.}
-    \label{fig:journal-entry}
+    \caption{Example DreamViews dream journal entry. The Categories labeling system, seen at the bottom, was used to extract labels for the corpus. This entry is from the author's journal.}\label{fig:journal-entry}
 \end{figure}
 
-\subsection{Data collection}
-\label{sec:data-collection}
+\subsection{Data collection}\label{sec:data-collection}
 
 All public DreamViews dream journal entries between years 2010 and 2020 (inclusive) were scraped~\cite{speckmann2021,li2019,landers2016} using custom code on December 12\textsuperscript{th}, 2021, starting from the dream journal homepage\footnote{https://www.dreamviews.com/blogs} and crawling over all ``view all'' pages. Raw HTML was parsed to extract each journal entry's post (i.e., dream report text), title, tags, categories, timestamp, and user. The public profiles of dream journal users were scraped for self-reported demographic information (usernames were replaced with a random identifier). All text was converted to ASCII\footnote{https://github.com/avian2/unidecode}.
 
-\subsection{Text processing}
-\label{sec:text-preprocessing}
+\subsection{Text processing}\label{sec:text-preprocessing}
 
 Text was minimally cleaned with the aims of standardization, removing non-dream content, and removing potentially private or identifying information. Consecutive whitespaces were replaced with a single space, ampersands were replaced with text (\texttt{and}), common contractions were expanded, and sequences of four or more repeated characters~\cite{gray2020} were reduced to a single character. A regex pattern was used to replace emails and URLs with \texttt{<URL>}, and named entity recognition was used to identify and replace names with \texttt{<PERSON>}. Named entity recognition was implemented using \emph{spaCy}\footnote{https://spacy.io}, which typically outperforms related software~\cite{shelar2020,jiang2016}. Visual inspection revealed non-dream character sequences that were frequent and reliable across multiple posts, and these were removed using custom regex patterns (see online code for specifics).
 
-\subsection{Data exclusion}
-\label{sec:data-exclusion}
+\subsection{Data exclusion}\label{sec:data-exclusion}
 
 Posts were removed if estimated as non-English\footnote{https://github.com/Mimino666/langdetect}, or containing \num{< 50} or $>$1k words (counted from cleaned text). In an effort to reduce single-user biases within the corpus, only the first 1k posts from a given user (that passed prior criteria) were kept. Visual inspection revealed, on minor occasion, systematic features of posts that indicated there was no dream content present (see online code for specifics). Such posts were removed.
 
-\subsection{User-generated labels}
-\label{sec:automated-labeling}
+\subsection{User-generated labels}\label{sec:automated-labeling}
 
 The category labels attached to journal entries were used to identify the lucidity level of a post (\emph{lucid} or \emph{non-lucid}) and if the post was a \emph{nightmare} (see Figure~\ref{fig:journal-entry} and Section~\ref{sec:data-source}). For each journal entry where the user attached category labels, they were searched for relevant terms. To identify lucidity, terms ``lucid'' and ``non-lucid'' were searched; a post was identified as \emph{unspecified} if neither label was provided, \emph{ambiguous} if both labels were provided, and either \emph{lucid} or \emph{non-lucid} if one was provided without the other. Similarly, the term ``nightmare'' was searched, and a post was identified as a \emph{nightmare} if the term was present and \emph{non-nightmare} otherwise.
 
 \begin{table}[t]
-    \caption{Description of datafiles.}
-    \label{table:datafiles}
+    \caption{Description of datafiles.}\label{table:datafiles}
     \begin{subtable}[t]{.48\textwidth}
-        \caption{Columns of \texttt{dreamviews-posts.tsv}.}
-        \label{table:datafile-posts}
+        \caption{Columns of \texttt{dreamviews-posts.tsv}.}\label{table:datafile-posts}
         \small
         \begin{tabular}{rrl}
             \toprule
@@ -203,8 +193,7 @@ The category labels attached to journal entries were used to identify the lucidi
 
     \bigskip
     \begin{subtable}[t]{.48\textwidth}
-        \caption{Columns of \texttt{dreamviews-users.tsv}.}
-        \label{table:datafile-users}
+        \caption{Columns of \texttt{dreamviews-users.tsv}.}\label{table:datafile-users}
         \small
         \begin{tabular}{rrl}
             \toprule
@@ -213,7 +202,7 @@ The category labels attached to journal entries were used to identify the lucidi
             user\_id & str & unique randomized user identifier \\
             gender  & str & reported gender \\
             age     & str & reported age bin \\
-            country & str & reported country (ISO 3166-1 alpha-3) \\
+            country & str & reported country (ISO 3166-1 alpha-3) \\ % chktex 8
             \bottomrule
         \end{tabular}
     \end{subtable}
@@ -222,56 +211,48 @@ The category labels attached to journal entries were used to identify the lucidi
 \begin{figure*}[t]
     \centering
     \includegraphics{describe-totalcounts.\figext}
-    \caption{Total corpus size. Left axis values correspond to bars and right axis values correspond to cumulative distribution lines. Note that the final cumulative distributions endpoints provide a rough visualization of total corpus counts. The top panel shows the number of unique users that posted each month, where repeat/gold users are those that also posted in a prior month. The bottom panel shows the amount of unique posts each month, where colors indicate the lucidity label of posts. Note that the popular lucid dreaming film \emph{Inception} saw releases in July (USA theater) and December (USA home video) of 2010.}
-    \label{fig:timecourse}
+    \caption{Total corpus size. Left axis values correspond to bars and right axis values correspond to cumulative distribution lines. Note that the final cumulative distributions endpoints provide a rough visualization of total corpus counts. The top panel shows the number of unique users that posted each month, where repeat/gold users are those that also posted in a prior month. The bottom panel shows the amount of unique posts each month, where colors indicate the lucidity label of posts. Note that the popular lucid dreaming film \emph{Inception} saw releases in July (USA theater) and December (USA home video) of 2010.}\label{fig:timecourse}
 \end{figure*}
 
 \begin{figure}[t]
     \centering
     \includegraphics{describe-usercount.\figext}
-    \caption{Number of posts per user.}
-    \label{fig:usercount}
+    \caption{Number of posts per user.}\label{fig:usercount}
 \end{figure}
 
 \begin{figure*}
     \begin{subfigure}[t]{0.3\textwidth}
         \centering
         \includegraphics{describe-wordcount_perpost.\figext}
-        \caption{Word count per post. This histogram treats each dream report with equal weight, not accounting for repeated measurements within users.}
-        \label{fig:wordcount1}
+        \caption{Word count per post. This histogram treats each dream report with equal weight, not accounting for repeated measurements within users.}\label{fig:wordcount1}
     \end{subfigure}
     \hfill
     \begin{subfigure}[t]{0.3\textwidth}
         \centering
         \includegraphics{describe-wordcount_peruser.\figext}
-        \caption{Word count per post, per user. Data in this histogram was first averaged to get a single word count per post for each individual user.}
-        \label{fig:wordcount2}
+        \caption{Word count per post, per user. Data in this histogram was first averaged to get a single word count per post for each individual user.}\label{fig:wordcount2}
     \end{subfigure}
     \hfill
     \begin{subfigure}[t]{0.3\textwidth}
         \centering
         \includegraphics{describe-wordcount_lucidity.\figext}
-        \caption{Word count per post, per user, by lucidity. Data in this histogram was first averaged to get a single word count per post for each individual user. Then lucid and non-lucid posts were plotted separately. Lucid dream reports contained a higher word count than non-lucid dream reports.}
-        \label{fig:wordcount3}
+        \caption{Word count per post, per user, by lucidity. Data in this histogram was first averaged to get a single word count per post for each individual user. Then lucid and non-lucid posts were plotted separately. Lucid dream reports contained a higher word count than non-lucid dream reports.}\label{fig:wordcount3}
     \end{subfigure}
-    \caption{Number of words per dream report. $n$: sample size, $\bar{x}$: mean, $\sigma_{\bar{x}}$: standard deviation, $\tilde{x}$: median}
-    \label{fig:wordcount}
+    \caption{Number of words per dream report. $n$: sample size, $\bar{x}$: mean, $\sigma_{\bar{x}}$: standard deviation, $\tilde{x}$: median}\label{fig:wordcount}
 \end{figure*}
 
 \newcolumntype{L}{>{\raggedright\arraybackslash}X}
 \newcolumntype{R}{>{\raggedleft\arraybackslash}X}
 
 \begin{table}[t]
-    \caption{Top category and tag labels.}
-    \label{table:toplabels}
+    \caption{Top category and tag labels.}\label{table:toplabels}
     \begin{subtable}[t]{.25\textwidth}
-        \caption{Top category labels.}
-        \label{table:topcategories}
+        \caption{Top category labels.}\label{table:topcategories}
         \small
         \begin{tabular}{rp{1cm}}
             \toprule
             \bfseries category & \bfseries \makecell[rt]{$n$ posts\\$n$ users}
-            \DTLforeach*{topcategories}{\cat=category, \nposts=n_posts, \nusers=n_users}{
+            \DTLforeach*{topcategories}{\cat=category, \nposts=n_posts, \nusers=n_users}{ % chktex 25
                 \DTLiffirstrow{\\\midrule}
                 \\\cat & \makecell[rt]{\num{\nposts}\\\num{\nusers}}
                 \ifthenelse{\value{DTLrowi}=10}{\dtlbreak}{}
@@ -281,8 +262,7 @@ The category labels attached to journal entries were used to identify the lucidi
     \end{subtable}%
     \hfill
     \begin{subtable}[t]{.2\textwidth}
-        \caption{Top tag labels.}
-        \label{table:toptags}
+        \caption{Top tag labels.}\label{table:toptags}
         \small
         % \begin{tabular}{@{} rp{1cm} @{}}
         \begin{tabular}{rp{1cm}}
@@ -301,70 +281,58 @@ The category labels attached to journal entries were used to identify the lucidi
 \begin{figure}[t]
     \centering
     \includegraphics{describe-demographics_location.\figext}
-    \caption{Reported user locations.}
-    \label{fig:demographics-location}
+    \caption{Reported user locations.}\label{fig:demographics-location}
 \end{figure}
 
 \begin{figure}[t]
     \centering
     \includegraphics{describe-demographics_agegender.\figext}
-    \caption{Reported user age and gender.}
-    \label{fig:demographics-agegender}
+    \caption{Reported user age and gender.}\label{fig:demographics-agegender}
 \end{figure}
 
-\subsection{Availability of materials}
-\label{sec:availability}
+\subsection{Availability of materials}\label{sec:availability}
 
 All code used to generate and analyze the current corpus is publicly available on GitHub\footnote{https://github.com/remrama/dreamviews}. The final corpus is available on Zenodo\footnote{https://doi.org/10.5281/zenodo.19161758} and abides by the modern FAIR principles of data management and stewardship~\cite{wilkinson2016}.
 
-\section{Data description}
-\label{sec:description}
+\section{Data description}\label{sec:description}
 
-\subsection{General characterization}
-\label{sec:general-characterization}
+\subsection{General characterization}\label{sec:general-characterization}
 
 The final corpus contains \num{\totalposts} dream reports from \num{\totalusers} unique users. Post frequency is presented in the bottom panel of Figure~\ref{fig:timecourse}. Post frequency steadily declined over time, reducing to very little activity in recent years. Many users contributed multiple posts to the corpus, as indicated in the top panel of Figure~\ref{fig:timecourse} and in Figure~\ref{fig:usercount}. The most common category and tag labels are presented in Table~\ref{table:toplabels}.
 
-\subsection{Demographics}
-\label{sec:demographics}
+\subsection{Demographics}\label{sec:demographics}
 
 A variable amount of demographic information was self-reported in the public user profiles. Reported age and gender are presented in Figure~\ref{fig:demographics-agegender} and reported location in Figure~\ref{fig:demographics-location}. Of users in the final corpus, \num{\ngender} (\qty{\pctgender}{\percent}) provided a gender, \num{\nage} (\qty{\pctage}{\percent}) reported an age, \num{\ncountry} (\qty{\pctcountry}{\percent}) reported a location, \num{\nall} (\qty{\pctall}{\percent}) users reported all three. Profiles suggest that users lean towards males in early adulthood from the United States. Non-English posts were removed before aggregation, which might have influenced location results.
 
-\subsection{Word count}
-\label{sec:word-count}
+\subsection{Word count}\label{sec:word-count}
 
 Word count is a critical consideration when quantifying text and especially important when evaluating dream reports~\cite{urbina1981,schredl1999,schredl2011,rover2017,rosenlicht1994,antrobus1983}. Counts are presented in Figure~\ref{fig:wordcount} as the number of words per cleaned post rather than lemmatized post (see Section~\ref{sec:text-preprocessing}). Word counts are presented in a few ways, emphasizing the importance of accounting for user dependencies and showing the difference between lucid and non-lucid posts.
 
 \begin{figure}[t]
     \centering
     \includegraphics{describe-categorycounts.\figext}
-    \caption{User-generated label frequencies, per post and per user. Within each section, the top number represents the number of posts and the bottom number represents the number of unique users that contribute to the post count. Non-lucid labels occur the most frequently, lucid labels second, and nightmare labels least. Venn sets are sized proportionally to user-normalized post frequencies.}
-    \label{fig:categorycounts}
+    \caption{User-generated label frequencies, per post and per user. Within each section, the top number represents the number of posts and the bottom number represents the number of unique users that contribute to the post count. Non-lucid labels occur the most frequently, lucid labels second, and nightmare labels least. Venn sets are sized proportionally to user-normalized post frequencies.}\label{fig:categorycounts}
 \end{figure}
 
 \begin{figure}[t]
     \centering
     \includegraphics{describe-categorypairs.\figext}
     \caption{The frequency of users contributing lucid and non-lucid posts. The center panel highlights the number of users at each lucid and non-lucid post frequency. The dashed lines close a box around all post frequencies that include \num{>= 1} lucid and \num{>= 1} non-lucid, and the inner text provides the total number of users this is true for. The dotted lines close a box around all post frequencies that includes \num{>= 20} lucid and \num{>= 20} non-lucid, motivated by the finding that \num{20} dream reports provides a stable estimate of dream content within individuals~\cite{schredl1998}.
-    Distributions in the marginal panels indicate the raw and cumulative number of users who contribute to either lucid or non-lucid post frequencies.}
-    \label{fig:categorypairs}
+    Distributions in the marginal panels indicate the raw and cumulative number of users who contribute to either lucid or non-lucid post frequencies.}\label{fig:categorypairs}
 \end{figure}
 
-\subsection{Lucidity label frequency}
-\label{sec:lucidity-label-frequency}
+\subsection{Lucidity label frequency}\label{sec:lucidity-label-frequency}
 
 Because the user-generated labeling of lucidity was not available for every post, it is important to understand what subset of the data \emph{does} include labels. The bottom panel of Figure~\ref{fig:timecourse} (cumulative distributions) provides a rough visualization of absolute and relative label frequencies. What that figure does not reveal is how many users contribute to each label (e.g., does one user contribute all the lucid posts?). Figure~\ref{fig:categorycounts} conveys this information, and also shows the overlap amongst labels more explicitly. This diagram shows there are roughly 14k posts labeled as lucid, with $\sim$4k of them also labeled as non-lucid and $\sim$500 of them also labeled as a nightmare. The overlap of lucid and non-lucid posts with nightmare labels shows the amount of data available for future analyses comparing lucid nightmares agains non-lucid nightmares. Another important consideration when choosing an analysis is the number of users contributing \emph{both} a lucid and a non-lucid post, as well as the total number of lucid and non-lucid posts each individual user contributes. These factors, presented in Figure~\ref{fig:categorypairs}, are important when considering statistical power and the reliability of dream reports~\cite{schredl1998}. The center shading represents the number of users who contribute each combination of lucid and non-lucid posts. The larger dashed line inset highlights the users who contributed one or more of each type of dream report (i.e., lucid and non-lucid). The smaller dashed subset indicates the same but for users with 20 or more of each post type. This visualization is useful in determining the amount of data for within-subjects lucid and non-lucid dream report comparisons. The marginal distributions isolate each dream type, showing the amount of users who contribute at each frequency level for lucid and non-lucid posts.
 
-\section{Validation}
-\label{sec:validation}
+\section{Validation}\label{sec:validation}
 
 The purpose of this section is to validate the user-generated labeling process described throughout prior sections. Before the labels can be used to make novel observations, they first need to be shown that they accurately represent the known features of the dream type they are supposed to represent (i.e., criterion validity). Posts identified as lucid should ``look'' lucid~\cite{stumbrys2014,motarolim2013,bulkeley2018,voss2013,mallett2021}, and posts identified as a nightmare should look like nightmares~\cite{standards2010,bulkeley2018}.
 
 \par
 The validation steps proceed with increasing specificity in the following order. First, Section~\ref{sec:classifier} uses a classification approach to evaluate whether the language of lucid and non-lucid posts are different in a general sense. Next, Section~\ref{sec:wordshift} uses frequency-weighted measures to visualize word-level differences between lucid and non-lucid posts and assess their alignment with known lucid features (similarly for nightmares). Last, Section~\ref{sec:liwc} tests specific hypotheses about which psychological constructs appear more in lucid posts (namely insight and agency).
 
-\subsection{General distinction}
-\label{sec:classifier}
+\subsection{General distinction}\label{sec:classifier}
 
 This goal of this analysis was to determine whether lucid and non-lucid posts have different language use. A classifier was trained on word frequencies to identify a post as lucid or non-lucid.
 
@@ -378,51 +346,44 @@ Classification was implemented using \emph{scikit-learn}\footnote{https://scikit
 \smallskip
 \noindent
 \textbf{Results.}
-Lucid and non-lucid posts were easily distinguishable under this ``out-of-the-box'' classification model. \clfaccsd Across cross-validation folds, classifier accuracy was \meansd{\clfaccm}{\clfaccsd} (M$\pm$SD, $\text{chance}=\num{0.50}$). Similar results were obtained with F1-score (\meansd{\clffonem}{\clffonesd}). This suggests that there are indeed meaningful language differences between the lucid and non-lucid posts in this corpus. Future work might optimize the present classification model and test its generalizability to novel and lab-based lucid dream reports.
+Lucid and non-lucid posts were easily distinguishable under this ``out-of-the-box'' classification model. Across cross-validation folds, classifier accuracy was \meansd{\clfaccm}{\clfaccsd} (M$\pm$SD, $\text{chance}=\num{0.50}$). Similar results were obtained with F1-score (\meansd{\clffonem}{\clffonesd}). This suggests that there are indeed meaningful language differences between the lucid and non-lucid posts in this corpus. Future work might optimize the present classification model and test its generalizability to novel and lab-based lucid dream reports.
 
 \begin{figure}[t]
     \centering
     \includegraphics{validate-wordshift_jsd.\figext}
-    \caption{Lucidity JSD word shift. Words and phrases that most distinguish user-labeled lucid and non-lucid dream reports are consistent with known lucidity characteristics. These results offer concurrent validity for user-generated lucidity labels.}
-    \label{fig:wordshift-jsd}
+    \caption{Lucidity JSD word shift. Words and phrases that most distinguish user-labeled lucid and non-lucid dream reports are consistent with known lucidity characteristics. These results offer concurrent validity for user-generated lucidity labels.}\label{fig:wordshift-jsd}
 \end{figure}
 
 \begin{figure}[t]
     \centering
     \includegraphics{validate-wordshift_fear.\figext}
-    \caption{Nightmare fear word shift. Words and phrases that most distinguish user-labeled nightmares from all other dream reports are consistent with known nightmare characteristics. These results offer concurrent validity for user-generated nightmare labels.}
-    \label{fig:wordshift-fear}
+    \caption{Nightmare fear word shift. Words and phrases that most distinguish user-labeled nightmares from all other dream reports are consistent with known nightmare characteristics. These results offer concurrent validity for user-generated nightmare labels.}\label{fig:wordshift-fear}
 \end{figure}
 
 \begin{figure*}[t]
     \begin{subfigure}[t]{0.3\textwidth}
         \centering
         \includegraphics{validate-liwc.\figext}
-        \caption{LIWC insight and agency language differences between user-labeled lucid and non-lucid dream reports. Lucid dream reports contained higher rates of both insight and agency than non-lucid dream reports. Error bars represent SEM, ***$p<.001$}
-        \label{fig:liwc-categories}
+        \caption{LIWC insight and agency language differences between user-labeled lucid and non-lucid dream reports. Lucid dream reports contained higher rates of both insight and agency than non-lucid dream reports. Error bars represent SEM, ***$p<.001$}\label{fig:liwc-categories}
     \end{subfigure}
     \hfill
     \begin{subfigure}[t]{0.3\textwidth}
         \centering
         \includegraphics{validate-liwc_insight.\figext}
-        \caption{Word-level differences of insight language between user-labeled lucid and non-lucid dream reports. Insight was quantified as the percentage of words from LIWC's insight dictionary in each dream report. Error bars represent bootstrapped \qty{95}{\percent} confidence intervals. Asterisks indicate wildcard patterns.}
-        \label{fig:liwc-words-insight}
+        \caption{Word-level differences of insight language between user-labeled lucid and non-lucid dream reports. Insight was quantified as the percentage of words from LIWC's insight dictionary in each dream report. Error bars represent bootstrapped \qty{95}{\percent} confidence intervals. Asterisks indicate wildcard patterns.}\label{fig:liwc-words-insight}
     \end{subfigure}
     \hfill
     \begin{subfigure}[t]{0.3\textwidth}
         \centering
         \includegraphics{validate-liwc_agency.\figext}
-        \caption{Word-level differences of agency language between user-labeled lucid and non-lucid dream reports. Agency was quantified as the percentage of words from LIWC's agency dictionary in each dream report. Error bars represent bootstrapped \qty{95}{\percent} confidence intervals. Asterisks indicate wildcard patterns.}
-        \label{fig:liwc-words-agency}
+        \caption{Word-level differences of agency language between user-labeled lucid and non-lucid dream reports. Agency was quantified as the percentage of words from LIWC's agency dictionary in each dream report. Error bars represent bootstrapped \qty{95}{\percent} confidence intervals. Asterisks indicate wildcard patterns.}\label{fig:liwc-words-agency}
     \end{subfigure}
-    \caption{LIWC validation results. Dream reports labeled as lucid by the user contain a higher percentage of insight and agency dictionary words than those labeled as non-lucid dream reports. These results offer construct validity for the user-labeled dream reports.}
-    \label{fig:liwc}
+    \caption{LIWC validation results. Dream reports labeled as lucid by the user contain a higher percentage of insight and agency dictionary words than those labeled as non-lucid dream reports. These results offer construct validity for the user-labeled dream reports.}\label{fig:liwc}
 \end{figure*}
 
-\subsection{Word-level differentiation}
-\label{sec:wordshift}
+\subsection{Word-level differentiation}\label{sec:wordshift}
 
-The goal of this step was to validate labels by examining fine-grained differences between the language of posts and assess their consistency with predictable dream characteristics. Do lucid posts contain phrases common to lucid dream reports and culture, such as ``knew it was a dream'' and ``reality check?'' Do nightmare posts contain phrases that represent fear, such as ``scared'' and ``monster?'' These questions were answered using word shifts, a new approach to comparing texts that takes traditional word-frequency differences and adds context-specific weights~\cite{gallagher2021}. Word shifts were used to identify the words (unigrams and bigrams) that contribute most to the separation between two texts (lucid vs. non-lucid, nightmare vs. non-nightmare), and the consistency of those words with prior literature was qualitatively assessed.
+The goal of this step was to validate labels by examining fine-grained differences between the language of posts and assess their consistency with predictable dream characteristics. Do lucid posts contain phrases common to lucid dream reports and culture, such as ``knew it was a dream'' and ``reality check?'' Do nightmare posts contain phrases that represent fear, such as ``scared'' and ``monster?'' These questions were answered using word shifts, a new approach to comparing texts that takes traditional word-frequency differences and adds context-specific weights~\cite{gallagher2021}. Word shifts were used to identify the words (unigrams and bigrams) that contribute most to the separation between two texts (lucid vs.\ non-lucid, nightmare vs.\ non-nightmare), and the consistency of those words with prior literature was qualitatively assessed.
 
 \smallskip
 \noindent
@@ -438,13 +399,12 @@ To identify words that most distinguish nightmare posts from non-nightmare (i.e.
 \smallskip
 \noindent
 \textbf{Results.}
-The JSD entropy word shift comparing lucid and non-lucid posts is presented in Figure~\ref{fig:wordshift-jsd}. Nearly all words that contribute to separating these texts are aligned with expected properties of lucid dream reports (face criterion validity). First, the word ``lucid'' appears in multiple phrases that distinguish lucid and non-lucid posts (all at a higher frequency in lucid posts). Second, words relating to cognitive effort or deliberate action -- such as ``think,'' ``try,'' ``control,'' and ``want'' -- are distinguishing words that appear more frequently in lucid than non-lucid posts. Third, ``fly'' appears in multiple phrases that are more frequent in lucid than non-lucid posts, and flying is one of the most commonly reported lucid actions~\cite{stumbrys2014,motarolim2013,schadlich2012,barrett1991}. Fourth, many of the phrases that distinguish the corpora relate to lucid-dream-induction methods~\cite{stumbrys2012}, including ``reality check,'' ``look hand,'' and ``rub hand.'' Fifth, distinguishing words such as ``feel'' and ``real'' are more frequent in lucid than non-lucid posts. These words might relate to an increased vividness in lucid dreams, as there are scattered reports that a subset of lucid dreams are particularly vivid~\cite{redditpaper}.
+The JSD entropy word shift comparing lucid and non-lucid posts is presented in Figure~\ref{fig:wordshift-jsd}. Nearly all words that contribute to separating these texts are aligned with expected properties of lucid dream reports (face criterion validity). First, the word ``lucid'' appears in multiple phrases that distinguish lucid and non-lucid posts (all at a higher frequency in lucid posts). Second, words relating to cognitive effort or deliberate action---such as ``think,'' ``try,'' ``control,'' and ``want''---are distinguishing words that appear more frequently in lucid than non-lucid posts. Third, ``fly'' appears in multiple phrases that are more frequent in lucid than non-lucid posts, and flying is one of the most commonly reported lucid actions~\cite{stumbrys2014,motarolim2013,schadlich2012,barrett1991}. Fourth, many of the phrases that distinguish the corpora relate to lucid-dream-induction methods~\cite{stumbrys2012}, including ``reality check,'' ``look hand,'' and ``rub hand.'' Fifth, distinguishing words such as ``feel'' and ``real'' are more frequent in lucid than non-lucid posts. These words might relate to an increased vividness in lucid dreams, as there are scattered reports that a subset of lucid dreams are particularly vivid~\cite{redditpaper}.
 
 \par
-The fear intensity word shift comparing nightmare and non-nightmare (i.e., unlabeled) posts is presented in Figure~\ref{fig:wordshift-fear}. Nightmare posts have a clear bias towards intense fear words. Words that appear more frequently in nightmare posts are also higher in fear intensity, including ``kill,'' ``scream,'' ``monster,'' and ``panic.'' In contrast, words low on fear intensity like ``swim'' and ``case'' occur less frequently in nightmare posts. The few fear words that \emph{do} appear more in non-nightmare posts -- ``fight'' and ``shoot'' -- are lower in fear intensity and consistent with the high rates of daily activities in dream content (e.g., sports or social quarrels)~\cite{schredl2010}.
+The fear intensity word shift comparing nightmare and non-nightmare (i.e., unlabeled) posts is presented in Figure~\ref{fig:wordshift-fear}. Nightmare posts have a clear bias towards intense fear words. Words that appear more frequently in nightmare posts are also higher in fear intensity, including ``kill,'' ``scream,'' ``monster,'' and ``panic.'' In contrast, words low on fear intensity like ``swim'' and ``case'' occur less frequently in nightmare posts. The few fear words that \emph{do} appear more in non-nightmare posts---``fight'' and ``shoot''---are lower in fear intensity and consistent with the high rates of daily activities in dream content (e.g., sports or social quarrels)~\cite{schredl2010}.
 
-\subsection{Cognitive language markers}
-\label{sec:liwc}
+\subsection{Cognitive language markers}\label{sec:liwc}
 
 As a final validation step, lucid posts were tested for an increased presence of insight (i.e., awareness of the dream) and agency (i.e., control over dream content). Despite the difficulties in defining lucidity~\cite{mallett2021}, these two cognitive constructs are generally agreed to be common if not necessary components of a lucid dream~\cite{windt2007,voss2013,baird2019,stumbrys2014,mallett2021}. This perspective is well captured by the ``weak'' and ``strong'' criteria for lucidity~\cite{windt2007}; insight is the sole requirement for lucidity by the weak criterion, whereas it must be supplemented with agency to satisfy the strong criterion~\cite{windt2007}. While insight is fundamental to a lucid dream~\cite{voss2013,baird2019}, agency is another commonly associated feature~\cite{stumbrys2014,mallett2021,motarolim2013,voss2013,dresler2014}.
 
@@ -459,10 +419,9 @@ To capture the amount of insight and agency in language, validated word categori
 Category-level differences between lucid and non-lucid posts, for insight and agency, are presented in Figure~\ref{fig:liwc-categories}. Lucid posts contained far more insight (\wilcoxon{\insightW}{\insightP}{\insightCLES}) and agency (\wilcoxon{\agencyW}{\agencyP}{\agencyCLES}) words than non-lucid posts. These results suggest that lucid posts in this corpus have increased dream insight and agency, in line with prior reports of lucid dreams~\cite{windt2007,baird2019,voss2013,mallett2021}.
 
 \par
-Word-level effects comparing the individual words within insight and agency dictionaries are presented in Figures~\ref{fig:liwc-words-insight} and~\ref{fig:liwc-words-agency}. This analysis reveals the individual words that drive category-level differences between lucid and non-lucid posts for insight and agency. Ranked by absolute effect size, $d$, these results support the prior category-level findings in a few ways. First, they reveal that neither insight nor agency scores were driven by a small subset of words. With just one exception -- ``takes'' -- the top \num{10} words of each category are all in the expected direction, and with fairly even contributions. Second, they suggest that both categories are indeed picking up on the intended cognitive constructs of dream insight and agency. The largest insight effects seem very representative of lucid insight while dreaming (e.g., ``realize,'' ``aware'') and easily fit into phrases describing the initial moment of lucidity while dreaming (e.g., I \emph{became} lucid; I \emph{thought} I was dreaming). Similarly, the strongest agency effects seem indicative of dream control (e.g., ``tried,'' ``goals,'' ``success,'' I \emph{tried} to fly but \emph{failed}; I \emph{thought} about the \emph{goal} I set before bed). Together, these results serve as a strong validation of the lucidity labeling process, in that posts identified as lucid are consistent with known lucid dream phenomenology.
+Word-level effects comparing the individual words within insight and agency dictionaries are presented in Figures~\ref{fig:liwc-words-insight} and~\ref{fig:liwc-words-agency}. This analysis reveals the individual words that drive category-level differences between lucid and non-lucid posts for insight and agency. Ranked by absolute effect size, $d$, these results support the prior category-level findings in a few ways. First, they reveal that neither insight nor agency scores were driven by a small subset of words. With just one exception---``takes''---the top \num{10} words of each category are all in the expected direction, and with fairly even contributions. Second, they suggest that both categories are indeed picking up on the intended cognitive constructs of dream insight and agency. The largest insight effects seem very representative of lucid insight while dreaming (e.g., ``realize,'' ``aware'') and easily fit into phrases describing the initial moment of lucidity while dreaming (e.g., I \emph{became} lucid; I \emph{thought} I was dreaming). Similarly, the strongest agency effects seem indicative of dream control (e.g., ``tried,'' ``goals,'' ``success,'' I \emph{tried} to fly but \emph{failed}; I \emph{thought} about the \emph{goal} I set before bed). Together, these results serve as a strong validation of the lucidity labeling process, in that posts identified as lucid are consistent with known lucid dream phenomenology.
 
-\section{Related datasets}
-\label{sec:related-datasets}
+\section{Related datasets}\label{sec:related-datasets}
 
 \smallskip
 \noindent
@@ -482,8 +441,7 @@ Though no prior digital trace dream corpus has been published, individual studie
 \par
 Other lucid dreaming forums have also been utilized. An Italian lucid dreaming forum, SogniLucidi\footnote{https://www.sognilucidi.it/forum}, was used to identify gender~\cite{manna2019} and individual~\cite{manna2020} differences in dream reporting. A dataset of $>$200k posts from $>$15k users curated from DreamJournal was used to compare dreams and psychedelic experiences~\cite{sanz2018}. This DreamJournal dataset most closely aligns with the DreamViews dataset offered here. Whereas some DreamViews posts include a categorical lucidity identifier, many DreamJournal posts include a more continuous (Likert) lucidity rating.
 
-\section{Limitations}
-\label{sec:limitations}
+\section{Limitations}\label{sec:limitations}
 
 \textbf{Dream reports, not dreams.}
 To study dreams, researchers are in the unfortunate position of having to rely on self-reports of dream experience (although see~\cite{konkoly2021,horikawa2013}), and this corpus is no exception. While the empirical study of subjective dream reports is a defendable position~\cite{windt2013,wamsley2013,solomonova2016,solomonova2014,gonzalez2021,ramm2018} and might be trainable~\cite{trnka2020,miyahara2020}, it is unrealistic to expect them to be completely veridical representations of dream experience~\cite{rosen2013,peels2016,boothe2015,bardina2021} or even contain strictly dream content~\cite{bardina2021}. Confabulations are likely one of many noise sources~\cite{putois2020} that contribute to dream reports, though the specifics of how dream reporting is biased is not clear. If confabulations of dream content during reporting are unique to individuals, this corpus or other big dream datasets might help to overcome this limitation (via brute force).
@@ -507,10 +465,9 @@ Second, demographic biases are likely to occur in any dataset compiled from soci
 \par
 Third, the general quality of internet data should be questioned~\cite{ruths2014,rafaeli2019}. Social media data made available through platform-specific APIs are controlled by the platforms, and have been shown in some cases to contain significant unadvertised biases~\cite{pfeffer2018,morstatter2017}. The current corpus did not use an API, though the web scraping approach contains more custom intervention steps (e.g., HTML parsing)~\cite{landers2016} and thus more room for error during data collection~\cite{braun2018,xu2020,boegershausen2021}. Similarly, datasets of this size are often too large for a complete manual quality assessment. These issues warrant caution in treating all text of the current corpus as dream content. A post might be entirely off topic (e.g., someone accidentally posting a forum topic to their dream journal), or a post that includes dream content might also contain non-dream expressions (e.g., introductory text prefacing the dream or normalizing devices buried within~\cite{bardina2021}). Another consideration is the case of multiple dreams within single dream reports~\cite{schredl2004}, which is not controlled for in this corpus. Based on cursory inspection, many consistent expressions of non-dream content are idiosyncratic among users, again stressing the importance of accounting for user dependencies in this corpus.
 
-\section{Conclusion}
-\label{sec:conclusion}
+\section{Conclusion}\label{sec:conclusion}
 
-This paper presented a new ``digital trace'' corpus of 55k dream reports collected from an online lucid dream journal. A population of 5k users contributed varying amounts of dream reports. A majority subset of 35k dream reports include labels -- provided by the dreamer -- that indicate whether the dream report describes a lucid (10k) or non-lucid (25k) dream. Analyses revealed that dream reports labeled as lucid were separable from those labeled as non-lucid based on their language use. Lucid-labeled posts contained more words commonly associated with lucid dreaming, and showed higher indications of insight and agency. A smaller subset (2k) of nightmare-labeled posts were also validated as containing higher levels of fear-related language than other posts. In summary, this large corpus of validated lucid and non-lucid dream reports opens up an opportunity for novel and reliable discoveries in dream science.
+This paper presented a new ``digital trace'' corpus of 55k dream reports collected from an online lucid dream journal. A population of 5k users contributed varying amounts of dream reports. A majority subset of 35k dream reports include labels---provided by the dreamer---that indicate whether the dream report describes a lucid (10k) or non-lucid (25k) dream. Analyses revealed that dream reports labeled as lucid were separable from those labeled as non-lucid based on their language use. Lucid-labeled posts contained more words commonly associated with lucid dreaming, and showed higher indications of insight and agency. A smaller subset (2k) of nightmare-labeled posts were also validated as containing higher levels of fear-related language than other posts. In summary, this large corpus of validated lucid and non-lucid dream reports opens up an opportunity for novel and reliable discoveries in dream science.
 
 \section*{Declarations}
 

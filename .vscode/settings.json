@@ -2,6 +2,9 @@
     "[latex]": {
         "editor.wordWrap": "on"
     },
+    "latex-workshop.linting.chktex.enabled": true,
+    "latex-workshop.linting.chktex.exec.path": "chktex",
+    "latex-workshop.linting.run": "onSave",
     "latex-workshop.latex.outDir": "out",
     "latex-workshop.latex.tools": [
         {

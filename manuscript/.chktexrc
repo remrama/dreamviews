@@ -1,0 +1,5 @@
+CmdLine {
+    -n1   # suppress warning 1 (Command terminated with space)
+    -n38  # suppress warning 38 (You should not use punctuation in front of quotes)
+    -n46  # suppress warning 46 (Use \( ... \) instead of $ ... $)
+}
