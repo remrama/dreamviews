@@ -1,4 +1,5 @@
-"""Use wordshift scores (and default visualizations) to separate texts.
+"""
+Use wordshift scores (and default visualizations) to separate texts.
 
 Wordshifts are very easy to generate using shifterator.
 https://github.com/ryanjgallagher/shifterator
@@ -14,13 +15,13 @@ IMPORTS
     - lemmatized posts, dreamviews-posts.tsv
 EXPORTS
 =======
-    - raw JSD shift scores for lucidity,          validate-wordshift_jsd-scores.tsv
-    - default JSD shift plot for lucidity,        validate-wordshift_jsd-plot.png
-    - raw NRC-fear shift scores for nightmares,   validate-wordshift_fear-scores.tsv
-    - default NRC-fear shift plot for nightmares, validate-wordshift_fear-plot.tsv
-    - default proportion shift plot for lucidity, validate-wordshift_proportion-plot.tsv
-    - table of top 1-grams higher in LDs,         validate-wordshift_proportion-top1grams.tsv
-    - table of top 2-grams higher in LDs,         validate-wordshift_proportion-top2grams.tsv
+    - raw JSD shift scores for lucidity,          validate-wordshift_jsd.tsv
+    - default JSD shift plot for lucidity,        validate-wordshift_jsd_src.png
+    - raw NRC-fear shift scores for nightmares,   validate-wordshift_fear.tsv
+    - default NRC-fear shift plot for nightmares, validate-wordshift_fear_src.png
+    - default proportion shift plot for lucidity, validate-wordshift.tsv
+    - table of top 1-grams higher in LDs,         validate-wordshift_top1grams.tsv
+    - table of top 2-grams higher in LDs,         validate-wordshift_top2grams.tsv
 """
 
 import argparse

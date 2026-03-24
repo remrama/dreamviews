@@ -1,4 +1,5 @@
-"""Count the word (and lemma) frequencies across all posts and broken up by lucidity.
+"""
+Count the word (and lemma) frequencies across all posts and broken up by lucidity.
 
 IMPORTS
 =======

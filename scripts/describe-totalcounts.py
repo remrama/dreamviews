@@ -1,4 +1,5 @@
-"""Visualize DreamViews activity over time.
+"""
+Visualize DreamViews activity over time.
 
 Bottom subplot is post frequency and top subplot is user frequency.
 
@@ -9,8 +10,8 @@ IMPORTS
     - posts, dreamviews-posts.tsv
 EXPORTS
 =======
-    - visualization,              describe-totalcounts.png
     - total post and user counts, describe-totalcounts.tsv
+    - visualization,              describe-totalcounts.png
 """
 
 import argparse

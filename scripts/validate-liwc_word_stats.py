@@ -1,14 +1,15 @@
-"""Analyze word-level LIWC scores between lucid and non-lucid dreams.
-***Note this does not re-run LIWC, but loads in prior results.
+"""
+Analyze word-level LIWC scores between lucid and non-lucid dreams.
+Note this does not re-run LIWC, but loads in prior results.
 
 IMPORTS
 =======
     - original post info,     dreamviews-posts.tsv
-    - word-level LIWC scores, validate-liwc_wordscores.tsv
+    - word-level LIWC scores, validate-liwc.tsv
     - LIWC dictionary,        InsightAgency.dic
 EXPORTS
 =======
-    - effect sizes (d) for top words from each category, validate-liwc_wordscores-stats.tsv
+    - effect sizes (d) for top words from each category, validate-liwc_words.tsv
 
 Some of this is copy/pasted from the general liwc_stats script,
 but this is way messier so better alone.

@@ -1,12 +1,13 @@
-"""Visualize word shift scores from shifterator.
+"""
+Visualize word shift scores from shifterator.
 
 IMPORTS
 =======
-    - raw JSD shift scores for lucidity,        validate-wordshift_jsd-scores.tsv
-    - raw NRC-fear shift scores for nightmares, validate-wordshift_fear-scores.tsv
+    - raw JSD shift scores for lucidity,        validate-wordshift_jsd.tsv
+    - raw NRC-fear shift scores for nightmares, validate-wordshift_fear.tsv
 EXPORTS
 =======
-    - visualization of a shift, validate-wordshift_<shift>-custom.png
+    - visualization of a shift, validate-wordshift_<shift>.png
 """
 
 import argparse

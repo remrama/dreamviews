@@ -1,6 +1,6 @@
 """
 Use a Venn diagram to visualize the amount of lucid, non-lucid, and nightmare
-data and how often they overlap.
+labels and how often they overlap.
 
 IMPORTS
 =======

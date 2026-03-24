@@ -7,10 +7,10 @@ IMPORTS
     - LIWC dictionary,      InsightAgency.dic
 EXPORTS
 =======
-    - traditional (ie, total) LIWC scores for each dream report, validate-liwc_scores.tsv
+    - traditional (i.e., total) LIWC scores for each dream report, validate-liwc.tsv
     IF WORD-LEVEL ANALYSIS
     - numpy arrays for frequency of each LIWC word and the corresponding post ID,
-        validate-liwc_wordscores-[data.npz] and [attr.npz]
+        validate-liwc_wordscores_[data.npz] and [attr.npz]
 
 The LIWC application/gui and its dictionaries are proprietary (https://liwc.net/).
 But if you have the dictionaries, the application is just a word search

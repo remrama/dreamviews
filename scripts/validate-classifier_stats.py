@@ -1,4 +1,5 @@
-"""Turn the classifier prediction output to a meaningful table of performance metrics.
+"""
+Turn the classifier prediction output to a meaningful table of performance metrics.
 
 IMPORTS
 =======

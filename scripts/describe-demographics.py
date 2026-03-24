@@ -1,8 +1,9 @@
-"""Describe demographics (age, gender, location) and how frequently they were provided.
+"""
+Describe demographics (age, gender, location) and how frequently they were provided.
 
 IMPORTS
 =======
-    - user info, dreamviews-posts.tsv
+    - user info, dreamviews-users.tsv
 EXPORTS
 =======
     - table of how many people provided info, describe-demographics_provided.tsv

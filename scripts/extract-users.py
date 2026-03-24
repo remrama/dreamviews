@@ -2,7 +2,6 @@
 Clean/reduce the raw user file.
 
 There is a lot of likely useless user info that won't be in the final output file.
-Only takes a while because of the standardized country codes.
 """
 
 import json

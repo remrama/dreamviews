@@ -1,4 +1,5 @@
-"""Generate tables of labels (ie, categories and tags) ordered by frequency.
+"""
+Generate tables of labels (i.e., categories and tags) ordered by frequency.
 
 IMPORTS
 =======

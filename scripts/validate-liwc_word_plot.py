@@ -1,12 +1,13 @@
-"""Visualize word-level LIWC scores between lucid and non-lucid dreams.
+"""
+Visualize word-level LIWC scores between lucid and non-lucid dreams.
 
 IMPORTS
 =======
-    - effect sizes (d) for top words from each category, validate-liwc_wordscores-stats.tsv
-    - stats output for traditional LIWC,                 validate-liwc_scores-stats.tsv
+    - effect sizes (d) for top words from each category, validate-liwc_words.tsv
+    - stats output for traditional LIWC,                 validate-liwc_stats.tsv
 EXPORTS
 =======
-    - visualization of a category, validate-liwc_wordscores_<category>-plot.png
+    - visualization of a category, validate-liwc_<category>.png
 """
 
 import argparse

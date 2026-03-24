@@ -1,4 +1,5 @@
-"""Visualize the number of dream reports per user, across whole corpus at once.
+"""
+Visualize the number of dream reports per user, across whole corpus at once.
 
 IMPORTS
 =======

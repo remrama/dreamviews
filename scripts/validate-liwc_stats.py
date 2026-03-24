@@ -1,14 +1,15 @@
-"""Analyze traditional LIWC scores between lucid and non-lucid dreams.
+"""
+Analyze traditional LIWC scores between lucid and non-lucid dreams.
 
 IMPORTS
 =======
     - original post info,         dreamviews-posts.tsv
-    - traditionally LIWCed posts, validate-liwc_scores.tsv
+    - traditionally LIWCed posts, validate-liwc.tsv
 EXPORTS
 =======
-    - descriptives table, validate-liwc_scores-descr.tsv
-    - statistics table,   validate-liwc_scores-stats.tsv
-    - visualization,      validate-liwc_scores-plot.png
+    - descriptives table, validate-liwc_descr.tsv
+    - statistics table,   validate-liwc_stats.tsv
+    - visualization,      validate-liwc.png
 """
 
 import matplotlib.pyplot as plt
