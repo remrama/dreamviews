@@ -4,6 +4,7 @@ __pycache__/
 .env
 
 manuscript/out/
+manuscript/submission/
 output/sourcedata/
 output/raw/
 output/derivatives/

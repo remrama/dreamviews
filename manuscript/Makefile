@@ -12,12 +12,17 @@ STEM = $(basename $(SRC))
 TEX = pdflatex -synctex=1 -interaction=nonstopmode -file-line-error -output-directory=$(OUTDIR)
 
 ifeq ($(OS),Windows_NT)
-    DEVNULL = NUL
+	DEVNULL = NUL
+	MKDIR = if not exist $(OUTDIR) mkdir $(OUTDIR)
+	CLEAN = if exist $(OUTDIR) del /q $(OUTDIR)\* 2>NUL
 else
-    DEVNULL = /dev/null
+	DEVNULL = /dev/null
+	MKDIR = mkdir -p $(OUTDIR)
+	CLEAN = rm -rf $(OUTDIR)/*
 endif
 
 all:
+	@$(MKDIR)
 	@echo [1/4] pdflatex (initial)
 	@$(TEX) $(SRC) > $(DEVNULL)
 	@echo [2/4] biber
@@ -28,8 +33,9 @@ all:
 	@$(TEX) $(SRC) > $(DEVNULL)
 
 quick:
+	@$(MKDIR)
 	@echo [1/1] pdflatex
 	@$(TEX) $(SRC) > $(DEVNULL)
 
 clean:
-	rm -rf $(OUTDIR)/*
+	@$(CLEAN)
