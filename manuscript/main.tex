@@ -15,8 +15,11 @@
 \usepackage{newtxtext,newtxmath}
 \usepackage{microtype}
 
+\usepackage[hidelinks,implicit=false]{hyperref}
+\usepackage{orcidlink}
+
 % Citation/reference management
-\usepackage[citestyle=numeric-comp,bibstyle=numeric-comp,sorting=none,url=false,doi=false,useprefix=true,uniquename=false,uniquelist=false,giveninits=true,maxnames=2,natbib=true,backend=biber,]{biblatex}
+\usepackage[citestyle=numeric-comp,bibstyle=numeric-comp,sorting=none,url=false,doi=false,useprefix=true,uniquename=false,uniquelist=false,giveninits=true,maxnames=2,natbib=true,backend=biber,hyperref=false]{biblatex}
 \usepackage{csquotes}
 \addbibresource{references.bib}
 \renewbibmacro{in:}{}
@@ -54,14 +57,10 @@
 \usepackage{subcaption}
 \graphicspath{{./images/}{../output/figures/}}
 \newcommand{\figext}{pdf}
-% \usepackage{makecell}
-% \renewcommand\cellalign{lt}
 \usepackage[font=small,labelfont=bf,labelsep=period,singlelinecheck=false]{caption}
 
 \usepackage{siunitx}
 \sisetup{group-digits=integer,group-separator={,},group-minimum-digits={3}}
-% \sisetup{separate-uncertainty=true, uncertainty-separator={}}
-% \sisetup{quantity-product={}}
 \DeclareSIUnit[quantity-product={}]{\percent}{\%}
 % see this important post about interaction between datatools and siunitx https://tex.stackexchange.com/a/23460
 \newcommand{\meansd}[3][2]{%
@@ -101,7 +100,7 @@
 
 \title{\bf A large corpus of lucid and non-lucid dream reports}
 \author{
-    Remington Mallett \\
+    Remington Mallett~\orcidlink{0000-0001-6183-3098} \\ % chktex 8
     Department of Psychology \\
     Northwestern University \\
     \texttt{remington.mallett@u.northwestern.edu}
@@ -261,7 +260,6 @@ The category labels attached to journal entries were used to identify the lucidi
     \begin{subtable}[t]{.2\textwidth}
         \caption{Top tag labels.}\label{table:toptags}
         \small
-        % \begin{tabular}{@{} rp{1cm} @{}}
         \begin{tabular}{rp{1cm}}
             \toprule
             \bfseries tag & \bfseries \makecell[rt]{$n$ posts\\$n$ users}
