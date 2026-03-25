@@ -29,17 +29,20 @@ except OSError:
 
 # Scrape
 if args.scrape:
+    print("Running scraping steps...")
     run("scrape-posts.py")
     run("extract-posts.py")
     run("scrape-users.py")
 
 # Extract
 if args.extract:
+    print("Running extraction steps...")
     if not args.scrape:
         run("extract-posts.py")
     run("extract-users.py")
 
 # Describe
+print("Running descriptive steps...")
 run("describe-totalcounts.py")
 run("describe-usercount.py")
 run("describe-toplabels.py")
@@ -50,6 +53,7 @@ run("generate-lemmas.py")  # Lemmas needed for wordcount, classifier, and wordsh
 run("describe-wordcount.py")
 
 # Validate
+print("Running validation steps...")
 run("validate-classifier.py")
 run("validate-classifier_stats.py")
 run("validate-liwc.py", "--words")
@@ -62,5 +66,6 @@ run("validate-wordshift_plot.py", "--shift", "jsd")
 run("validate-wordshift_plot.py", "--shift", "fear")
 
 # Compile
+print("Running compilation steps...")
 if args.compile:
     subprocess.run(["make"], check=True, cwd=manuscript_dir)

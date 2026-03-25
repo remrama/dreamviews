@@ -97,7 +97,7 @@ def fetch_raw_file(filename, version):
     doi = RAW_REGISTRY[version]["doi"]
     base_url = _zenodo_doi_to_pooch_url(doi, as_doi_url=True)
     fetcher = pooch.create(path=raw_dir, base_url=base_url, registry=registry, allow_updates=False)
-    return Path(fetcher.fetch(filename))
+    return Path(fetcher.fetch(filename, progressbar=True))
 
 
 def fetch_source_file(filename, version):
@@ -117,7 +117,7 @@ def fetch_source_file(filename, version):
     # Create authorized downloader
     token = os.environ.get("ZENODO_TOKEN")
     downloader = pooch.HTTPDownloader(headers={"Authorization": f"Bearer {token}"})
-    return Path(fetcher.fetch(filename, downloader=downloader))
+    return Path(fetcher.fetch(filename, downloader=downloader, progressbar=True))
 
 
 def load_dreamviews_users(version="v1"):
