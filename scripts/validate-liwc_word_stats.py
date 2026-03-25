@@ -46,10 +46,9 @@ warnings.filterwarnings(
 LIWC_CATEGORIES = ["insight", "agency"]
 TOP_N = 20  # Top n contributing tokens/words for each category
 
-# import_path_dict = c.fetch_file("a_AgencyCommunion.dic")
-import_path_dict = c.sourcedata_dir / "InsightAgency.dic"
 import_path_data = c.derivatives_dir / "validate-liwc_data.npz"
 import_path_attr = c.derivatives_dir / "validate-liwc_attr.npz"
+import_path_dict = c.fetch_source_file("InsightAgency.dic", version="v1")
 EXPORT_STEM = "validate-liwc_words"
 
 #### load in the original posts file to get attributes lucidity and user_id

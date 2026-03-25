@@ -70,8 +70,7 @@ FLOAT_FORMAT = "%.5e"
 tqdm.pandas(desc="LIWCing words" if GET_WORD_CONTRIBUTIONS else "LIWCing posts")
 
 # Select filenames
-# dict_fname = c.fetch_file("a_AgencyCommunion.dic")
-dict_fname = c.sourcedata_dir / "InsightAgency.dic"
+dict_fname = c.fetch_source_file("InsightAgency.dic", version="v1")
 EXPORT_STEM = "validate-liwc"
 if GET_WORD_CONTRIBUTIONS:
     export_fname_data = c.derivatives_dir / f"{EXPORT_STEM}_data.npz"
