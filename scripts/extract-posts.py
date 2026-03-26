@@ -42,7 +42,7 @@ from tqdm import tqdm
 import config as c
 
 # Identify filepaths
-import_path = c.sourcedata_dir / "dreamviews-posts.zip"
+import_path = c.fetch_source_file("dreamviews-posts.zip", version="v1")
 export_path_posts = c.raw_dir / "dreamviews-posts.tsv"
 export_path_userkey = c.derivatives_dir / "dreamviews-users.json"
 

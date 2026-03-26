@@ -16,9 +16,9 @@ from tqdm import tqdm
 
 import config as c
 
-import_path_html = c.sourcedata_dir / "dreamviews-users.zip"
+import_path_html = c.fetch_source_file("dreamviews-users.zip", version="v1")
+import_path_posts = c.fetch_raw_file("dreamviews-posts.tsv", version="v1")
 import_path_userkey = c.derivatives_dir / "dreamviews-users.json"
-import_path_posts = c.raw_dir / "dreamviews-posts.tsv"
 export_path = c.raw_dir / "dreamviews-users.tsv"
 
 # Select which columns will be included in the output file

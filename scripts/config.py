@@ -116,8 +116,9 @@ def fetch_source_file(filename, version):
     )
     # Create authorized downloader
     token = os.environ.get("ZENODO_TOKEN")
-    downloader = pooch.HTTPDownloader(headers={"Authorization": f"Bearer {token}"})
-    return Path(fetcher.fetch(filename, downloader=downloader, progressbar=True))
+    authorization = f"Bearer {token}"
+    downloader = pooch.HTTPDownloader(headers={"Authorization": authorization}, progressbar=True)
+    return Path(fetcher.fetch(filename, downloader=downloader))
 
 
 def load_dreamviews_users(version="v1"):
