@@ -70,19 +70,17 @@ original_bib_fpath = c.manuscript_dir / bib_fname
 included_files.add(original_bib_fpath)
 
 # Get all image and figure files from the manuscripts
-img_fnames = re.findall(r"\\includegraphics(?:\[.*?\])?\{(.*?)\}", manuscript)
-figext = re.search(r"\\newcommand\{\\figext\}\{(.*?)\}", manuscript).group(1)
-img_fnames = [fn.replace("\\figext", figext) for fn in img_fnames]
+fig_fnames = re.findall(r"\\includegraphics(?:\[.*?\])?\{(.*?)\}", manuscript)
 # Get all potential image and figure paths from source
 potential_image_paths = set(images_dir.glob("*"))
 potential_figure_paths = set(c.figures_dir.glob("*"))
 potential_graphic_paths = potential_image_paths | potential_figure_paths
 potential_graphics = {fp.name: fp for fp in potential_graphic_paths}
 # Identify which images and figures should be copied over
-for img_fname in img_fnames:
-    img_fpath = potential_graphics[img_fname]
-    assert img_fpath.stat().st_mtime < pdf_mtime, f"Image {img_fname} is newer than PDF."
-    included_files.add(img_fpath)
+for fig_fname in fig_fnames:
+    fig_fpath = potential_graphics[fig_fname]
+    assert fig_fpath.stat().st_mtime < pdf_mtime, f"Figure {fig_fname} is newer than PDF."
+    included_files.add(fig_fpath)
 
 # Identify all data files (tables) that are loaded by datatool in the manuscript
 tables_dir_str = f"{c.tables_dir.as_posix()}/"
