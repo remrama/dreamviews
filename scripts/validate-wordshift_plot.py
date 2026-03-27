@@ -60,15 +60,13 @@ YLABELS = {
     "fear": "NRC fear word shift contribution rank",
 }
 CLABELS = {
-    # "jsd"  : r"common $\leftarrow$ $\Delta$ entropy $\rightarrow$ rare         ",
-    "jsd": r"corpus $\leftarrow$ $\Delta$ entropy $\rightarrow$ lucid      ",
+    "jsd": "Relative distinctiveness",
     "fear": r"low  $\leftarrow$ fear intensity $\rightarrow$ high",
 }
 
 NRC_FEAR_STOPS = c.NIGHTMARE_SHIFT_STOPS  # Like inner bounds, see validate-wordshift.py
 NRC_FEAR_BOUNDS = (0, 1)  # Minimum and maximum scores for fear ratings in shifterator
-# Also assumes later that the ref differences scores are this range
-# but centered around 0
+# Also assumes later that the ref differences scores are this range, but centered around 0
 
 # Reduce to the top n shift scores
 top_df = df.sort_values("type2shift_score", ascending=False, key=abs)[:TOP_N]
@@ -79,18 +77,21 @@ ylocs = np.arange(len(labels)) + 1  # Y-locations for each bar
 xlocs = top_df["type2p_diff"].values  # X-locations for each bar
 colors = top_df["type2s_ref_diff"].values  # Color values for each bar (applied to colormap)
 alphas = top_df["type2s_diff"].values  # Alpha values for each bar
+assert alphas.max() <= 0, "type2s_diff values are expected to all be negative"
 
 # Select colormap
 cmap = cc.__dict__["m_" + COLORMAP_NAMES[SHIFT_ID]]  # m_ specifies matplotlib cmap in colorcet
 # Select normalization for the colormaps and mask out fear scale
 if SHIFT_ID == "jsd":
-    cmin, cmax = colors.min(), colors.max()
+    cmin, cmax = 0, 2
+    assert colors.min() >= cmin, "Color values exceed expected minimum."
+    assert colors.max() <= cmax, "Color values exceed expected maximum."
     cmin = np.floor(cmin * 10) / 10  # Round down to nearest 10th ..
     cmax = np.ceil(cmax * 10) / 10  # ... and up (bc that's the ticks)
     norm = plt.Normalize(vmin=cmin, vmax=cmax)
 elif SHIFT_ID == "fear":
     # NRC emotion scale in shifterator is 0-1,
-    # but the colormaps values are between -0.5 and 0.5 because they are a difference measure
+    # but the colormap values are between -0.5 and 0.5 because they are a difference measure
     fear_halfrange = np.mean(NRC_FEAR_BOUNDS)
     norm = plt.matplotlib.colors.CenteredNorm(halfrange=fear_halfrange)
     # Mask out the center of the colormap for fear, bc of restriction during analysis
@@ -104,13 +105,17 @@ elif SHIFT_ID == "fear":
 
 # Normalize color and alpha values,
 # not changing their values but just so that they can be passed meaningfully to matplotlib
-alpha_normer = plt.Normalize(alphas.min(), alphas.max())
 normed_colors = norm(colors)  # Puts colors between 0 and 1 for cmap
-normed_alphas = alpha_normer(alphas)  # Puts alphas between 0 and 1 for set_alpha
-
-# Get RGBA color values from colormap and manipulate them a bit
-rgba_colors = cmap(normed_colors)
-# rgba_colors[:, 3] = normed_alphas  # Adjust alphas
+rgba_colors = cmap(normed_colors)  # Get RGBA color values from colormap
+if SHIFT_ID == "jsd":
+    alphas = np.abs(alphas)
+    alpha_min = 0.01
+    alpha_max = 3
+    assert alphas.min() >= alpha_min, "Alpha values exceed expected minimum."
+    assert alphas.max() <= alpha_max, "Alpha values exceed expected maximum."
+    alpha_normer = plt.matplotlib.colors.LogNorm(alpha_min, alpha_max)
+    normed_alphas = alpha_normer(alphas)  # Puts alphas between 0 and 1 for set_alpha
+    rgba_colors[:, 3] = normed_alphas  # Adjust alphas
 
 ########################################################################################
 # PLOTTING
@@ -165,6 +170,23 @@ elif SHIFT_ID == "fear":
 cbar.locator = major_cticks
 cbar.ax.xaxis.set_minor_locator(minor_cticks)
 cbar.update_ticks()
+
+# Add a second colorbar for grayscale to show alphas, if jsd
+if SHIFT_ID == "jsd":
+    cax2 = ax.inset_axes([0.25, 0.55, 0.04, 0.4])  # posx, posy, width, height
+    # Create a colormap that is pure black but with alpha values that go from 0 to 1
+    vals = np.zeros((256, 4))  # 256-row array of pure black (0, 0, 0)
+    vals[:, 3] = np.linspace(0, 1, 256)  # Set the alpha channel to go from 0 to 1
+    pure_alpha_cmap = plt.matplotlib.colors.ListedColormap(vals)
+    sm2 = plt.cm.ScalarMappable(cmap=pure_alpha_cmap, norm=alpha_normer)
+    cbar2 = fig.colorbar(sm2, cax=cax2, orientation="vertical", ticklocation="left")
+    clabel = "Asymmetry"
+    cbar2.ax.set_ylabel("Asymmetry", labelpad=1)
+    cbar2.ax.set_ylim(alpha_min, alpha_max)
+    cbar2.outline.set_linewidth(0.5)
+    cbar2.ax.tick_params(which="major", color="white", size=3, direction="in", pad=1)
+    cbar2.ax.tick_params(which="minor", color="white", size=1, direction="in")
+    cbar2.ax.set_axisbelow(False)
 
 # Export
 c.export_fig(fig, export_stem)
