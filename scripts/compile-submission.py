@@ -122,7 +122,8 @@ temp_out_bbl_fpath.rename(temp_bbl_fpath)
 
 # Rerun for final compilation using .bbl file instead of .bib
 subprocess.run(["make", "clean"], cwd=temp_dir, check=True)
-subprocess.run(["make", "quick"], cwd=temp_dir, check=True)
+for _ in range(2):  # Run twice to ensure all (cross-)references are updated
+    subprocess.run(["make", "quick"], cwd=temp_dir, check=True)
 
 # Remove temporary makefile
 temp_makefile_fpath = temp_dir / MAKEFILE_FNAME
